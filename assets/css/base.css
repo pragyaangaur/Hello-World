@@ -9,9 +9,14 @@ body {
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -webkit-text-size-adjust: 100%;
-  filter: saturate(var(--sat));
   transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
 }
+
+/* The saturation drift sits on the app frame rather than on body. A filter on
+   an ancestor turns position:fixed into position:absolute for everything
+   inside it, which put modals off screen whenever the page was scrolled. The
+   overlays are siblings of #app, so they stay unfiltered and stay fixed. */
+#app { filter: saturate(var(--sat)); }
 h1,h2,h3,h4 { margin: 0; font-weight: 650; line-height: 1.22; letter-spacing: -.012em; text-wrap: balance; }
 h1 { font-size: var(--step-3); }
 h2 { font-size: var(--step-2); }
