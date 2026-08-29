@@ -64,9 +64,12 @@ export function mountTool(id) {
   view.dataset.page = 'tool';
 
   if (!mod || chapter() < mod.chapter) {
+    const hasToolbox = chapter() >= 1;
     mount(view, h('div.page',
-      h('div.empty', h('div.big', '⌗'), h('p', 'That tool is not in this build.'),
-        h('a.btn', { href: '#/tools' }, 'Back to the Toolbox'))
+      h('div.empty', h('div.big', '\u2337'),
+        h('p', hasToolbox ? 'That tool is not in this build.' : 'There is no toolbox in this build.'),
+        h('a.btn', { href: hasToolbox ? '#/tools' : '#/tasks' },
+          hasToolbox ? 'Back to the Toolbox' : 'Back to your tasks'))
     ));
     setTitle('Not found');
     return;
