@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hello World · social card</title>
+<meta name="robots" content="noindex">
+<style>
+  /* A 1200 by 630 card for link previews. Open this page and screenshot the
+     framed area, then save it as assets/img/og.png and point og:image at it.
+     It is a separate page so nothing here can affect the app. */
+  body { margin:0; background:#20211f; display:grid; place-items:center; min-height:100vh;
+         font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; }
+  .card { width:1200px; height:630px; background:#FBFAF7; color:#1C1B19;
+          display:flex; flex-direction:column; justify-content:center; gap:34px;
+          padding:0 96px; box-sizing:border-box; position:relative; overflow:hidden; }
+  .mark { width:76px; height:76px; border-radius:18px; background:#2E9E6B;
+          display:grid; place-items:center; }
+  h1 { font-size:96px; margin:0; letter-spacing:-.035em; font-weight:680; line-height:1; }
+  p  { font-size:38px; margin:0; color:#55534E; line-height:1.35; }
+  .list { display:flex; flex-direction:column; gap:14px; margin-top:12px; }
+  .row { display:flex; align-items:center; gap:20px; font-size:27px; color:#55534E; }
+  .box { width:26px; height:26px; border-radius:50%; border:2.5px solid #CFCCC3; flex:none; }
+  .box.on { background:#2E9E6B; border-color:#2E9E6B; }
+  .row.done { color:#A5A29A; text-decoration:line-through; }
+  .url { position:absolute; right:96px; bottom:56px; font-size:24px; color:#8B8880;
+         font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+  .hint { color:#888; font-size:14px; margin:20px 0 0; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="mark">
+      <svg width="44" height="44" viewBox="0 0 32 32"><path d="M8 16.5l5 5L24 10.5" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div>
+      <h1>Hello World</h1>
+      <p>A simple to-do list app.</p>
+    </div>
+    <div class="list">
+      <div class="row done"><span class="box on"></span>Ship something small</div>
+      <div class="row"><span class="box"></span>Add a task</div>
+      <div class="row"><span class="box"></span>Tick it off</div>
+    </div>
+    <div class="url">pragyaangaur.github.io/Hello-World</div>
+  </div>
+  <p class="hint">Screenshot the card above at 1200 × 630 for link previews.</p>
+</body>
+</html>
