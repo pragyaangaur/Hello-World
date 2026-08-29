@@ -1,0 +1,28 @@
+{
+  "note": "Offline climate reference. Monthly normals, so the app works with no network and no API key.",
+  "updated": "2026-01-04",
+  "places": [
+    { "id": "meridian", "name": "Meridian Campus", "region": "Applied Sciences Block", "lat": 18.52, "lon": 73.86,
+      "normals": { "highC": 31, "lowC": 21, "rainMm": 74, "humidity": 62 }, "indoor": true },
+    { "id": "pune", "name": "Pune", "region": "India", "lat": 18.52, "lon": 73.86,
+      "normals": { "highC": 31, "lowC": 20, "rainMm": 71, "humidity": 60 } },
+    { "id": "mumbai", "name": "Mumbai", "region": "India", "lat": 19.08, "lon": 72.88,
+      "normals": { "highC": 32, "lowC": 24, "rainMm": 181, "humidity": 74 } },
+    { "id": "delhi", "name": "Delhi", "region": "India", "lat": 28.61, "lon": 77.21,
+      "normals": { "highC": 32, "lowC": 19, "rainMm": 65, "humidity": 55 } },
+    { "id": "bengaluru", "name": "Bengaluru", "region": "India", "lat": 12.97, "lon": 77.59,
+      "normals": { "highC": 29, "lowC": 19, "rainMm": 82, "humidity": 64 } },
+    { "id": "london", "name": "London", "region": "United Kingdom", "lat": 51.51, "lon": -0.13,
+      "normals": { "highC": 15, "lowC": 8, "rainMm": 52, "humidity": 75 } },
+    { "id": "newyork", "name": "New York", "region": "United States", "lat": 40.71, "lon": -74.01,
+      "normals": { "highC": 17, "lowC": 9, "rainMm": 96, "humidity": 63 } },
+    { "id": "tokyo", "name": "Tokyo", "region": "Japan", "lat": 35.68, "lon": 139.69,
+      "normals": { "highC": 20, "lowC": 12, "rainMm": 130, "humidity": 66 } },
+    { "id": "sydney", "name": "Sydney", "region": "Australia", "lat": -33.87, "lon": 151.21,
+      "normals": { "highC": 22, "lowC": 15, "rainMm": 98, "humidity": 68 } },
+    { "id": "nairobi", "name": "Nairobi", "region": "Kenya", "lat": -1.29, "lon": 36.82,
+      "normals": { "highC": 25, "lowC": 13, "rainMm": 62, "humidity": 61 } },
+    { "id": "reykjavik", "name": "Reykjavik", "region": "Iceland", "lat": 64.15, "lon": -21.94,
+      "normals": { "highC": 7, "lowC": 2, "rainMm": 68, "humidity": 79 } }
+  ]
+}
