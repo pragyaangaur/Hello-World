@@ -24,7 +24,7 @@ export default {
     function fit() {
       const rect = canvas.getBoundingClientRect();
       const dpr = Math.min(2, devicePixelRatio || 1);
-      canvas.width = Math.max(320, rect.width) * dpr;
+      canvas.width = Math.round(rect.width) * dpr;
       canvas.height = 320 * dpr;
       canvas.style.height = '320px';
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -43,7 +43,7 @@ export default {
     }
 
     function draw() {
-      const w = canvas.clientWidth || 600, hgt = 320;
+      const w = Math.round(canvas.clientWidth) || 600, hgt = 320;
       const cs = getComputedStyle(document.documentElement);
       ctx.clearRect(0, 0, w, hgt);
       ctx.fillStyle = cs.getPropertyValue('--sunken').trim();
