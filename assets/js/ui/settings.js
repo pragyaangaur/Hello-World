@@ -66,7 +66,7 @@ export function mountSettings() {
           h('p.small.muted', 'Hello World keeps everything in this browser. Nothing is uploaded, and there is no account to sign into. Clearing your browser data clears the app.'),
           h('dl.kv',
             h('dt', 'Tasks stored'), h('dd', String(s.tasks.length)),
-            h('dt', 'Tools available'), h('dd', String(unlocked)),
+            ...(unlocked ? [h('dt', 'Tools available'), h('dd', String(unlocked))] : []),
             h('dt', 'First opened'), h('dd', new Date(s.installedAt).toLocaleDateString('en-GB')),
             h('dt', 'Storage'), h('dd', store.storageWorks?.() === false ? 'unavailable' : 'browser')
           ),
