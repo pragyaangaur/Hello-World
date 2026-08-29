@@ -17,8 +17,8 @@ const NAV = [
     { path: '/tools', label: 'Toolbox', ico: '⌗', min: 1 }
   ]},
   { group: 'Project', items: [
-    { path: '/findings', label: 'Findings', ico: '⌕', min: 3, flag: 'findings.open' },
-    { path: '/console', label: 'Console', ico: '›_', min: 4, flag: 'console.open' }
+    { path: '/findings', label: 'Findings', ico: '⌕', min: 3 },
+    { path: '/console', label: 'Console', ico: '\u203a_', min: 4 }
   ]},
   { group: null, items: [
     { path: '/settings', label: 'Settings', ico: '⚙', min: 0 }
@@ -33,7 +33,7 @@ export function renderNav() {
   const nodes = [];
 
   for (const section of NAV) {
-    const items = section.items.filter(i => ch >= i.min && (!i.flag || hasFlag(i.flag) || ch > i.min));
+    const items = section.items.filter(i => ch >= i.min);
     if (!items.length) continue;
     if (section.group) nodes.push(h('div.nav-group-label', section.group));
     for (const item of items) {
