@@ -75,13 +75,23 @@ export default {
           h('span.small.mono', unit + ' ms')
         )
       );
-      status.textContent = pattern
+      status.textContent = usable
         ? `${pattern.replace(/[^.-]/g, '').length} symbols · ${running ? 'blinking' : 'stopped'}`
-        : 'blinkPattern returns an empty string, so the indicator does nothing.';
+        : 'blinkPattern returns an empty string, so whatever you type comes out as nothing.';
     }
 
-    const input = h('input.input', { value: word, 'aria-label': 'Word to blink', style: { maxWidth: '10rem' } });
-    input.oninput = () => { pattern = toMorse(input.value); patternOut.textContent = pattern || '(nothing)'; if (running) { stop(); start(); } paint(); };
+    const usable = solved || ch >= 3;
+    const input = h('input.input', {
+      value: word, 'aria-label': 'Word to blink', disabled: !usable,
+      style: { maxWidth: '10rem' }
+    });
+    input.oninput = () => {
+      if (!usable) return;
+      pattern = toMorse(input.value);
+      patternOut.textContent = pattern || '(nothing)';
+      if (running) { stop(); start(); }
+      paint();
+    };
 
     mount(root,
       h('div.led-board', h('div.led', bulb, h('span.led-label', 'gpio 17'))),
