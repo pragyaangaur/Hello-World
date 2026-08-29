@@ -13,6 +13,7 @@ import { mountLab } from './ui/codelab.js';
 import { mountEnding } from './ui/ending.js';
 import { maybeShowNotice } from './ui/onboarding.js';
 import { startStory } from './story/engine.js';
+import { startAtmosphere } from './story/atmosphere.js';
 import { mountNotFound } from './ui/notfound.js';
 import { installDebug } from './core/debug.js';
 
@@ -45,6 +46,7 @@ function boot() {
   installDebug();
   maybeShowNotice(() => {
     startStory();
+    startAtmosphere();
     router.start('/tasks');
   });
 }

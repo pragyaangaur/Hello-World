@@ -81,7 +81,9 @@ export function renderObjective() {
 
   mount(bar,
     h('span.obj-label', `step ${step.n + 1} of 6`),
-    h('span.obj-goal', step.goal),
+    h('span.obj-goal',
+      h('span', step.goal),
+      step.hint ? h('span.obj-hint', step.hint) : null),
     counted ? h('span.obj-count', `${counted.done} of ${counted.total} ${counted.unit}`) : null,
     counted ? h('span.obj-bar', h('span', {
       style: { width: Math.round((counted.done / counted.total) * 100) + '%' }

@@ -124,9 +124,9 @@ def on_reading(reading, ctx):
     body:
 `# led.py
 # Drives the indicator on the front of the bench. gpio 17.
-# The pattern comes from blink_pattern(), and blink_pattern()
-# was never finished, so the indicator has been dark since the day
-# this file was written.  -- N.V.
+# The pattern is supposed to come from blink_pattern().
+# blink_pattern() was never finished, so for the first two years
+# the indicator did nothing at all.  -- N.V.
 
 MORSE = {
     "a": ".-",   "b": "-...", "c": "-.-.", "d": "-..",  "e": ".",    "f": "..-.",
@@ -139,7 +139,17 @@ MORSE = {
 
 def blink_pattern(word):
     # FIXME finish this  -- N.V.
-    return ""`
+    return ""
+
+
+# --- appended by maint.py, 19 days ago -----------------------------
+# blink_pattern returns nothing, so the checklist runner writes the
+# pins itself. This is not how any of this was meant to work.
+#
+# SEQUENCE = [MORSE["h"], MORSE["e"], MORSE["l"], MORSE["p"]]
+#
+# while True:
+#     drive(17, SEQUENCE)`
   },
 
   '/opt/rig/maint.log': {

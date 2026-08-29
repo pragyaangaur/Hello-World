@@ -1,9 +1,9 @@
 import { h, mount, fmt } from '../core/dom.js';
-import { readings } from '../story/challenges.js';
-import { RIG, bayTemp, isoDate, NOW } from '../story/cast.js';
-import { get } from '../core/state.js';
+import { RIG, bayTemp, isoDate, NOW, readings } from '../story/cast.js';
+import { setFlag, hasFlag } from '../core/state.js';
 import { liveNote } from '../story/live.js';
 import { resolveFinding } from '../story/engine.js';
+import { toast } from '../core/notify.js';
 
 export default {
   id: 'sensorlog',
@@ -16,8 +16,8 @@ export default {
 
   mount(root) {
     const data = readings();
-    const solved = Boolean(get().challenges.parse);
     const lastDay = 19;
+    const verdict = h('div.card');
     let showBay = 0;   /* 0 means all */
 
     const canvas = h('canvas.stage', { height: '260' });
@@ -112,7 +112,42 @@ export default {
       ));
     }
 
-    if (solved) queueMicrotask(() => resolveFinding('bay'));
+    /* Marking the bay is the whole exercise. It is one click, and the log
+       has never worked out its own answer because nobody wrote that part. */
+    function paintVerdict() {
+      const found = hasFlag('bay.found');
+      if (found) {
+        queueMicrotask(() => resolveFinding('bay'));
+        mount(verdict,
+          h('div.card-head', { style: { border: 0, padding: 0, marginBottom: '.75rem' } }, 'Marked'),
+          h('h3', { style: { marginBottom: '.5rem' } }, 'Bay ' + RIG.faultBay),
+          h('p.small', `Up ${fmt(bayTemp(19) - bayTemp(0), 1)} degrees in nineteen days, and reading ${fmt(bayTemp(19), 1)} °C right now.`),
+          h('p.small.dim', { style: { marginBottom: 0 } },
+            'Storage range for the pack is 18 to 30. The separator starts breaking down at 60.')
+        );
+        verdict.style.borderColor = 'var(--accent)';
+        return;
+      }
+      verdict.style.borderColor = 'var(--warn)';
+      mount(verdict,
+        h('div.card-head', { style: { border: 0, padding: 0, marginBottom: '.75rem' } }, 'Four channels, no summary'),
+        h('p.small', 'The log records every reading and works out nothing at all. Look at the lines and mark the one that is failing.'),
+        h('div.row.tight', ...[1, 2, 3, 4].map(bay =>
+          h('button.btn', {
+            type: 'button',
+            onclick: () => {
+              if (bay !== RIG.faultBay) {
+                toast('Not that one', `Bay ${bay} has stayed inside its range for the whole nineteen days.`);
+                showBay = bay; draw(); paintBays();
+                return;
+              }
+              setFlag('bay.found');
+              showBay = bay; draw(); paintBays(); paintVerdict();
+            }
+          }, 'Bay ' + bay))
+        )
+      );
+    }
 
     mount(root,
       canvas,
@@ -122,22 +157,14 @@ export default {
           bays,
           liveNote('ds18b20 1-4 → thermal.bay')
         ),
-        solved
-          ? h('div.card', { style: { borderColor: 'var(--accent)' } },
-              h('h3', 'Bay ' + RIG.faultBay),
-              h('p.small', `Your parser found it. Bay ${RIG.faultBay} has risen ${fmt(bayTemp(19) - bayTemp(0), 1)} degrees in nineteen days and is now at ${fmt(bayTemp(19), 1)} °C.`),
-              h('p.small.dim', { style: { marginBottom: 0 } }, 'Storage range for the pack is 18 to 30. The separator starts breaking down at 60.'))
-          : h('div.card', { style: { borderColor: 'var(--warn)' } },
-              h('h3', 'Four channels, no summary'),
-              h('p.small', 'The log records every reading and works out nothing. There is a findFailingBay function in this file that returns null and always has.'),
-              h('a.btn.btn-primary', { href: '#/lab/parse' }, 'Open the editor'))
+        verdict
       ),
       h('div.card.flush',
         h('div.card-head', 'Last five days', h('span.spacer'), h('span.small.dim.mono', 'sensors.csv')),
         table
       )
     );
-    paintBays(); paintTable();
+    paintBays(); paintTable(); paintVerdict();
     requestAnimationFrame(draw);
     addEventListener('resize', draw);
     return () => removeEventListener('resize', draw);

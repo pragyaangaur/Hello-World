@@ -300,3 +300,63 @@ canvas.stage { width: 100%; border: 1px solid var(--rule); border-radius: var(--
 
 /* The age line on a task that was left here by somebody else. */
 .task-note.left-over { color: var(--ink-3); font-style: italic; }
+
+/* ---- the three endings, as buttons ---------------------------------------
+   The last thing the game asks for is a line of Python. These write it, so a
+   player who does not code still gets to make the decision that matters. */
+
+.choices { display: grid; gap: var(--sp-2); margin-top: var(--sp-3); }
+
+.choice {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--rule-2);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+
+.choice:hover { border-color: var(--accent); background: var(--surface-2); }
+.choice:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.choice-name { display: block; font-weight: 600; margin-bottom: var(--sp-1); }
+.choice-desc { display: block; font-size: var(--step--1); color: var(--ink-2); line-height: 1.5; }
+
+/* A task the machine wrote in answer to something the player typed. */
+.task[data-source="reply"] { border-left: 3px solid var(--info); }
+.task[data-source="reply"] .task-text {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--ink);
+}
+
+/* The two seconds before the last act, when the list is taken away. */
+.task-list.wiped { opacity: 0; transform: translateY(-4px); transition: opacity 420ms ease, transform 420ms ease; }
+:root[data-calm="1"] .task-list.wiped { opacity: .25; transform: none; }
+
+.objective .obj-goal span { display: block; }
+.objective .obj-hint { color: var(--ink-3); font-size: var(--step--1); margin-top: 2px; }
+
+/* The line under the task box that says the list is being read. */
+.sync {
+  font-size: var(--step--1);
+  color: var(--ink-3);
+  margin: calc(var(--sp-2) * -1) 0 var(--sp-3);
+}
+.sync.busy { color: var(--accent); }
+.sync.busy::after {
+  content: "";
+  display: inline-block;
+  width: .4rem; height: .4rem;
+  margin-left: .4rem;
+  border-radius: 50%;
+  background: currentColor;
+  animation: sync-pulse 1.1s ease-in-out infinite;
+}
+@keyframes sync-pulse { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+:root[data-calm="1"] .sync.busy::after { animation: none; opacity: .8; }

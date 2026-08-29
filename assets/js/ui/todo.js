@@ -3,13 +3,15 @@
 
 import { h, mount, clear, $ } from '../core/dom.js';
 import * as tasks from '../core/tasks.js';
-import { setting } from '../core/state.js';
+import { setting, chapter } from '../core/state.js';
 import { on } from '../core/bus.js';
 import { toast } from '../core/notify.js';
 
 let filter = 'all';
 let editing = null;
 let lastRemoved = null;
+let waiting = false;
+let wiped = false;
 
 function timeAgo(iso) {
   if (!iso) return '';
@@ -47,6 +49,7 @@ function taskRow(t) {
 
   const meta = h('div.task-meta');
   if (t.source === 'auto') meta.appendChild(h('span.badge.auto', '[auto]'));
+  if (t.source === 'reply') meta.appendChild(h('span.badge.auto', '[bench 4B]'));
   if (t.source === 'objective') meta.appendChild(h('span.badge.accent', 'next step'));
   /* A task somebody else left behind says so, and says how long ago. That
      one line is what tells a new player whose machine this is. */
@@ -123,7 +126,7 @@ function render(focusTaskId) {
   );
 
   const body = list.length
-    ? h('ul.task-list', { 'aria-label': 'Tasks' }, ...list.map(taskRow))
+    ? h('ul.task-list' + (wiped ? '.wiped' : ''), { 'aria-label': 'Tasks' }, ...list.map(taskRow))
     : h('div.empty',
         h('div.big', '✓'),
         h('p', c.total === 0
@@ -134,10 +137,20 @@ function render(focusTaskId) {
   const hadFormFocus = document.activeElement === view.querySelector('.task-form input');
   const caret = hadFormFocus ? view.querySelector('.task-form input').value : null;
 
+  /* From the moment the player learns they can be read, the box says so. It
+     is the only instruction the conversation ever needs. */
+  const listens = chapter() >= 1;
+  const line = listens
+    ? h('p.sync' + (waiting ? '.busy' : ''),
+        waiting
+          ? 'Something is reading your list…'
+          : 'Anything you add here is read by the bench. Ask it something.')
+    : null;
+
   mount(view,
     h('div.page',
       h('div.page-head', h('div.grow', h('h1', 'Tasks'), h('p', c.active === 0 && c.total > 0 ? 'Everything is ticked off.' : `${c.active} to do`))),
-      form, filters, body
+      form, line, filters, body
     )
   );
 
@@ -160,8 +173,16 @@ export function mountTasks() {
 }
 
 /* Re-render when anything outside this page changes the list. */
-on('task:add', () => render());
+on('task:add', task => {
+  if (task && task.source === 'user' && chapter() >= 1) waiting = true;
+  render();
+});
 on('task:remove', () => render());
 on('chapter', () => render());
+on('story:spoke', () => { waiting = false; render(); });
+
+/* The list is taken away for two seconds before the last act and then handed
+   straight back. Nothing is actually deleted. */
+on('fx:wipe', ({ state }) => { wiped = state === 'out'; render(); });
 
 export { render as renderTasks };

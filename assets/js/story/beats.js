@@ -1,12 +1,12 @@
-/* Chapter definitions. Each chapter names its own goal in plain language,
-   because the player should always know what the app is asking for.
+/* The acts.
 
-   Every chapter also carries a beat, which is the short scene the app shows
-   when the chapter turns over. The beat is the only place the story speaks
-   directly, so it has to do the work of telling the player where they now
-   stand and what changed. */
+   Each act names one thing to do, and every one of them can be done by a
+   person who has never written a line of code. Four of the five are done on
+   the to-do list itself, because the list is the only interface the thing on
+   the bench has, and it is the one part of this app everybody already knows
+   how to use. */
 
-import { ANCHORS, PEOPLE, daysSince } from './cast.js';
+import { ANCHORS, PEOPLE, RIG, daysSince } from './cast.js';
 
 export const CHAPTERS = [
   {
@@ -18,114 +18,109 @@ export const CHAPTERS = [
   },
   {
     n: 1,
-    name: 'The toolbox',
-    goal: 'Open four of the tools. Read the small grey line at the bottom of each one.',
-    progress: ctx => ({ done: Math.min(ctx.toolsOpened, 4), total: 4, unit: 'opened' }),
+    name: 'It writes back',
+    goal: 'Something added a task you did not write. Add one of your own and see if it reads it.',
+    hint: 'Type anything into the task box. It reads this list.',
     beat: {
       title: 'Something added to the list',
       lines: [
         'You cleared the three tasks that were on this machine when you opened it. A fourth one arrived while you were doing that, and you did not write it.',
-        'This build also carries a toolbox of small programs that the team wrote. It has just made them visible, so that is where to look next.'
+        'Whatever put it there is writing to your list. A program that can write to a list can also read one, so try answering it. Put a task in the box and wait.'
       ]
     }
   },
   {
     n: 2,
-    name: 'Still connected',
-    goal: 'Fix the blink pattern so the indicator on the bench works again.',
+    name: 'The indicator',
+    goal: 'A light on the bench is blinking a word. Work out what it says, then write that word on the list.',
+    hint: 'Open the LED indicator in the Toolbox, copy the pattern, and paste it into the Morse translator.',
     beat: {
-      title: 'They are all still connected',
+      title: 'It answered',
       lines: [
-        'Every tool you opened is reading from the same place. The line at the bottom names a bench in Lab 4B and a controller on the network, and the readings on your screen are coming from it right now.',
-        '{unlocked} more programs were sitting in the same build file, and they are in the toolbox now. One of them drives an indicator that has been dark since the day it was written.'
+        'It read your task and it wrote back. There is a machine on the other end of this list and it has been waiting for somebody to say something to it.',
+        'It cannot say much. It has a light on the front of the bench and it has been blinking the same word for nineteen days. The Toolbox has an indicator and a Morse translator, and between them they will tell you what the word is.'
       ]
     }
   },
   {
     n: 3,
     name: 'Out of range',
-    goal: 'Find the failing bay, then answer three questions on the Findings board.',
-    progress: ctx => ({ done: Math.min(ctx.findingsDone, 3), total: 3, unit: 'answered' }),
+    goal: 'Open the sensor log and mark the bay that is failing.',
+    hint: 'Four channels, nineteen days. One of them is climbing and it is not subtle.',
     beat: {
-      title: 'The indicator is blinking',
+      title: 'HELP',
       lines: [
-        'Your code is running on the controller in Lab 4B. The light on the front of the bench is blinking a word, and the word is not one the team chose.',
-        'The app has opened a board called Findings. It holds the questions you can answer from here, and working through them is how you find out what this machine has been doing on its own.'
+        'That is what the light has been spelling since the day the trouble started. Nobody was in the room to see it.',
+        'It has four temperature sensors and it wants you to look at them. The sensor log is in the Toolbox now, and one of those four lines does not look like the others.'
       ]
     }
   },
   {
     n: 4,
-    name: 'Console',
-    goal: 'Answer the last three questions using the files in the Console.',
+    name: 'The archive',
+    goal: 'Answer the rest of the questions on the Findings board.',
     progress: ctx => ({ done: ctx.findingsDone, total: ctx.findingsTotal, unit: 'answered' }),
+    hint: 'The Console reads the controller and the team\'s old files. You can also just ask it.',
     beat: {
-      title: 'You have a shell',
+      title: 'Bay 3',
       lines: [
-        'Bay 3 has climbed thirty four degrees in nineteen days. The morning script has written a task about it every day since it started, and every one of those tasks is still open.',
-        'The Console is open now. It reaches the controller and the team\'s old files, and nothing in it is locked.'
+        `Thirty-five degrees in nineteen days, and it is still going up. The pack in bay ${RIG.faultBay} starts to break down above 60 and the room has been locked since the handover.`,
+        'You have a shell on the controller now. Every file on it is readable, and the machine will answer questions you put on the list, so use whichever you prefer.'
       ]
     }
   },
   {
     n: 5,
-    name: 'The branch',
+    name: '04:10',
     goal: 'Decide what happens above 45 degrees.',
     beat: {
-      title: 'One task left',
+      title: 'It runs at 04:10',
       lines: [
-        'You have read all of it. The script runs at 04:10, it finds bay 3 above the ceiling it was given, and it has no instruction for that case.',
-        'There is one function left to write. What you put in it is what happens tomorrow morning.'
+        'You have read all of it. The script wakes at ten past four, finds bay 3 above the ceiling it was given, and has no instruction for that case, so it writes another task and waits.',
+        'There is one empty place left in the file. Whatever goes there is what happens in that room tomorrow morning, and you are the only person who is going to put anything there.'
       ]
     }
   }
 ];
 
+/* The word the indicator has been blinking. The player never types code to
+   find it. They read a light, use a translator, and write a word down. */
+export const SIGNAL_WORD = 'help';
+
 /* The three tasks that were open on this machine when the last person to use
    it walked away. They are the first thing the player sees, and they carry
-   the whole setup: a real team, a real room, and a job that was never done. */
+   the whole setup: a real team, a real room, and a job nobody finished. */
 export const LEFTOVER = [
-  {
-    text: 'Email Devika the calibration numbers for bay 2',
-    who: PEOPLE.user_01
-  },
-  {
-    text: 'Book bench 4B for Thursday, tell Nikhil if the slot moves',
-    who: PEOPLE.user_01
-  },
-  {
-    text: 'Pull the cells out of the rig before we hand the room back',
-    who: PEOPLE.user_01
-  }
+  { text: 'Email Devika the calibration numbers for bay 2', who: PEOPLE.user_01 },
+  { text: 'Book bench 4B for Thursday, tell Nikhil if the slot moves', who: PEOPLE.user_01 },
+  { text: 'Pull the cells out of the rig before we hand the room back', who: PEOPLE.user_01 }
 ];
 
 export function leftoverNote() {
   const days = daysSince(ANCHORS.lastHuman);
   const years = Math.floor(days / 365);
-  return years >= 1
-    ? `open for ${years}y ${days % 365}d`
-    : `open for ${days}d`;
+  return years >= 1 ? `open for ${years}y ${days % 365}d` : `open for ${days}d`;
 }
 
-/* The tasks the maintenance script has written to the list, in the order it
-   wrote them. Nineteen days of one program with one way to speak. */
+/* The tasks the script wrote before anybody was listening. They arrive as the
+   player works, oldest first, so the backlog reads like nineteen days of one
+   program with one way to speak. */
 export const AUTO_TASKS = [
-  { day: 19, text: 'bay 3 temp 41.2 C — above range — check', note: 'written 04:10' },
-  { day: 16, text: 'bay 3 temp 44.8 C — above range — check', note: 'written 04:10' },
-  { day: 13, text: 'bay 3 temp 48.1 C — above range — check', note: 'written 04:10' },
-  { day: 10, text: 'no operator response in 9 days', note: 'written 04:10' },
-  { day: 7,  text: 'bay 3 temp 54.0 C — above range — check', note: 'written 04:10' },
-  { day: 4,  text: 'escalation path not configured', note: 'written 04:10' },
-  { day: 2,  text: 'is anyone reading this', note: 'written 04:10' },
-  { day: 1,  text: 'hello', note: 'written 04:10' },
-  { day: 0,  text: 'hello world', note: 'written 04:10 today' }
+  { text: 'bay 3 temp 41.2 C - above range - check', note: 'written 04:10, 19 days ago' },
+  { text: 'bay 3 temp 44.8 C - above range - check', note: 'written 04:10, 16 days ago' },
+  { text: 'bay 3 temp 48.1 C - above range - check', note: 'written 04:10, 13 days ago' },
+  { text: 'no operator response in 9 days', note: 'written 04:10, 10 days ago' },
+  { text: 'bay 3 temp 54.0 C - above range - check', note: 'written 04:10, 7 days ago' },
+  { text: 'escalation path not configured', note: 'written 04:10, 4 days ago' },
+  { text: 'is anyone reading this', note: 'written 04:10, 2 days ago' },
+  { text: 'hello', note: 'written 04:10 yesterday', shock: 'none' },
+  { text: 'hello world', note: 'written 04:10 today', shock: 'flash' }
 ];
 
 /* The objective tasks the app pins to the top of the list. */
 export const OBJECTIVES = {
-  1: { text: 'Open four of the tools in the Toolbox', link: '#/tools' },
-  2: { text: 'Fix the indicator blink pattern', link: '#/lab/blink' },
-  3: { text: 'Find out which bay is failing',   link: '#/lab/parse' },
-  4: { text: 'Read the archive in the Console', link: '#/console' },
+  2: { text: 'Read what the indicator is blinking', link: '#/tools/led' },
+  3: { text: 'Mark the failing bay in the sensor log', link: '#/tools/sensorlog' },
+  4: { text: 'Answer the questions on the Findings board', link: '#/findings' },
   5: { text: 'Write the branch above 45 degrees', link: '#/lab/branch' }
 };

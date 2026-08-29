@@ -36,7 +36,7 @@ const ENDINGS = {
     lines: [
       `The script logs in. Bay ${RIG.faultBay} reads 61.4 degrees. It reaches the branch you wrote, and the branch you wrote is the branch it already had.`,
       'It writes a task. It waits for an operator. There is no timeout on that wait.',
-      'You are the operator. You read the whole log, you found the bay, you wrote the code, and what you shipped was another line on a list.'
+      'You are the operator. You read the whole log, you found the bay, you decided what happened next, and what you chose was another line on a list.'
     ],
     log: 'no branch for state ABOVE_RANGE · fallback: write task, await operator',
     after: 'It will run again tomorrow at 04:10, and it will do exactly this. It is very good at it.'

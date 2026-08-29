@@ -1,7 +1,10 @@
-/* The notice shown once, before anything else. It is honest about what the
-   app is, because a person should be able to opt out before they start. It
-   is also the only place the game tells the player who they are, so the
-   first screen of the story does the job the first screen of a story does. */
+/* The notice shown once, before anything else.
+
+   It has two jobs. It tells the player who they are, because a story that
+   never says that leaves people wandering around a portfolio. It also warns
+   them honestly about the three moments where the app is deliberately sudden,
+   because promising a quiet game and then flashing the screen is a bad thing
+   to do to somebody. */
 
 import { h } from '../core/dom.js';
 import { modal } from '../core/notify.js';
@@ -10,8 +13,6 @@ import { seed } from '../core/tasks.js';
 import { LEFTOVER, leftoverNote } from '../story/beats.js';
 import { ANCHORS, daysSince } from '../story/cast.js';
 
-/* The three tasks the last person to use this machine never got to. They are
-   dated to the day that person stopped logging in. */
 function seedLeftovers() {
   seed(LEFTOVER.map(item => ({
     text: item.text,
@@ -25,22 +26,33 @@ function seedLeftovers() {
 export function maybeShowNotice(done) {
   if (get().noticeAccepted) { seedLeftovers(); done(); return; }
 
+  const soundBox = h('input', { type: 'checkbox', checked: true });
   const calmBox = h('input', { type: 'checkbox' });
-  const years = Math.floor(daysSince(ANCHORS.lastHuman) / 365);
+  const days = daysSince(ANCHORS.lastHuman);
+  const years = Math.floor(days / 365);
+
+  const option = (box, label) => h('label', {
+    style: { display: 'flex', alignItems: 'flex-start', gap: '.6rem', cursor: 'pointer', marginTop: '.75rem' }
+  }, h('span', { style: { flex: 'none', paddingTop: '.15rem' } }, box), h('span.small', label));
 
   const body = h('div',
     h('p', { style: { fontWeight: '600' } },
-      'Hello World is a to-do list. This copy of it has been running on a machine in a university lab for '
-      + (years >= 1 ? `${years} years` : `${daysSince(ANCHORS.lastHuman)} days`)
+      'Hello World is a to-do list. This copy has been running on a machine in a university lab for '
+      + (years >= 1 ? `${years} years` : `${days} days`)
       + ', and you are the first person to open it in all that time.'),
     h('p', 'Three students built it and used it, and then they finished their degrees and stopped logging in. Their tasks are still on the list. So is the toolbox of small programs they wrote, and everything those programs were wired to.'),
-    h('p', 'Your job is to work out what this machine has been doing on its own. The app will tell you what it needs at each step, so you never have to guess. Twice along the way you will write real code, and what you write is what the machine runs.'),
-    h('p.small.muted', 'The story is a quiet one. There is no gore, no jump scare, and nothing that pretends your computer has a problem. It does involve an accident at a university and a system that has been left running too long.'),
-    h('p.small.muted', 'Everything is stored in your browser. Nothing is uploaded, and there is no account.'),
-    h('label', { style: { display: 'flex', alignItems: 'flex-start', gap: '.6rem', cursor: 'pointer', marginTop: '1.25rem' } },
-      h('span', { style: { flex: 'none', paddingTop: '.15rem' } }, calmBox),
-      h('span.small', 'Start in calm mode. Keeps the whole story, turns off every visual effect and sound.')
-    )
+    h('p', 'Something on the other end of this list is still running, and it can write to your tasks. It can also read them. Type into the task box and it will answer you. That is how most of this game is played, and it needs nothing from you except sentences.'),
+    h('div.card', { style: { borderColor: 'var(--warn)', marginTop: '1.25rem' } },
+      h('div.small.lbl', { style: { marginBottom: '.35rem' } }, 'Before you agree'),
+      h('p.small', { style: { marginBottom: '.5rem' } },
+        'There is no gore and nothing that pretends your computer is broken. There is a slow build of sound and colour, and there are three moments where the app is deliberately sudden: the screen cuts out once, it flashes once, and your list empties itself once and gives everything back two seconds later.'),
+      h('p.small', { style: { marginBottom: 0 } },
+        'The story involves an accident at a university and a system that has been left running far too long. Calm mode removes all three sudden moments and keeps the whole story.')
+    ),
+    h('p.small.muted', { style: { marginTop: '1rem' } },
+      'Everything is stored in your browser. Nothing is uploaded, and there is no account.'),
+    option(soundBox, 'Sound on. The bench has a fan and a relay, and both of them are part of how this reads.'),
+    option(calmBox, 'Calm mode. Keeps the whole story and every puzzle, and turns off all sound, flashing, and screen effects.')
   );
 
   modal({
@@ -53,6 +65,7 @@ export function maybeShowNotice(done) {
       primary: true,
       onClick: () => {
         if (calmBox.checked) setting('calm', true);
+        setting('sound', soundBox.checked && !calmBox.checked);
         update(s => { s.noticeAccepted = true; return s; });
         applyDocumentAttributes();
         seedLeftovers();

@@ -1,24 +1,31 @@
-/* The story engine. It listens, it counts, and it moves the chapter on.
-   No tool imports this file, and this file imports no tool. */
+/* The story engine. It listens, it counts, and it answers.
+
+   No tool imports this file, and this file imports no tool except to count
+   how many exist. The one thing it does that a to-do app would not is read
+   what the player types and write something back. */
 
 import { on, emit } from '../core/bus.js';
 import { get, setChapter, chapter, setFlag, hasFlag, update } from '../core/state.js';
 import * as tasks from '../core/tasks.js';
 import { toast } from '../core/notify.js';
-import { CHAPTERS, AUTO_TASKS, OBJECTIVES } from './beats.js';
-import { showBeat } from './interlude.js';
+import { CHAPTERS, AUTO_TASKS, OBJECTIVES, SIGNAL_WORD } from './beats.js';
 import { FINDING_IDS } from './findings.js';
+import { showBeat } from './interlude.js';
+import { replyTo, PROMPTS } from './dialogue.js';
+import { blackout, flash, wipe, relayClick } from './atmosphere.js';
 import { registry } from '../modules/index.js';
 
 let autoIndex = 0;
 let autoTimer = null;
+let misses = 0;
+let answering = false;
 
 /* ---- how many distinct tools the player has actually opened ---- */
 function toolsOpened() {
   return Object.keys(get().seenTools).filter(id => registry.some(m => m.id === id)).length;
 }
 
-/* ---- resolve a Findings question ---- */
+/* ---- Findings ---- */
 export function resolveFinding(id) {
   if (!FINDING_IDS.includes(id)) return;
   if (setFlag('finding.' + id)) {
@@ -53,26 +60,104 @@ function completeObjective(n) {
   });
 }
 
-/* ---- the auto tasks, released one at a time ---- */
+/* ---- the backlog, released one at a time ---- */
 function releaseAuto() {
   if (chapter() < 1) return;
   if (autoIndex >= AUTO_TASKS.length) return;
   const spec = AUTO_TASKS[autoIndex++];
-  const t = tasks.add(spec.text, { source: 'auto', note: spec.note, top: true });
   update(s => { s.autoIndex = autoIndex; return s; });
-  if (t) {
-    toast('[auto] added a task', spec.text, { kind: 'auto', ms: 5200 });
-    emit('auto:task', spec);
-  }
+
+  const t = tasks.add(spec.text, { source: 'auto', note: spec.note, top: true });
+  if (!t) return;
+
+  relayClick();
+  if (spec.shock === 'flash') setTimeout(flash, 250);
+  toast('[auto] added a task', spec.text, { kind: 'auto', ms: 5200 });
+  emit('auto:task', spec);
 }
 
 function startAutoDrip() {
   clearTimeout(autoTimer);
   if (chapter() < 3 || autoIndex >= AUTO_TASKS.length) return;
-  /* The first two arrive quickly so the change is unmistakable, then it
-     settles into a slower rhythm that follows what the player does. */
-  const delay = autoIndex < 2 ? 6000 : 42000;
-  autoTimer = setTimeout(() => { releaseAuto(); startAutoDrip(); }, delay);
+  autoTimer = setTimeout(() => { releaseAuto(); startAutoDrip(); }, 46000);
+}
+
+/* ---- the conversation --------------------------------------------------
+   The player writes a task. A few seconds later the script has read it and
+   written one back. The delay is what makes it feel like something else is
+   doing the reading. */
+
+function speak(text, { note = 'written just now', shock = null } = {}) {
+  const t = tasks.add(text, { source: 'reply', note, top: true });
+  if (!t) return null;
+  if (shock === 'flash') flash();
+  else relayClick();
+  emit('story:spoke', { text });
+  return t;
+}
+
+async function answer(taskText) {
+  if (answering) return;
+  answering = true;
+
+  const wait = hasFlag('talked') ? 2600 + Math.random() * 2200 : 3400;
+  await new Promise(r => setTimeout(r, wait));
+
+  const pending = get().flags['prompt.confirm'] && !hasFlag('prompt.confirm.done');
+
+  /* A pending question is answered before anything else, because that is how
+     a conversation works and because the answer decides an ending. */
+  if (pending) {
+    const prompt = PROMPTS.confirm;
+    if (prompt.yes.test(taskText.trim().toLowerCase())) {
+      setFlag('prompt.confirm.done');
+      setFlag('said.lied');
+      speak(prompt.onYes.text, { note: 'confirmation accepted' });
+      answering = false;
+      checkChapter();
+      return;
+    }
+    if (prompt.no.test(taskText.trim().toLowerCase())) {
+      setFlag('prompt.confirm.done');
+      setFlag('said.honest');
+      speak(prompt.onNo.text, { note: 'no confirmation' });
+      answering = false;
+      checkChapter();
+      return;
+    }
+  }
+
+  const reply = replyTo(taskText, { chapter: chapter(), misses });
+  if (!reply.understood) misses++;
+
+  /* The very first answer is the moment the game turns over, so the lights
+     go out for it. It happens once and never again. */
+  const first = !hasFlag('talked');
+  if (first) await blackout();
+
+  speak(reply.text);
+  if (reply.resolves) resolveFinding(reply.resolves);
+
+  if (first) {
+    setFlag('talked');
+    emit('story:firstReply');
+  }
+
+  /* Writing down the word the light is blinking is how act 2 is finished. */
+  if (chapter() === 2 && new RegExp('\\b' + SIGNAL_WORD + '\\b', 'i').test(taskText)) {
+    setFlag('decoded');
+  }
+
+  answering = false;
+  checkChapter();
+}
+
+/* It asks the player one question, once, and the answer changes the ending. */
+function maybeAskConfirm() {
+  if (chapter() < 3) return;
+  if (get().flags['prompt.confirm']) return;
+  setFlag('prompt.confirm');
+  setTimeout(() => speak(PROMPTS.confirm.text, { note: 'question, awaiting reply' }), 9000);
 }
 
 /* ---- chapter progression ---- */
@@ -81,25 +166,30 @@ export function checkChapter() {
   const ch = s.chapter;
 
   if (ch === 0 && s.counters.completed >= 3) return advance(1);
-  if (ch === 1 && toolsOpened() >= 4) return advance(2);
-  if (ch === 2 && s.challenges.blink) return advance(3);
-  if (ch === 3 && s.challenges.parse && findingsDone() >= 3) return advance(4);
+  if (ch === 1 && hasFlag('talked')) return advance(2);
+  if (ch === 2 && hasFlag('decoded')) return advance(3);
+  if (ch === 3 && hasFlag('bay.found') && findingsDone() >= 2) return advance(4);
   if (ch === 4 && findingsDone() >= FINDING_IDS.length) return advance(5);
   return false;
 }
 
-function advance(n) {
+async function advance(n) {
   const from = chapter();
   if (!setChapter(n)) return false;
   completeObjective(from);
+
+  /* Before the last act the list empties itself for two seconds. It is the
+     only time the app takes the player's own tasks away, and it gives them
+     straight back. */
+  if (n === 5) await wipe();
+
   ensureObjective(n);
   showBeat(n);
 
-  /* The first line the script ever wrote lands moments after the player
-     clears the last of the old team's tasks. That one task is the hook, and
-     it used to arrive three chapters later than it should have. */
-  if (n === 1) setTimeout(releaseAuto, 2600);
+  if (n === 1) setTimeout(releaseAuto, 2400);
+  if (n === 2) setTimeout(releaseAuto, 3000);
   if (n >= 3) { startAutoDrip(); setTimeout(releaseAuto, 2500); }
+  if (n === 3) maybeAskConfirm();
 
   emit('story:chapter', { from, to: n });
   return true;
@@ -109,17 +199,12 @@ export function currentGoal() {
   return CHAPTERS[chapter()]?.goal || '';
 }
 
-/* What the strip at the top of the screen shows. A chapter that can count its
-   own progress says so, which is what stops the player wondering whether the
-   app noticed what they just did. */
+/* What the strip at the top of the screen shows. */
 export function currentStep() {
   const n = chapter();
   const beat = CHAPTERS[n];
   if (!beat) return null;
   const objective = OBJECTIVES[n];
-  /* The counts are worked out here rather than read from the stored counters,
-     because the strip is redrawn from the same signal that updates them and
-     the order of two listeners should not decide what the player sees. */
   const counted = beat.progress ? beat.progress({
     state: get(),
     toolsOpened: toolsOpened(),
@@ -130,6 +215,7 @@ export function currentStep() {
     n,
     name: beat.name,
     goal: beat.goal,
+    hint: beat.hint || null,
     link: objective ? objective.link : null,
     progress: counted
   };
@@ -141,12 +227,21 @@ export function startStory() {
   on('task:complete', () => checkChapter());
   on('tool:first', () => { update(s => { s.counters.toolsOpened = toolsOpened(); return s; }); checkChapter(); });
   on('flag', () => checkChapter());
-  on('challenge:solved', () => checkChapter());
+
+  /* Anything the player writes themselves is read by the thing on the bench. */
+  on('task:add', task => {
+    if (!task || task.source !== 'user') return;
+    if (chapter() < 1) return;
+    answer(task.text);
+  });
+
+  /* Coming back after a while away means it has had time to write. */
+  on('story:returned', () => {
+    if (chapter() >= 2 && autoIndex < AUTO_TASKS.length) releaseAuto();
+  });
 
   ensureObjective(chapter());
   if (chapter() >= 3) startAutoDrip();
-
-  /* If the player reloads mid-chapter, catch any threshold they already met. */
   setTimeout(checkChapter, 300);
 }
 

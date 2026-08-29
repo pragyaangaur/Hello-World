@@ -69,10 +69,25 @@ export const RIG = {
    shape that matters: nothing broke, something is failing slowly. */
 export function bayTemp(dayIndex) {
   const t = dayIndex / 19;
-  return 26.4 + 34 * Math.pow(t, 1.7) + Math.sin(dayIndex * 1.9) * 0.55;
+  return 26.4 + 35.5 * Math.pow(t, 1.7) + Math.sin(dayIndex * 1.9) * 0.55;
 }
 
 export function currentBayTemp() { return bayTemp(19); }
+
+/* Nineteen days of readings across the four bays. One shape of data used by
+   the chart, the log file, and anything else that needs to agree with them. */
+export function readings() {
+  const out = [];
+  for (let day = 0; day <= 19; day++) {
+    for (let bay = 1; bay <= RIG.bays; bay++) {
+      const tempC = bay === RIG.faultBay
+        ? Math.round(bayTemp(day) * 10) / 10
+        : Math.round((23.8 + Math.sin(day * 0.7 + bay) * 1.4 + bay * 0.25) * 10) / 10;
+      out.push({ day, bay, tempC });
+    }
+  }
+  return out;
+}
 
 export function daysSince(date) {
   return Math.max(0, Math.round((NOW - date) / DAY));

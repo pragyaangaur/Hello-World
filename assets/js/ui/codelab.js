@@ -1,12 +1,11 @@
-/* The editor. Three times in the app the player has to write a real function,
-   and this is where they do it.
+/* The editor. The game asks for code exactly once, at the very end, and this
+   is where that happens.
 
-   Two of the three are Python, and those run in the interpreter in
-   core/python.js. The third is JavaScript and runs in a Web Worker. Both
-   paths return the same shape, so everything below the runner is shared. */
+   The file is Python and it runs in the interpreter in core/python.js. The
+   three buttons above the editor write the missing line, so a player who has
+   never written Python still gets to make the decision the game is about. */
 
 import { h, mount, $ } from '../core/dom.js';
-import { runCode } from '../core/sandbox.js';
 import { runPython, toPython, pyRepr, PyFunction, PyError } from '../core/python.js';
 import { CHALLENGES } from '../story/challenges.js';
 import { get, update } from '../core/state.js';
@@ -15,9 +14,11 @@ import { toast } from '../core/notify.js';
 import { setTitle } from './shell.js';
 import { go } from '../core/router.js';
 
-/* The three things the morning script is allowed to do. The player picks one
-   and that choice is the ending, so the names live in one place. */
+/* The three things the morning script is allowed to do. The Python side uses
+   snake case and the endings are keyed in camel case, so the mapping lives
+   here and nowhere else. */
 const ACTIONS = ['shutdown', 'escalate', 'add_task'];
+const ENDING_KEY = { shutdown: 'shutdown', escalate: 'escalate', add_task: 'addTask' };
 
 const SCENARIOS = [
   { name: 'A cold bay still reports fine',   reading: { bay: 3, tempC: 24.1, day: 0 },  want: 'ok' },
@@ -93,7 +94,7 @@ function runPythonChallenge(ch, code) {
           ? only === scenario.want
           : ACTIONS.includes(only);
 
-      if (passed && ACTIONS.includes(only) && scenario.want.includes(',')) ending = only;
+      if (passed && ACTIONS.includes(only) && scenario.want.includes(',')) ending = ENDING_KEY[only];
 
       results.push({
         name: scenario.name,
@@ -136,57 +137,11 @@ function samePython(got, want) {
   return got === want;
 }
 
-/* -------------------------------------------------------------- JavaScript */
-
-function buildHarness(ch) {
-  const tests = JSON.stringify(ch.tests.map(t => ({ name: t.name, call: t.call, expect: t.expect })));
-  return `
-    if (typeof ${ch.fnName} !== 'function') {
-      self.postMessage({ ok:false, error:'There is no function called ${ch.fnName}. Keep the name exactly as it is.' });
-    } else {
-      var TESTS = ${tests};
-      var results = TESTS.map(function (t) {
-        var args = t.call;
-        if (args === '__READINGS__') args = [READINGS];
-        else if (args === '__FLAT__') args = [FLAT];
-        else if (args === '__SHIFTED__') args = [SHIFTED];
-        try {
-          var got = ${ch.fnName}.apply(null, args);
-          return { name: t.name, pass: __eq(got, t.expect), got: __show(got), want: __show(t.expect) };
-        } catch (e) {
-          return { name: t.name, pass: false, got: 'threw: ' + (e.message || e), want: __show(t.expect) };
-        }
-      });
-      self.postMessage({ ok: results.every(function (r) { return r.pass; }), results: results });
-    }
-  `;
-}
-
-function extraPrelude(ch) {
-  if (ch.id !== 'parse') return '';
-  const flat = [];
-  const shifted = [];
-  for (let day = 0; day <= 19; day++) {
-    for (let bay = 1; bay <= 4; bay++) flat.push({ day, bay, tempC: 24 + bay * 0.3 });
-    for (let bay = 5; bay <= 8; bay++) {
-      shifted.push({ day, bay, tempC: bay === 7 ? 22 + day * 1.4 : 24 + bay * 0.2 });
-    }
-  }
-  return `const FLAT = ${JSON.stringify(flat)};\nconst SHIFTED = ${JSON.stringify(shifted)};`;
-}
-
 async function runChallenge(ch, code) {
-  if (ch.lang === 'python') {
-    /* The interpreter is synchronous, and a single frame of held paint reads
-       as the editor doing something rather than as a stall. */
-    await new Promise(resolve => setTimeout(resolve, 60));
-    return runPythonChallenge(ch, code);
-  }
-  return runCode({
-    prelude: (ch.prelude || '') + '\n' + extraPrelude(ch),
-    code,
-    harness: buildHarness(ch)
-  });
+  /* The interpreter is synchronous, and one held frame reads as the editor
+     doing something rather than as a stall. */
+  await new Promise(resolve => setTimeout(resolve, 60));
+  return runPythonChallenge(ch, code);
 }
 
 /* -------------------------------------------------------------- the screen */
@@ -202,16 +157,15 @@ export function mountLab(id) {
   }
   setTitle(ch.title);
 
-  const python = ch.lang === 'python';
-  const indent = python ? '    ' : '  ';
+  const indent = '    ';
   const solved = Boolean(get().challenges[ch.reward]);
   let attempts = 0;
 
   const saved = get().code?.[ch.id];
   const editor = h('textarea.textarea.mono', {
     spellcheck: 'false', autocapitalize: 'off', autocomplete: 'off',
-    'aria-label': `Code editor, ${python ? 'Python' : 'JavaScript'}`,
-    style: { minHeight: '20rem', tabSize: python ? '4' : '2', fontSize: '13.5px', lineHeight: '1.65', whiteSpace: 'pre', overflowWrap: 'normal', overflowX: 'auto' }
+    'aria-label': 'Code editor, Python',
+    style: { minHeight: '20rem', tabSize: '4', fontSize: '13.5px', lineHeight: '1.65', whiteSpace: 'pre', overflowWrap: 'normal', overflowX: 'auto' }
   });
   editor.value = saved || ch.starter;
 
@@ -226,7 +180,7 @@ export function mountLab(id) {
     }
     /* Python is whitespace sensitive, so carrying the current indent onto the
        next line is the difference between usable and infuriating. */
-    if (e.key === 'Enter' && python && !e.metaKey && !e.ctrlKey) {
+    if (e.key === 'Enter' && !e.metaKey && !e.ctrlKey) {
       const start = editor.selectionStart;
       if (start !== editor.selectionEnd) return;
       const lineStart = editor.value.lastIndexOf('\n', start - 1) + 1;
@@ -249,6 +203,41 @@ export function mountLab(id) {
 
   const output = h('div.stack');
   const runLabel = ch.special === 'ending' ? 'Dry run' : 'Run';
+
+  /* The three buttons that write the missing line. They exist so that not
+     knowing Python is never the reason somebody cannot finish the game.
+
+     Only the line this button put there last time is taken out again, so
+     pressing a second button swaps the choice and leaves the two branches
+     that were already in the file alone. */
+  let inserted = null;
+
+  function chooseLine(choice) {
+    const kept = editor.value
+      .split('\n')
+      .filter(line => inserted === null || line.trim() !== inserted.trim())
+      .join('\n')
+      .replace(/\s+$/, '');
+    inserted = choice.line;
+    editor.value = kept + '\n\n' + choice.line + '\n';
+    editor.dispatchEvent(new Event('input'));
+    editor.focus();
+    editor.selectionStart = editor.selectionEnd = editor.value.length;
+  }
+
+  const choiceCard = (ch.choices && ch.choices.length)
+    ? h('div.card.flush',
+        h('div.card-head', 'Pick one'),
+        h('div.card-body', { style: { paddingTop: 0 } },
+          h('p.small.dim', 'Press a button and the line is written into the editor below. You can edit it afterwards, or ignore these and write your own.'),
+          h('div.choices', ...ch.choices.map(choice =>
+            h('button.choice', { type: 'button', onclick: () => chooseLine(choice) },
+              h('span.choice-name', choice.label),
+              h('span.choice-desc', choice.desc)
+            )
+          ))
+        ))
+    : null;
   const runBtn = h('button.btn.btn-primary', { type: 'button', onclick: () => run() }, runLabel);
   const helpRow = h('div.row');
 
@@ -275,9 +264,7 @@ export function mountLab(id) {
   async function run() {
     runBtn.disabled = true;
     runBtn.textContent = 'Running…';
-    mount(output, h('p.small.dim', python
-      ? 'Running your Python…'
-      : 'Running your code in a sandbox…'));
+    mount(output, h('p.small.dim', 'Running your Python…'));
 
     const res = await runChallenge(ch, editor.value);
 
@@ -318,7 +305,7 @@ export function mountLab(id) {
       res.ok ? h('div.card', { style: { borderColor: 'var(--accent)' } },
         h('p', ch.outro),
         h('div.row', h('button.btn.btn-primary', { type: 'button', onclick: () => finish(res) },
-          python ? 'Deploy to bench 4B' : 'Deploy'))
+          'Deploy to bench 4B'))
       ) : null
     );
 
@@ -345,7 +332,7 @@ export function mountLab(id) {
     h('div.tool-head',
       h('a.btn.btn-sm.btn-ghost.back', { href: '#/tasks', 'aria-label': 'Back' }, '←'),
       h('div.grow', h('h1', ch.title), h('div.sub.mono', ch.where)),
-      h('span.badge' + (python ? '.accent' : ''), python ? 'Python' : 'JavaScript'),
+      h('span.badge.accent', 'Python'),
       solved ? h('span.badge.accent', 'deployed') : null
     ),
     h('div.stack',
@@ -353,6 +340,7 @@ export function mountLab(id) {
         ...ch.intro.map(p => h('p', p)),
         h('p.small.mono.dim', { style: { marginBottom: 0 } }, ch.signature)),
       ch.runsOn ? h('p.small.dim', { style: { margin: 0 } }, ch.runsOn) : null,
+      choiceCard,
       h('div.card.flush',
         h('div.card-head',
           'Editor',
@@ -362,9 +350,7 @@ export function mountLab(id) {
       ),
       h('div.row', runBtn, helpRow),
       output,
-      h('p.small.dim', python
-        ? 'Your Python runs in an interpreter written for this app. It is offline, it has no imports, and it cannot touch the page.'
-        : 'Your code runs in a Web Worker in this tab. It has no network access and it cannot touch the page.')
+      h('p.small.dim', 'Your Python runs in an interpreter written for this app. It is offline, it has no imports, and it cannot touch the page.')
     )
   ));
 
