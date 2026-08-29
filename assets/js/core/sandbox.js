@@ -24,15 +24,13 @@ export function runCode({ prelude = '', code = '', harness = '', timeout = 2500 
       '}',
       'function __show(v){ try { return JSON.stringify(v); } catch { return String(v); } }',
       prelude,
-      'let __userError = null;',
-      'try {',
+      /* The player's code has to sit at the top level of the worker. A
+         function declaration inside a block is block-scoped under strict
+         mode, so wrapping this in try/catch would hide it from the tests.
+         Errors thrown here surface through the worker's error event. */
       code,
-      '} catch (e) { __userError = e && e.message ? e.message : String(e); }',
       'try {',
-      '  if (__userError) { self.postMessage({ ok:false, error:__userError }); }',
-      '  else {',
       harness,
-      '  }',
       '} catch (e) { self.postMessage({ ok:false, error: (e && e.message) ? e.message : String(e) }); }'
     ].join('\n');
 
@@ -46,7 +44,11 @@ export function runCode({ prelude = '', code = '', harness = '', timeout = 2500 
     }
 
     worker.onmessage = e => finish(e.data);
-    worker.onerror = e => finish({ ok: false, error: e.message || 'Your code threw before it could run.' });
+    worker.onerror = e => {
+      e.preventDefault && e.preventDefault();
+      const where = e.lineno ? ' (line ' + e.lineno + ')' : '';
+      finish({ ok: false, error: (e.message || 'Your code threw before it could run.') + where });
+    };
     timer = setTimeout(() => finish({
       ok: false,
       error: 'Your code ran for too long and was stopped. Check for a loop that never ends.'
