@@ -44,13 +44,16 @@ function taskRow(t) {
 
   const meta = h('div.task-meta');
   if (t.source === 'auto') meta.appendChild(h('span.badge.auto', '[auto]'));
-  if (t.note) meta.appendChild(h('span.task-note', t.note));
+  if (t.source === 'objective') meta.appendChild(h('span.badge.accent', 'next step'));
+  if (t.note && t.source !== 'objective') meta.appendChild(h('span.task-note', t.note));
   if (t.done && t.completedAt) meta.appendChild(h('span.task-note', 'done ' + timeAgo(t.completedAt)));
 
-  const text = h('div.task-text', { tabindex: '0', role: 'button', 'aria-label': 'Edit task: ' + t.text,
-    onclick: () => { if (!t.locked) { editing = t.id; render(); } },
-    onkeydown: e => { if ((e.key === 'Enter' || e.key === ' ') && !t.locked) { e.preventDefault(); editing = t.id; render(); } }
-  }, t.text);
+  const text = t.link
+    ? h('a.task-text', { href: t.link, style: { color: 'var(--accent)', fontWeight: '600' } }, t.text, ' \u2192')
+    : h('div.task-text', { tabindex: '0', role: 'button', 'aria-label': 'Edit task: ' + t.text,
+        onclick: () => { if (!t.locked) { editing = t.id; render(); } },
+        onkeydown: e => { if ((e.key === 'Enter' || e.key === ' ') && !t.locked) { e.preventDefault(); editing = t.id; render(); } }
+      }, t.text);
 
   const del = h('button.icon-btn', {
     type: 'button', title: 'Delete task', 'aria-label': 'Delete task: ' + t.text,

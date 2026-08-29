@@ -225,3 +225,7 @@ canvas.stage { width: 100%; border: 1px solid var(--rule); border-radius: var(--
   content: ""; position: absolute; inset: 0; opacity: var(--grain);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
 }
+
+.task[data-source="objective"] { background: var(--accent-soft); border-left: 3px solid var(--accent); }
+.task[data-source="objective"] .task-text { text-decoration: none; }
+.task[data-source="objective"] .task-text:hover { text-decoration: underline; }

@@ -1,0 +1,33 @@
+.term {
+  background: var(--sunken);
+  border: 1px solid var(--rule-2);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.term-screen {
+  height: min(58vh, 32rem);
+  overflow-y: auto;
+  padding: var(--sp-4);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.term-screen:focus { outline: none; }
+.term-line { color: var(--ink-2); }
+.term-line.echo { color: var(--ink-3); }
+.term-line.dir { color: var(--info); }
+.term-line.err { color: var(--danger); }
+.term-line.file { color: var(--ink); }
+.term-line.hint { color: var(--accent); }
+.term-row {
+  display: flex; align-items: center; gap: var(--sp-2);
+  border-top: 1px solid var(--rule); padding: var(--sp-2) var(--sp-4);
+  background: var(--surface);
+}
+.term-prompt { color: var(--accent); flex: none; white-space: nowrap; }
+.term-input {
+  flex: 1; min-width: 0; background: none; border: 0; outline: none;
+  font-family: var(--font-mono); font-size: 13px; color: var(--ink);
+}
