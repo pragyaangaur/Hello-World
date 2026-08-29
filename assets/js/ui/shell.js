@@ -8,6 +8,7 @@ import { counts } from '../core/tasks.js';
 import { on } from '../core/bus.js';
 import { modal } from '../core/notify.js';
 import { accountCard } from '../story/accounts.js';
+import { CHAPTERS } from '../story/beats.js';
 
 const NAV = [
   { group: null, items: [
@@ -69,6 +70,15 @@ export function renderAccount() {
   chip.onclick = () => modal({ title: 'Account', body: accountCard(), actions: [{ label: 'Close', primary: true }] });
 }
 
+/* Chapters change what exists in the navigation, which a sighted person sees
+   and a screen reader would otherwise miss entirely. */
+export function announce(message) {
+  const live = document.getElementById('live-region');
+  if (!live) return;
+  live.textContent = '';
+  setTimeout(() => { live.textContent = message; }, 60);
+}
+
 export function setTitle(text) {
   document.title = text ? `${text} · Hello World` : 'Hello World';
 }
@@ -77,7 +87,12 @@ export function initShell() {
   renderNav();
   renderAccount();
   on('route', () => renderNav());
-  on('chapter', () => { renderNav(); renderAccount(); });
+  on('chapter', ({ to }) => {
+    renderNav();
+    renderAccount();
+    const beat = CHAPTERS[to];
+    if (beat) announce(`${beat.name}. ${beat.goal}`);
+  });
   on('flag', () => { renderNav(); renderAccount(); });
   on('task:add', () => renderNav());
   on('task:complete', () => renderNav());
