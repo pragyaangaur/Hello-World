@@ -83,7 +83,9 @@ export function mountFindings() {
             : h('span.task-note', f.hint)
         )
       ),
-      resolved ? null : h('a.btn.btn-sm', { href: f.where }, 'Go')
+      resolved ? null : (f.where === '#account'
+        ? h('button.btn.btn-sm', { type: 'button', onclick: () => document.querySelector('#account-chip')?.click() }, 'Open')
+        : h('a.btn.btn-sm', { href: f.where }, 'Go'))
     );
   });
 

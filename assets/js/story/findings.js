@@ -6,9 +6,9 @@ export const FINDINGS = [
   {
     id: 'who',
     q: 'Who is user_04?',
-    hint: 'Open the account panel in the sidebar.',
+    hint: 'Open the account panel at the bottom of the sidebar.',
     answer: 'Not a person. A test account made in first year, and the only one still active.',
-    where: '#/console'
+    where: '#account'
   },
   {
     id: 'live',

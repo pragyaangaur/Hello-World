@@ -23,13 +23,13 @@ export const CHAPTERS = [
   {
     n: 3,
     name: 'Out of range',
-    goal: 'Answer every question on the Findings board.',
+    goal: 'Answer the three questions you can reach from the tools. That opens the Console.',
     unlockToast: ['Findings opened', 'Something is writing to your task list. There is a board for it now.']
   },
   {
     n: 4,
     name: 'Console',
-    goal: 'Read the archive, then write the missing branch.',
+    goal: 'Answer the last three questions from the files in the Console.',
     unlockToast: ['Console unlocked', 'You have shell access to whatever this app is still talking to.']
   },
   {
