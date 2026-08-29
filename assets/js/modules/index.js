@@ -9,6 +9,22 @@ import dice from './dice.js';
 import timers from './timers.js';
 import paint from './paint.js';
 
+import led from './led.js';
+import morse from './morse.js';
+import resistor from './resistor.js';
+import gates from './gates.js';
+import sevenseg from './sevenseg.js';
+import scope from './scope.js';
+import ohms from './ohms.js';
+import piano from './piano.js';
+import projectile from './projectile.js';
+import pendulum from './pendulum.js';
+import gears from './gears.js';
+import beam from './beam.js';
+import ph from './ph.js';
+import orbit from './orbit.js';
+import bmi from './bmi.js';
+
 export const DEPT_ORDER = [
   'Everyday',
   'Computer Science',
@@ -22,7 +38,9 @@ export const DEPT_ORDER = [
 ];
 
 export const registry = [
-  calculator, converter, notepad, passwordgen, dice, timers, paint
+  calculator, converter, notepad, passwordgen, dice, timers, paint,
+  led, morse, resistor, gates, sevenseg, scope, ohms, piano,
+  projectile, pendulum, gears, beam, ph, orbit, bmi
 ].sort((a, b) => a.chapter - b.chapter || a.name.localeCompare(b.name));
 
 const index = new Map(registry.map(m => [m.id, m]));
