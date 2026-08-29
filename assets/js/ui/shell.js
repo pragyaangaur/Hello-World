@@ -9,6 +9,7 @@ import { on } from '../core/bus.js';
 import { modal } from '../core/notify.js';
 import { accountCard } from '../story/accounts.js';
 import { CHAPTERS } from '../story/beats.js';
+import { currentStep } from '../story/engine.js';
 
 const NAV = [
   { group: null, items: [
@@ -54,6 +55,41 @@ export function renderNav() {
   mount(nav, ...nodes);
 }
 
+/* The line across the top of the screen that says what the app is waiting
+   for. It is rebuilt on every change that could move the player forward, so
+   a tool they just opened or a task they just ticked shows up straight away. */
+export function renderObjective() {
+  const bar = $('#objective');
+  if (!bar) return;
+
+  const step = currentStep();
+  if (!step) { bar.hidden = true; return; }
+
+  const done = Boolean(get().ending);
+  if (done) {
+    bar.hidden = false;
+    mount(bar,
+      h('span.obj-label', 'done'),
+      h('span.obj-goal', 'You wrote the branch. Every tool still works, and your tasks are still here.'),
+      h('a.obj-go', { href: '#/ending' }, 'Read the ending again')
+    );
+    return;
+  }
+
+  bar.hidden = false;
+  const counted = step.progress;
+
+  mount(bar,
+    h('span.obj-label', `step ${step.n + 1} of 6`),
+    h('span.obj-goal', step.goal),
+    counted ? h('span.obj-count', `${counted.done} of ${counted.total} ${counted.unit}`) : null,
+    counted ? h('span.obj-bar', h('span', {
+      style: { width: Math.round((counted.done / counted.total) * 100) + '%' }
+    })) : null,
+    step.link ? h('a.obj-go', { href: step.link }, 'Go →') : null
+  );
+}
+
 export function renderAccount() {
   const chip = $('#account-chip');
   if (!chip) return;
@@ -86,17 +122,22 @@ export function setTitle(text) {
 export function initShell() {
   renderNav();
   renderAccount();
+  renderObjective();
+
   on('route', () => renderNav());
   on('chapter', ({ to }) => {
     renderNav();
     renderAccount();
+    renderObjective();
     const beat = CHAPTERS[to];
     if (beat) announce(`${beat.name}. ${beat.goal}`);
   });
-  on('flag', () => { renderNav(); renderAccount(); });
-  on('task:add', () => renderNav());
-  on('task:complete', () => renderNav());
-  on('task:reopen', () => renderNav());
-  on('task:remove', () => renderNav());
-  on('task:clearDone', () => renderNav());
+  on('flag', () => { renderNav(); renderAccount(); renderObjective(); });
+  on('tool:first', () => renderObjective());
+  on('finding', () => renderObjective());
+  on('challenge:solved', () => renderObjective());
+
+  for (const signal of ['task:add', 'task:complete', 'task:reopen', 'task:remove', 'task:clearDone']) {
+    on(signal, () => { renderNav(); renderObjective(); });
+  }
 }

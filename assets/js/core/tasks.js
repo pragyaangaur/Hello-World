@@ -3,12 +3,6 @@
 import { get, update, bump } from './state.js';
 import { emit } from './bus.js';
 
-export const SAMPLE = [
-  { text: 'Add a task of your own', source: 'sample' },
-  { text: 'Tick this one off to see how it works', source: 'sample' },
-  { text: 'Take a look in the Toolbox', source: 'sample' }
-];
-
 function uid() {
   return 't_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
@@ -38,10 +32,11 @@ export function add(text, opts = {}) {
     id: uid(),
     text: clean,
     done: false,
-    createdAt: new Date().toISOString(),
+    createdAt: opts.createdAt || new Date().toISOString(),
     completedAt: null,
     source: opts.source || 'user',
     note: opts.note || null,
+    by: opts.by || null,
     locked: Boolean(opts.locked),
     pinned: Boolean(opts.pinned)
   };
@@ -95,7 +90,18 @@ export function hasText(text) {
   return get().tasks.some(t => t.text.toLowerCase().includes(needle));
 }
 
-export function seedSamples() {
-  if (get().tasks.length) return;
-  for (const s of SAMPLE) add(s.text, { source: 'sample' });
+/* Seeds the list the app opens with. The caller supplies the entries,
+   because what those entries say is a story decision and this file is not
+   allowed to know about the story. */
+export function seed(entries) {
+  if (get().tasks.length) return false;
+  for (const entry of entries) {
+    add(entry.text, {
+      source: entry.source || 'leftover',
+      note: entry.note || null,
+      by: entry.by || null,
+      createdAt: entry.createdAt || null
+    });
+  }
+  return true;
 }

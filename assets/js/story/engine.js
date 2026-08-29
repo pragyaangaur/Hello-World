@@ -6,6 +6,7 @@ import { get, setChapter, chapter, setFlag, hasFlag, update } from '../core/stat
 import * as tasks from '../core/tasks.js';
 import { toast } from '../core/notify.js';
 import { CHAPTERS, AUTO_TASKS, OBJECTIVES } from './beats.js';
+import { showBeat } from './interlude.js';
 import { FINDING_IDS } from './findings.js';
 import { registry } from '../modules/index.js';
 
@@ -54,7 +55,7 @@ function completeObjective(n) {
 
 /* ---- the auto tasks, released one at a time ---- */
 function releaseAuto() {
-  if (chapter() < 3) return;
+  if (chapter() < 1) return;
   if (autoIndex >= AUTO_TASKS.length) return;
   const spec = AUTO_TASKS[autoIndex++];
   const t = tasks.add(spec.text, { source: 'auto', note: spec.note, top: true });
@@ -66,7 +67,7 @@ function releaseAuto() {
 }
 
 function startAutoDrip() {
-  clearInterval(autoTimer);
+  clearTimeout(autoTimer);
   if (chapter() < 3 || autoIndex >= AUTO_TASKS.length) return;
   /* The first two arrive quickly so the change is unmistakable, then it
      settles into a slower rhythm that follows what the player does. */
@@ -91,18 +92,47 @@ function advance(n) {
   const from = chapter();
   if (!setChapter(n)) return false;
   completeObjective(from);
-  const beat = CHAPTERS[n];
-  if (beat?.unlockToast) {
-    setTimeout(() => toast(beat.unlockToast[0], beat.unlockToast[1], { ms: 6500 }), 500);
-  }
   ensureObjective(n);
+  showBeat(n);
+
+  /* The first line the script ever wrote lands moments after the player
+     clears the last of the old team's tasks. That one task is the hook, and
+     it used to arrive three chapters later than it should have. */
+  if (n === 1) setTimeout(releaseAuto, 2600);
   if (n >= 3) { startAutoDrip(); setTimeout(releaseAuto, 2500); }
+
   emit('story:chapter', { from, to: n });
   return true;
 }
 
 export function currentGoal() {
   return CHAPTERS[chapter()]?.goal || '';
+}
+
+/* What the strip at the top of the screen shows. A chapter that can count its
+   own progress says so, which is what stops the player wondering whether the
+   app noticed what they just did. */
+export function currentStep() {
+  const n = chapter();
+  const beat = CHAPTERS[n];
+  if (!beat) return null;
+  const objective = OBJECTIVES[n];
+  /* The counts are worked out here rather than read from the stored counters,
+     because the strip is redrawn from the same signal that updates them and
+     the order of two listeners should not decide what the player sees. */
+  const counted = beat.progress ? beat.progress({
+    state: get(),
+    toolsOpened: toolsOpened(),
+    findingsDone: findingsDone(),
+    findingsTotal: FINDING_IDS.length
+  }) : null;
+  return {
+    n,
+    name: beat.name,
+    goal: beat.goal,
+    link: objective ? objective.link : null,
+    progress: counted
+  };
 }
 
 export function startStory() {

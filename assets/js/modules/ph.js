@@ -1,4 +1,5 @@
 import { h, mount, field, fmt } from '../core/dom.js';
+import { liveNote } from '../story/live.js';
 
 const SAMPLES = [
   ['Battery acid', 0.5], ['Lemon juice', 2.4], ['Vinegar', 2.9], ['Black coffee', 5.0],
@@ -85,7 +86,8 @@ export default {
         ),
         h('div', { style: { marginTop: '.75rem' } }, mOut)
       ),
-      h('p.small.dim', 'The defaults are 5.844 g of sodium chloride in half a litre, which comes out at 0.2 molar.')
+      h('p.small.dim', 'The defaults are 5.844 g of sodium chloride in half a litre, which comes out at 0.2 molar.'),
+      liveNote('probe 1 \u2192 ph.cell')
     );
     recompute(); molarity();
   }

@@ -1,4 +1,5 @@
 import { h, mount } from '../core/dom.js';
+import { liveNote } from '../story/live.js';
 
 const GATES = {
   AND:  (a, b) => a && b,
@@ -59,7 +60,8 @@ export default {
 
     mount(root,
       h('div.card', h('p.small.dim', 'Click a pin to flip it. The number on the right is the gate’s full truth table.'), rows),
-      saved
+      saved,
+      liveNote('gpio 5-12 → logic header')
     );
     paint();
   }

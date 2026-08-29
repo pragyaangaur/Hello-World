@@ -6,7 +6,7 @@ export default {
   name: "Ohm's law",
   dept: 'Electrical',
   icon: 'Ω',
-  chapter: 2,
+  chapter: 1,
   blurb: 'Volts, amps, ohms, watts',
 
   mount(root) {

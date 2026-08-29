@@ -9,9 +9,12 @@ import { resolveFinding } from './engine.js';
 
 export function liveNote(binding, { reveal = null, value = null } = {}) {
   const ch = chapter();
-  if (ch < 2) return null;
+  if (ch < 1) return null;
 
-  if (ch === 2) {
+  /* From the moment the toolbox opens, every tool quietly says where its
+     numbers come from. It reads as a technical footnote until the player has
+     seen it on four different tools, which is the point. */
+  if (ch < 3) {
     return h('div.live-note', `source: bench 4B · ${binding} · last read 04:10`);
   }
 
@@ -27,7 +30,7 @@ export function liveNote(binding, { reveal = null, value = null } = {}) {
 
 /* A saved state note: this tool was last used by the script, not by you. */
 export function lastUsed() {
-  if (chapter() < 2) return null;
+  if (chapter() < 1) return null;
   return h('p.small.dim', { style: { marginTop: '.25rem' } },
     'Settings restored from the last session · user_04 · 04:10 today');
 }

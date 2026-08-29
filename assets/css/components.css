@@ -233,3 +233,70 @@ canvas.stage { width: 100%; border: 1px solid var(--rule); border-radius: var(--
 .task[data-source="objective"] { background: var(--accent-soft); border-left: 3px solid var(--accent); }
 .task[data-source="objective"] .task-text { text-decoration: none; }
 .task[data-source="objective"] .task-text:hover { text-decoration: underline; }
+
+/* ---- the objective strip -------------------------------------------------
+   A permanent line across the top of the screen saying what the app is
+   waiting for. Without it a player has to guess, and guessing is the one
+   thing this game should never ask for. */
+
+.objective {
+  border-bottom: 1px solid var(--rule);
+  background: var(--surface);
+  padding: var(--sp-3) var(--sp-6);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  font-size: var(--step--1);
+}
+
+.objective .obj-label {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  flex: none;
+}
+
+.objective .obj-goal { color: var(--ink); flex: 1; min-width: 12rem; }
+
+.objective .obj-count {
+  font-family: var(--font-mono);
+  color: var(--ink-2);
+  flex: none;
+}
+
+.objective .obj-bar {
+  flex: none;
+  width: 5rem;
+  height: 4px;
+  border-radius: var(--r-pill);
+  background: var(--sunken);
+  overflow: hidden;
+}
+
+.objective .obj-bar span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transition: width var(--dur) var(--ease);
+}
+
+.objective .obj-go {
+  flex: none;
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.objective .obj-go:hover { text-decoration: underline; }
+
+@media (max-width: 800px) {
+  .objective { padding: var(--sp-3) var(--sp-4); }
+  .objective .obj-bar { display: none; }
+}
+
+/* The age line on a task that was left here by somebody else. */
+.task-note.left-over { color: var(--ink-3); font-style: italic; }

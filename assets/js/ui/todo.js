@@ -18,7 +18,10 @@ function timeAgo(iso) {
   if (secs < 3600) return Math.floor(secs / 60) + 'm ago';
   if (secs < 86400) return Math.floor(secs / 3600) + 'h ago';
   const d = Math.floor(secs / 86400);
-  return d === 1 ? 'yesterday' : d + 'd ago';
+  if (d === 1) return 'yesterday';
+  if (d < 365) return d + 'd ago';
+  const y = Math.floor(d / 365);
+  return y === 1 ? 'a year ago' : y + ' years ago';
 }
 
 function taskRow(t) {
@@ -45,7 +48,12 @@ function taskRow(t) {
   const meta = h('div.task-meta');
   if (t.source === 'auto') meta.appendChild(h('span.badge.auto', '[auto]'));
   if (t.source === 'objective') meta.appendChild(h('span.badge.accent', 'next step'));
-  if (t.note && t.source !== 'objective') meta.appendChild(h('span.task-note', t.note));
+  /* A task somebody else left behind says so, and says how long ago. That
+     one line is what tells a new player whose machine this is. */
+  if (t.source === 'leftover' && t.by) {
+    meta.appendChild(h('span.task-note.left-over', `added by ${t.by}, ${timeAgo(t.createdAt)}`));
+  }
+  if (t.note && t.source !== 'objective' && t.source !== 'leftover') meta.appendChild(h('span.task-note', t.note));
   if (t.done && t.completedAt) meta.appendChild(h('span.task-note', 'done ' + timeAgo(t.completedAt)));
 
   const text = t.link
@@ -62,7 +70,16 @@ function taskRow(t) {
       if (tasks.remove(t.id)) {
         render();
         toast('Task deleted', h('button.btn.btn-sm', { type: 'button', style: { marginTop: '.4rem' }, onclick: () => {
-          if (lastRemoved) { tasks.add(lastRemoved.text, { source: lastRemoved.source, note: lastRemoved.note }); lastRemoved = null; render(); }
+          if (lastRemoved) {
+            tasks.add(lastRemoved.text, {
+              source: lastRemoved.source,
+              note: lastRemoved.note,
+              by: lastRemoved.by,
+              createdAt: lastRemoved.createdAt
+            });
+            lastRemoved = null;
+            render();
+          }
         } }, 'Undo'));
       }
     }
@@ -111,7 +128,7 @@ function render(focusTaskId) {
         h('div.big', '✓'),
         h('p', c.total === 0
           ? 'Nothing here yet. Add your first task above.'
-          : filter === 'done' ? 'Nothing completed yet.' : 'All done. Nice.')
+          : filter === 'done' ? 'Nothing completed yet.' : 'All done for now.')
       );
 
   const hadFormFocus = document.activeElement === view.querySelector('.task-form input');

@@ -17,7 +17,7 @@ export default {
   name: 'Seven segment clock',
   dept: 'Electronics',
   icon: '⧗',
-  chapter: 2,
+  chapter: 1,
   blurb: 'Digits made of bars',
 
   mount(root) {

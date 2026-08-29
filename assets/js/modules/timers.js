@@ -2,6 +2,7 @@ import { h, mount, pad2 } from '../core/dom.js';
 import { tone } from '../core/audio.js';
 import { toast } from '../core/notify.js';
 import { emit } from '../core/bus.js';
+import { liveNote } from '../story/live.js';
 
 function clockText(ms, showMs = false) {
   const total = Math.max(0, ms);
@@ -149,7 +150,7 @@ export default {
     paintTabs();
     paintStopwatch(); paintCountdown(); paintPom();
     mount(slot, panels[tab]);
-    mount(root, tabs, slot);
+    mount(root, tabs, slot, liveNote('rtc \u2192 bench clock'));
 
     return () => { cancelAnimationFrame(raf); clearInterval(interval); clearInterval(pomTimer); };
   }

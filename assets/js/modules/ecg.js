@@ -1,4 +1,5 @@
 import { h, mount, fmt } from '../core/dom.js';
+import { liveNote } from '../story/live.js';
 
 /* A synthetic ECG built from five Gaussian bumps, which is the standard
    toy model and looks right without pretending to be clinical. */
@@ -98,7 +99,8 @@ export default {
         h('div.card', out,
           h('p.small.dim', { style: { marginTop: '.75rem', marginBottom: 0 } },
             'Five Gaussian bumps standing in for P, Q, R, S, and T. It is a drawing of an ECG, not a measurement of one.'))
-      )
+      ),
+      liveNote('adc 1 \u2192 channel B')
     );
     recompute();
     raf = requestAnimationFrame(draw);
