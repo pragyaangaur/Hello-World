@@ -39,7 +39,7 @@ function taskRow(t) {
     type: 'checkbox',
     checked: t.done,
     'aria-label': (t.done ? 'Mark as not done: ' : 'Mark as done: ') + t.text,
-    onchange: () => { tasks.toggle(t.id); render(); }
+    onchange: () => { tasks.toggle(t.id); render(t.id); }
   });
 
   const meta = h('div.task-meta');
@@ -69,11 +69,11 @@ function taskRow(t) {
   }, '×');
 
   return h('li.task' + (t.done ? '.done' : ''), {
-    dataset: { source: t.source, locked: t.locked ? '1' : '0' }
+    dataset: { source: t.source, locked: t.locked ? '1' : '0', taskId: t.id }
   }, check, h('div.task-main', text, meta.children.length ? meta : null), t.locked ? null : del);
 }
 
-function render() {
+function render(focusTaskId) {
   const view = $('#view');
   if (!view || view.dataset.page !== 'tasks') return;
   const c = tasks.counts();
@@ -114,12 +114,25 @@ function render() {
           : filter === 'done' ? 'Nothing completed yet.' : 'All done. Nice.')
       );
 
+  const hadFormFocus = document.activeElement === view.querySelector('.task-form input');
+  const caret = hadFormFocus ? view.querySelector('.task-form input').value : null;
+
   mount(view,
     h('div.page',
       h('div.page-head', h('div.grow', h('h1', 'Tasks'), h('p', c.active === 0 && c.total > 0 ? 'Everything is ticked off.' : `${c.active} to do`))),
       form, filters, body
     )
   );
+
+  /* Re-rendering the whole list is simple and fast enough, but it throws
+     focus away, so put it back where the person left it. */
+  if (focusTaskId) {
+    const box = view.querySelector(`.task[data-task-id="${focusTaskId}"] .task-check`);
+    if (box) box.focus();
+  } else if (caret !== null) {
+    const input = view.querySelector('.task-form input');
+    if (input) { input.value = caret; input.focus(); }
+  }
 }
 
 export function mountTasks() {
