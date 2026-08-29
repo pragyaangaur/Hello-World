@@ -1,0 +1,81 @@
+#app { display: grid; grid-template-columns: var(--sidebar-w) minmax(0,1fr); min-height: 100vh; min-height: 100dvh; }
+
+/* ---- sidebar ---- */
+#sidebar {
+  border-right: 1px solid var(--rule);
+  background: var(--surface-2);
+  display: flex; flex-direction: column;
+  padding: var(--sp-4) var(--sp-3);
+  gap: var(--sp-5);
+  position: sticky; top: 0; height: 100vh; height: 100dvh;
+}
+.brand { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-2) var(--sp-2) 0; color: var(--accent); }
+.brand-mark { display: flex; }
+.brand-name { font-weight: 650; letter-spacing: -.015em; color: var(--ink); font-size: var(--step-1); }
+
+.nav { display: flex; flex-direction: column; gap: 1px; flex: 1; overflow-y: auto; }
+.nav-group-label {
+  font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ink-3); padding: var(--sp-4) var(--sp-2) var(--sp-1); font-weight: 600;
+}
+.nav a {
+  display: flex; align-items: center; gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-3); border-radius: var(--r-sm);
+  color: var(--ink-2); text-decoration: none; font-weight: 500;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.nav a:hover { background: var(--sunken); color: var(--ink); }
+.nav a[aria-current="page"] { background: var(--accent-soft); color: var(--ink); font-weight: 600; }
+.nav a .ico { width: 1.05rem; text-align: center; flex: none; opacity: .8; font-size: .95em; }
+.nav a .count { margin-left: auto; font-size: var(--step--1); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.nav a .dot-new { margin-left: auto; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+.sidebar-foot { border-top: 1px solid var(--rule); padding-top: var(--sp-3); }
+.account-chip {
+  width: 100%; display: flex; align-items: center; gap: var(--sp-3);
+  background: none; border: 1px solid transparent; border-radius: var(--r-md);
+  padding: var(--sp-2); cursor: pointer; text-align: left;
+}
+.account-chip:hover { border-color: var(--rule-2); background: var(--sunken); }
+.avatar {
+  width: 1.85rem; height: 1.85rem; border-radius: 50%; flex: none;
+  display: grid; place-items: center; font-size: var(--step--1); font-weight: 650;
+  background: var(--accent); color: var(--accent-ink);
+}
+.account-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.account-name { font-size: var(--step--1); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account-sub { font-size: 11px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---- main ---- */
+#main { min-width: 0; display: flex; flex-direction: column; }
+#view { flex: 1; min-width: 0; padding: var(--sp-6) var(--sp-6) var(--sp-7); }
+#view:focus { outline: none; }
+.page { max-width: var(--measure); margin: 0 auto; }
+.page.wide { max-width: 62rem; }
+.page-head { margin-bottom: var(--sp-5); display: flex; align-items: flex-start; gap: var(--sp-4); flex-wrap: wrap; }
+.page-head .grow { flex: 1; min-width: 12rem; }
+.page-head p { color: var(--ink-2); margin: var(--sp-1) 0 0; font-size: var(--step-0); }
+.stack { display: flex; flex-direction: column; gap: var(--sp-4); }
+.row { display: flex; gap: var(--sp-3); align-items: center; flex-wrap: wrap; }
+.row.tight { gap: var(--sp-2); }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem,1fr)); gap: var(--sp-4); }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem,1fr)); gap: var(--sp-3); }
+.spacer { flex: 1; }
+
+@media (max-width: 800px) {
+  #app { grid-template-columns: minmax(0,1fr); }
+  #sidebar {
+    position: sticky; top: 0; height: auto; z-index: 20;
+    border-right: 0; border-bottom: 1px solid var(--rule);
+    flex-direction: row; align-items: center; gap: var(--sp-3);
+    padding: var(--sp-2) var(--sp-3); overflow-x: auto;
+  }
+  .brand-name { display: none; }
+  .nav { flex-direction: row; gap: var(--sp-1); overflow-x: auto; overflow-y: visible; flex-wrap: nowrap; }
+  .nav-group-label { display: none; }
+  .nav a { white-space: nowrap; padding: var(--sp-2) var(--sp-3); }
+  .nav a .count { display: none; }
+  .sidebar-foot { border-top: 0; padding-top: 0; margin-left: auto; }
+  .account-text { display: none; }
+  #view { padding: var(--sp-5) var(--sp-4) var(--sp-7); }
+}
