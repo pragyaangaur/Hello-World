@@ -3,10 +3,10 @@
    it, because the point is reading the files rather than fighting a prompt. */
 
 import { h, mount, $ } from '../core/dom.js';
-import { FS, DIRS, readFile, isDir, listDir } from '../story/archive.js';
+import { FS, readFile, isDir, listDir } from '../story/archive.js';
 import { resolveFinding } from '../story/engine.js';
 import { get, update, chapter } from '../core/state.js';
-import { PEOPLE, ANCHORS, human, daysSince, NOW } from '../story/cast.js';
+import { ANCHORS, human, daysSince, NOW } from '../story/cast.js';
 import { setTitle } from './shell.js';
 
 const HELP = `Commands
@@ -26,17 +26,6 @@ const HELP = `Commands
 Tab completes a name. Up and down walk your history.
 Typing a filename on its own prints it.`;
 
-function norm(cwd, arg) {
-  if (!arg) return cwd;
-  let path = arg.startsWith('/') ? arg : (cwd === '/' ? '/' + arg : cwd + '/' + arg);
-  const parts = [];
-  for (const p of path.split('/')) {
-    if (!p || p === '.') continue;
-    if (p === '..') parts.pop();
-    else parts.push(p);
-  }
-  return '/' + parts.join('');
-}
 function join(cwd, arg) {
   if (!arg) return cwd;
   const raw = arg.startsWith('/') ? arg : (cwd === '/' ? '/' + arg : cwd + '/' + arg);

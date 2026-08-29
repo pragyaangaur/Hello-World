@@ -10,8 +10,6 @@ import { emit } from '../core/bus.js';
 import { toast } from '../core/notify.js';
 import { setTitle } from './shell.js';
 import { go } from '../core/router.js';
-import { readings } from '../story/challenges.js';
-import { RIG } from '../story/cast.js';
 
 function buildHarness(ch) {
   if (ch.special === 'ending') {

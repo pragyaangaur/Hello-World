@@ -6,7 +6,6 @@ import { registry, byId, DEPT_ORDER } from '../modules/index.js';
 import { get, chapter, update } from '../core/state.js';
 import { emit } from '../core/bus.js';
 import { setTitle } from './shell.js';
-import { go } from '../core/router.js';
 
 let activeCleanup = null;
 

@@ -2,7 +2,7 @@ import { h, mount, pad2 } from '../core/dom.js';
 import { tone } from '../core/audio.js';
 import { toast } from '../core/notify.js';
 import { get, update, chapter } from '../core/state.js';
-import { ANCHORS, human, daysSince } from '../story/cast.js';
+import { ANCHORS, daysSince } from '../story/cast.js';
 
 function nextRing(hh, mm) {
   const now = new Date();

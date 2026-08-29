@@ -1,6 +1,6 @@
 import { h, mount, fmt } from '../core/dom.js';
 import { chapter } from '../core/state.js';
-import { NOW, human, daysAgo, bayTemp, RIG } from '../story/cast.js';
+import { NOW, bayTemp, RIG } from '../story/cast.js';
 
 /* No API key, no network to a third party. The forecast is generated from
    monthly climate normals held in a local file, which is honest and also

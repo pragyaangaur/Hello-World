@@ -3,7 +3,7 @@
 
 import { h, mount, clear, $ } from '../core/dom.js';
 import * as tasks from '../core/tasks.js';
-import { get, setting } from '../core/state.js';
+import { setting } from '../core/state.js';
 import { on } from '../core/bus.js';
 import { toast } from '../core/notify.js';
 

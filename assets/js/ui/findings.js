@@ -3,9 +3,9 @@
 
 import { h, mount, $ } from '../core/dom.js';
 import { FINDINGS } from '../story/findings.js';
-import { hasFlag, chapter, get } from '../core/state.js';
+import { hasFlag, chapter } from '../core/state.js';
 import { findingsDone } from '../story/engine.js';
-import { RIG, bayTemp, daysSince, ANCHORS } from '../story/cast.js';
+import { RIG, bayTemp } from '../story/cast.js';
 import { CHAPTERS } from '../story/beats.js';
 import { setTitle } from './shell.js';
 

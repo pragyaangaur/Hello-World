@@ -2,7 +2,7 @@
    The last thing every ending does is show the one task nobody ticked. */
 
 import { h, mount, $ } from '../core/dom.js';
-import { get, update, setFlag, hasFlag } from '../core/state.js';
+import { get, setFlag, hasFlag } from '../core/state.js';
 import { ANCHORS, human, daysSince, RIG } from '../story/cast.js';
 import { setTitle } from './shell.js';
 import { toast } from '../core/notify.js';

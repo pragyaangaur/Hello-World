@@ -4,7 +4,7 @@
 
 import { h } from '../core/dom.js';
 import { chapter } from '../core/state.js';
-import { RIG, bayTemp, human, ANCHORS } from './cast.js';
+import { RIG, bayTemp } from './cast.js';
 import { resolveFinding } from './engine.js';
 
 export function liveNote(binding, { reveal = null, value = null } = {}) {
