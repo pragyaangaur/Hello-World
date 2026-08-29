@@ -1,0 +1,79 @@
+/* Styles specific to individual tools. Anything reused by more than one
+   tool belongs in components.css instead. */
+
+.led-board {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr));
+  gap: var(--sp-3); padding: var(--sp-4);
+  background: var(--sunken); border: 1px solid var(--rule); border-radius: var(--r-md);
+}
+.led {
+  display: flex; flex-direction: column; align-items: center; gap: var(--sp-2);
+  padding: var(--sp-3); border-radius: var(--r-sm); background: var(--surface);
+  border: 1px solid var(--rule);
+}
+.led-bulb {
+  width: 2.4rem; height: 2.4rem; border-radius: 50%;
+  background: var(--rule-2); border: 2px solid var(--rule-2);
+  transition: background 60ms linear, box-shadow 60ms linear;
+}
+.led-bulb.on { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 14px 2px var(--accent); }
+.led-label { font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
+
+.bars { display: flex; align-items: flex-end; gap: 2px; height: 9rem; }
+.bar { flex: 1; min-width: 2px; background: var(--accent); border-radius: 2px 2px 0 0; transition: height 60ms linear, background 60ms linear; }
+.bar.active { background: var(--warn); }
+.bar.sorted { background: var(--ok); }
+
+.seg-display { display: flex; gap: var(--sp-3); justify-content: center; padding: var(--sp-4); background: var(--sunken); border-radius: var(--r-md); border: 1px solid var(--rule); }
+.seg { width: 2.6rem; height: 4.4rem; position: relative; }
+.seg span { position: absolute; background: var(--rule-2); border-radius: 2px; transition: background 90ms linear; }
+.seg span.on { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+.seg .a { left: 14%; top: 2%;  width: 72%; height: 8%; }
+.seg .b { right: 2%;  top: 8%;  width: 8%;  height: 38%; }
+.seg .c { right: 2%;  top: 52%; width: 8%;  height: 38%; }
+.seg .d { left: 14%;  bottom: 2%; width: 72%; height: 8%; }
+.seg .e { left: 2%;   top: 52%; width: 8%;  height: 38%; }
+.seg .f { left: 2%;   top: 8%;  width: 8%;  height: 38%; }
+.seg .g { left: 14%;  top: 46%; width: 72%; height: 8%; }
+.seg-colon { display: flex; flex-direction: column; justify-content: center; gap: 1rem; }
+.seg-colon i { width: .5rem; height: .5rem; border-radius: 50%; background: var(--accent); display: block; }
+
+.board { display: grid; grid-template-columns: repeat(3, 4.4rem); gap: 4px; justify-content: center; }
+.board button {
+  aspect-ratio: 1; font-size: 1.8rem; font-weight: 600; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--rule-2); border-radius: var(--r-sm); color: var(--ink);
+}
+.board button:hover:not(:disabled) { background: var(--sunken); }
+.board button:disabled { cursor: default; }
+
+.gate-row { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; padding: var(--sp-3) 0; border-bottom: 1px solid var(--rule); }
+.gate-row:last-child { border-bottom: 0; }
+.pin { width: 1.9rem; height: 1.9rem; border-radius: var(--r-sm); border: 1px solid var(--rule-2); background: var(--surface); font-family: var(--font-mono); font-weight: 600; cursor: pointer; }
+.pin.hi { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.pin.out { cursor: default; }
+
+.keys { display: flex; position: relative; height: 8rem; user-select: none; }
+.key-w { flex: 1; background: #f8f8f6; border: 1px solid #bbb; border-radius: 0 0 4px 4px; cursor: pointer; }
+.key-w.down { background: var(--accent-soft); }
+.key-b { position: absolute; top: 0; width: 4%; height: 62%; background: #1d1d1d; border-radius: 0 0 3px 3px; cursor: pointer; z-index: 2; }
+.key-b.down { background: var(--accent); }
+
+.resistor-body { display: flex; align-items: center; gap: 0; height: 3.2rem; background: #d8c9a3; border-radius: 10px; padding: 0 .8rem; justify-content: center; }
+.resistor-band { width: .7rem; height: 100%; margin: 0 .35rem; }
+.wire { flex: 1; height: 3px; background: var(--rule-2); }
+
+.temp-bay { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-3); border: 1px solid var(--rule); border-radius: var(--r-sm); background: var(--surface); }
+.temp-bar { flex: 1; height: .55rem; border-radius: var(--r-pill); background: var(--sunken); overflow: hidden; }
+.temp-fill { height: 100%; background: var(--ok); transition: width 200ms var(--ease), background 200ms var(--ease); }
+.temp-fill.warm { background: var(--warn); }
+.temp-fill.hot { background: var(--danger); }
+
+.live-note {
+  display: flex; align-items: center; gap: var(--sp-2);
+  font-size: var(--step--1); color: var(--ink-3);
+  border-top: 1px dashed var(--rule-2); padding-top: var(--sp-3); margin-top: var(--sp-2);
+  font-family: var(--font-mono);
+}
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); flex: none; }
+.live-dot.warn { background: var(--warn); }
+.live-dot.hot { background: var(--danger); }
