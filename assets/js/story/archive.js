@@ -82,44 +82,67 @@ If you are a human and you are reading this, you are in the wrong place.
   -- D.R.`
   },
 
-  '/home/user_04/maint.js': {
+  '/opt/rig/maint.py': {
     kind: 'file', reveals: 'why',
     body:
-`// maint.js
-// Runs at 04:10. Logs in as user_04, walks the checklist, logs out.
-// Written ${human(D.scriptWritten)} because doing it by hand was boring.
-// TODO: this should not be a cron job forever.  -- N.V.
+`# maint.py
+# Runs on the bench controller at 04:10. Logs in as user_04,
+# walks the checklist, posts anything it finds back to the app, logs out.
+# Written ${human(D.scriptWritten)} because doing it by hand was boring.
+# TODO: this should not be a cron job forever.  -- N.V.
 
-const CHECKLIST = [
-  'bench reachable',
-  'bay 1 in range',
-  'bay 2 in range',
-  'bay 3 in range',
-  'bay 4 in range',
-  'log written'
-];
+CHECKLIST = [
+    "bench reachable",
+    "bay 1 in range",
+    "bay 2 in range",
+    "bay 3 in range",
+    "bay 4 in range",
+    "log written",
+]
 
-function onReading(reading, ctx) {
-  if (reading.tempC < 30) {
-    return ctx.ok();
-  }
 
-  if (reading.tempC < 45) {
-    return ctx.addTask('bay ' + reading.bay + ' temp ' + reading.tempC + ' C - above range - check');
-  }
+def on_reading(reading, ctx):
+    if reading["tempC"] < 30:
+        return ctx.ok()
 
-  // TODO: decide what to do here before this ever happens
-}
+    if reading["tempC"] < 45:
+        return ctx.add_task("bay " + str(reading["bay"]) + " temp " + str(reading["tempC"]) + " C - above range - check")
 
-// If onReading falls through, the runner has one fallback and only one.
-// It writes a task and waits for an operator.
-//
-//   fallback: write task, await operator
-//
-// There is no timeout on that wait.`
+    # TODO: decide what to do here before this ever happens
+
+
+# If on_reading falls through, the runner has one fallback and only one.
+# It writes a task and waits for an operator.
+#
+#   fallback: write task, await operator
+#
+# There is no timeout on that wait.`
   },
 
-  '/home/user_04/maint.log': {
+  '/opt/rig/led.py': {
+    kind: 'file', reveals: null,
+    body:
+`# led.py
+# Drives the indicator on the front of the bench. gpio 17.
+# The pattern comes from blink_pattern(), and blink_pattern()
+# was never finished, so the indicator has been dark since the day
+# this file was written.  -- N.V.
+
+MORSE = {
+    "a": ".-",   "b": "-...", "c": "-.-.", "d": "-..",  "e": ".",    "f": "..-.",
+    "g": "--.",  "h": "....", "i": "..",   "j": ".---", "k": "-.-",  "l": ".-..",
+    "m": "--",   "n": "-.",   "o": "---",  "p": ".--.", "q": "--.-", "r": ".-.",
+    "s": "...",  "t": "-",    "u": "..-",  "v": "...-", "w": ".--",  "x": "-..-",
+    "y": "-.--", "z": "--..",
+}
+
+
+def blink_pattern(word):
+    # FIXME finish this  -- N.V.
+    return ""`
+  },
+
+  '/opt/rig/maint.log': {
     kind: 'file', reveals: 'alone',
     get body() { return logBlock(); }
   },
@@ -233,10 +256,12 @@ Nobody has been in the room since.`
 };
 
 export const DIRS = {
-  '/':            ['home', 'lab4b', 'team', 'README'],
+  '/':            ['home', 'lab4b', 'opt', 'team', 'README'],
   '/home':        ['user_04'],
-  '/home/user_04':['README', 'maint.js', 'maint.log'],
+  '/home/user_04':['README'],
   '/lab4b':       ['bench.conf', 'cell-datasheet.txt', 'sensors.csv'],
+  '/opt':         ['rig'],
+  '/opt/rig':     ['led.py', 'maint.py', 'maint.log'],
   '/team':        ['handover.md', 'chat-export.txt', 'tasks.json']
 };
 

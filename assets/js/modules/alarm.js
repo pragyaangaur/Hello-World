@@ -29,7 +29,7 @@ export default {
     const ch = chapter();
     let alarms = get().alarms || [];
     if (!alarms.length) {
-      alarms = [{ id: 'a_sys', hh: 4, mm: 10, label: 'maint.js', on: true, system: true }];
+      alarms = [{ id: 'a_sys', hh: 4, mm: 10, label: 'maint.py', on: true, system: true }];
       update(s => { s.alarms = alarms; return s; });
     }
 

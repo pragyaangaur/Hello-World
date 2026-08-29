@@ -34,7 +34,7 @@ export const FINDINGS = [
   {
     id: 'why',
     q: 'Why is it writing tasks?',
-    hint: 'Read maint.js in the Console.',
+    hint: 'Read maint.py in the Console.',
     answer: 'It has no branch for this case. Writing a task is its only fallback.',
     where: '#/console'
   },

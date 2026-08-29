@@ -20,7 +20,7 @@ export function human(d, withTime = false) {
 export const ANCHORS = {
   projectStart: daysAgo(1840),   /* first year, the repo is created          */
   rigBuilt:     daysAgo(1290),   /* the bank goes into Lab 4B                */
-  scriptWritten:daysAgo(1180),   /* Nikhil writes maint.js as a shortcut     */
+  scriptWritten:daysAgo(1180),   /* Nikhil writes maint.py as a shortcut     */
   lastHuman:    daysAgo(806),    /* graduation, everyone stops logging in    */
   lastCommit:   daysAgo(784),    /* the final human commit                   */
   anomaly:      daysAgo(19),     /* bay 3 leaves its range                   */
@@ -39,7 +39,7 @@ export const PEOPLE = {
     id: 'user_02', name: 'Nikhil Vaz', role: 'hardware tools, automation',
     initials: 'NV',
     last: ANCHORS.lastCommit,
-    note: 'Wired the toolbox to the bench in Lab 4B. Wrote maint.js.'
+    note: 'Wired the toolbox to the bench in Lab 4B. Wrote maint.py.'
   },
   user_03: {
     id: 'user_03', name: 'Devika Rao', role: 'simulations, testing',

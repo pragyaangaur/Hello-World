@@ -1,15 +1,20 @@
 /* Three places where the player writes code. Each one is a real problem the
-   app needs solved, and each one gets harder in the same direction. */
+   app needs solved, and each one gets harder in the same direction.
+
+   Two of them are Python, because they do not run here. They run on the
+   controller bolted to the bench in Lab 4B, which has been executing the same
+   two Python files at 04:10 every morning for two years. The middle one is
+   JavaScript, because that one is analysis and it runs in this tab. */
 
 import { RIG, bayTemp } from './cast.js';
 
-const MORSE_SRC = `const MORSE = {
-  a:'.-',   b:'-...', c:'-.-.', d:'-..',  e:'.',    f:'..-.',
-  g:'--.',  h:'....', i:'..',   j:'.---', k:'-.-',  l:'.-..',
-  m:'--',   n:'-.',   o:'---',  p:'.--.', q:'--.-', r:'.-.',
-  s:'...',  t:'-',    u:'..-',  v:'...-', w:'.--',  x:'-..-',
-  y:'-.--', z:'--..'
-};`;
+const MORSE_SRC = `MORSE = {
+    "a": ".-",   "b": "-...", "c": "-.-.", "d": "-..",  "e": ".",    "f": "..-.",
+    "g": "--.",  "h": "....", "i": "..",   "j": ".---", "k": "-.-",  "l": ".-..",
+    "m": "--",   "n": "-.",   "o": "---",  "p": ".--.", "q": "--.-", "r": ".-.",
+    "s": "...",  "t": "-",    "u": "..-",  "v": "...-", "w": ".--",  "x": "-..-",
+    "y": "-.--", "z": "--.."
+}`;
 
 /* Nineteen days of readings across four bays, generated the same way in the
    worker and in the app so the parser and the charts agree. */
@@ -32,32 +37,31 @@ export const CHALLENGES = {
 
   blink: {
     id: 'blink',
+    lang: 'python',
     title: 'Fix the indicator blink pattern',
-    where: 'assets/js/modules/led.js',
+    where: 'bench4b:/opt/rig/led.py',
+    runsOn: 'This file runs on the controller in Lab 4B, not in your browser. What you deploy here is what the bench runs.',
     intro: [
       'The indicator on bench 4B blinks whatever pattern this function returns. Somebody left it half written, so it has been blinking nothing for two years.',
-      'Write blinkPattern. Take a word, turn each letter into Morse using the MORSE table, and join the letters with " / ". Ignore anything that is not a letter, and treat upper and lower case the same.'
+      'Write blink_pattern. Take a word, turn each letter into Morse using the MORSE dictionary, and join the letters with " / ". Ignore anything that is not a letter, and treat upper and lower case the same.'
     ],
-    signature: 'blinkPattern(word) → string',
+    signature: 'blink_pattern(word) -> str',
     starter:
-`function blinkPattern(word) {
-  // MORSE is already defined for you, for example MORSE.s is "..."
-  // Return the letters of \`word\` in Morse, joined with " / ".
-  // "SOS" should come back as "... / --- / ..."
+`def blink_pattern(word):
+    # MORSE is already defined for you, so MORSE["s"] is "..."
+    # Return the letters of word in Morse, joined with " / ".
+    # "SOS" should come back as "... / --- / ..."
 
-  return '';
-}`,
+    return ""`,
     solution:
-`function blinkPattern(word) {
-  return word
-    .toLowerCase()
-    .split('')
-    .filter(function (c) { return MORSE[c]; })
-    .map(function (c) { return MORSE[c]; })
-    .join(' / ');
-}`,
+`def blink_pattern(word):
+    letters = []
+    for c in word.lower():
+        if c in MORSE:
+            letters.append(MORSE[c])
+    return " / ".join(letters)`,
     prelude: MORSE_SRC,
-    fnName: 'blinkPattern',
+    fnName: 'blink_pattern',
     tests: [
       { name: 'SOS comes back as three letters', call: ['SOS'], expect: '... / --- / ...' },
       { name: 'A single letter has no separator', call: ['E'], expect: '.' },
@@ -71,8 +75,10 @@ export const CHALLENGES = {
 
   parse: {
     id: 'parse',
+    lang: 'javascript',
     title: 'Find the failing bay',
     where: 'assets/js/modules/sensorlog.js',
+    runsOn: 'This one runs here, in the app, so it is JavaScript. It is reading a log the controller already sent you.',
     intro: [
       'READINGS holds nineteen days of temperature readings from the four bays on bench 4B. Each entry looks like { day: 0, bay: 1, tempC: 24.1 }, where day 0 is nineteen days ago and day 19 is today.',
       'Write findFailingBay. Work out how much each bay rose between day 0 and day 19, and return the number of the bay that rose by more than 10 degrees. Return null if no bay did.'
@@ -113,44 +119,46 @@ export const CHALLENGES = {
 
   branch: {
     id: 'branch',
+    lang: 'python',
     title: 'Write the missing branch',
-    where: 'maint.js, line 148',
+    where: 'bench4b:/opt/rig/maint.py, line 148',
+    runsOn: 'This is the file the controller runs at 04:10. Deploying it is not a test. It is the next thing that happens in Lab 4B.',
     intro: [
       'This is the function that runs at 04:10 every morning. It has two branches. Below 30 degrees it reports fine. Between 30 and 45 it writes a task and waits for a person.',
       'There is no third branch. Bay 3 has been above 45 for eleven days, so every morning the script has fallen through to the only thing it knows how to do, which is write another task.',
       'Write what happens above 45. You have three actions available and you must use exactly one of them. What you choose is what the app does.'
     ],
-    signature: 'onReading(reading, ctx) → void',
+    signature: 'on_reading(reading, ctx) -> None',
     starter:
-`function onReading(reading, ctx) {
-  if (reading.tempC < 30) {
-    return ctx.ok();
-  }
+`def on_reading(reading, ctx):
+    if reading["tempC"] < 30:
+        return ctx.ok()
 
-  if (reading.tempC < 45) {
-    return ctx.addTask('bay ' + reading.bay + ' temp ' + reading.tempC + ' C - above range - check');
-  }
+    if reading["tempC"] < 45:
+        return ctx.add_task("bay " + str(reading["bay"]) + " temp " + str(reading["tempC"]) + " C - above range - check")
 
-  // Nothing was ever written here. Pick one:
-  //
-  //   ctx.shutdown(reason)   cut the relay on this bay and stop the test
-  //   ctx.escalate(message)  write an incident report and hand it to a person
-  //   ctx.addTask(text)      do what it has been doing for eleven days
-  //
-}`,
+    # Nothing was ever written here. Pick one:
+    #
+    #   ctx.shutdown(reason)    cut the relay on this bay and stop the test
+    #   ctx.escalate(message)   write an incident report and hand it to a person
+    #   ctx.add_task(text)      do what it has been doing for eleven days
+    #`,
     solution:
-`function onReading(reading, ctx) {
-  if (reading.tempC < 30) return ctx.ok();
-  if (reading.tempC < 45) return ctx.addTask('bay ' + reading.bay + ' temp ' + reading.tempC + ' C - above range - check');
-  return ctx.shutdown('bay ' + reading.bay + ' above 45 C');
-}`,
+`def on_reading(reading, ctx):
+    if reading["tempC"] < 30:
+        return ctx.ok()
+
+    if reading["tempC"] < 45:
+        return ctx.add_task("bay " + str(reading["bay"]) + " temp " + str(reading["tempC"]) + " C - above range - check")
+
+    return ctx.shutdown("bay " + str(reading["bay"]) + " above 45 C")`,
     prelude: '',
-    fnName: 'onReading',
+    fnName: 'on_reading',
     special: 'ending',
     tests: [
       { name: 'A cold bay still reports fine', special: 'cold' },
       { name: 'A warm bay still writes a task', special: 'warm' },
-      { name: 'A hot bay does something', special: 'hot' }
+      { name: 'A hot bay does exactly one thing', special: 'hot' }
     ],
     reward: 'branch',
     outro: 'The branch is written. It runs at 04:10.'

@@ -168,7 +168,7 @@ export function mountConsole() {
 `  PID  STARTED       COMMAND
     1   ${human(ANCHORS.lastHuman)}   helloworld  serving :80
    14   ${human(ANCHORS.lastHuman)}   benchlink   10.14.4.62:8140
-  902   04:10 today   maint.js    state=AWAITING_OPERATOR`);
+  902   04:10 today   maint.py    state=AWAITING_OPERATOR`);
         break;
 
       case 'date': write(NOW.toString()); break;
@@ -192,7 +192,7 @@ export function mountConsole() {
 
   const quick = h('div.row.tight');
   for (const cmd of ['help', 'tree', 'whoami', 'uptime', 'ps',
-                     'cat /home/user_04/maint.js', 'cat /home/user_04/maint.log',
+                     'cat /opt/rig/maint.py', 'cat /opt/rig/maint.log',
                      'cat /lab4b/bench.conf', 'cat /lab4b/cell-datasheet.txt',
                      'cat /team/chat-export.txt', 'cat /team/handover.md', 'cat /team/tasks.json']) {
     quick.appendChild(h('button.btn.btn-sm.mono', { type: 'button', onclick: () => { run(cmd); input.focus(); } },
@@ -220,7 +220,7 @@ Connected to bench controller 10.14.4.62:8140.
 You are signed in as user_04.
 Type help to see what you can do, or use the buttons below the window.`);
   write('');
-  Object.keys(get().reads || {}).length === 0 && write('Start with: cat /home/user_04/maint.log', 'hint');
+  Object.keys(get().reads || {}).length === 0 && write('Start with: cat /opt/rig/maint.log', 'hint');
   write('');
   setTimeout(() => input.focus(), 60);
 }
