@@ -110,33 +110,33 @@
    Chapter 0 and 1 use the palette above untouched. From chapter 2 the
    interface cools down, and from chapter 4 it stops asking the viewer. */
 
-:root[data-chapter="2"] { --accent:#2F8C8C; --accent-soft:#E1F0F0; --accent-line:#A6D6D6; --sat:.96; }
+:root[data-chapter="2"], :root[data-chapter="3"] { --accent:#2F8C8C; --accent-soft:#E1F0F0; --accent-line:#A6D6D6; --sat:.96; }
 :root[data-theme="dark"][data-chapter="2"],
-:root[data-chapter="2"] { }
+:root[data-chapter="2"], :root[data-chapter="3"] { }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"])[data-chapter="2"] { --accent:#4FBFC0; --accent-soft:#123030; --accent-line:#265A5A; --accent-ink:#08201F; }
+  :root:not([data-theme="light"])[data-chapter="2"], :root:not([data-theme="light"])[data-chapter="3"] { --accent:#4FBFC0; --accent-soft:#123030; --accent-line:#265A5A; --accent-ink:#08201F; }
 }
-:root[data-theme="dark"][data-chapter="2"] { --accent:#4FBFC0; --accent-soft:#123030; --accent-line:#265A5A; --accent-ink:#08201F; }
+:root[data-theme="dark"][data-chapter="2"], :root[data-theme="dark"][data-chapter="3"] { --accent:#4FBFC0; --accent-soft:#123030; --accent-line:#265A5A; --accent-ink:#08201F; }
 
-:root[data-chapter="3"] {
+:root[data-chapter="4"] {
   --paper:#F1F0EA; --surface:#F8F7F2; --surface-2:#E9E7DF; --sunken:#E3E1D8;
   --rule:#D8D5CB; --rule-2:#C2BEB2;
   --accent:#8A7434; --accent-soft:#F0EADA; --accent-line:#D3C49A; --accent-ink:#FFFFFF;
   --sat:.82; --grain:.035;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"])[data-chapter="3"] {
+  :root:not([data-theme="light"])[data-chapter="4"] {
     --paper:#141513; --surface:#1B1D19; --surface-2:#222420; --sunken:#0F100E;
     --accent:#C9A551; --accent-soft:#2A2413; --accent-line:#5A4C22; --accent-ink:#141210;
   }
 }
-:root[data-theme="dark"][data-chapter="3"] {
+:root[data-theme="dark"][data-chapter="4"] {
   --paper:#141513; --surface:#1B1D19; --surface-2:#222420; --sunken:#0F100E;
   --accent:#C9A551; --accent-soft:#2A2413; --accent-line:#5A4C22; --accent-ink:#141210;
 }
 
-/* Chapters 4 and 5 commit to one look and ignore the viewer's theme. */
-:root[data-chapter="4"], :root[data-chapter="5"] {
+/* The last three acts commit to one look and ignore the viewer's theme. */
+:root[data-chapter="5"], :root[data-chapter="6"], :root[data-chapter="7"] {
   --paper:    #0F1113;
   --surface:  #15181B;
   --surface-2:#1B1F22;
@@ -159,13 +159,21 @@
   --shadow-1: 0 1px 2px rgba(0,0,0,.6);
   --shadow-2: 0 8px 28px rgba(0,0,0,.7);
 }
-:root[data-chapter="5"] {
-  --paper:#08090A; --surface:#0E1011; --sunken:#050607;
-  --accent:#E8A63C; --scan:.07;
+:root[data-chapter="6"] {
+  --paper:#0A0B0C; --surface:#111314; --sunken:#070809;
+  --accent:#E8A63C;
+}
+:root[data-chapter="7"] {
+  --paper:#050506; --surface:#0C0D0E; --sunken:#020203;
+  --accent:#E85C2E; --accent-soft:#2A1108; --accent-line:#5A2413;
+  --ink:#E2E4DE; --danger:#F2604F;
 }
 
-/* Calm mode removes every effect layer but keeps the palette. */
-:root[data-calm="1"] { --scan:0; --grain:0; }
+/* A person who asks their system for less motion gets no effect layers. The
+   game plays exactly the same without them. */
+@media (prefers-reduced-motion: reduce) {
+  :root { --scan: 0 !important; --grain: 0 !important; }
+}
 @media (prefers-reduced-motion: reduce) {
   :root { --dur: 0ms; }
 }

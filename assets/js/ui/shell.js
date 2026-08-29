@@ -5,10 +5,11 @@
 import { h, mount, $ } from '../core/dom.js';
 import { get, chapter, hasFlag } from '../core/state.js';
 import { counts } from '../core/tasks.js';
+import { byId } from '../modules/index.js';
 import { on } from '../core/bus.js';
 import { modal } from '../core/notify.js';
 import { accountCard } from '../story/accounts.js';
-import { CHAPTERS } from '../story/beats.js';
+import { ACTS } from '../story/acts.js';
 import { currentStep } from '../story/engine.js';
 
 const NAV = [
@@ -19,8 +20,7 @@ const NAV = [
     { path: '/tools', label: 'Toolbox', ico: '⌗', min: 1 }
   ]},
   { group: 'Project', items: [
-    { path: '/findings', label: 'Findings', ico: '⌕', min: 3 },
-    { path: '/console', label: 'Console', ico: '\u203a_', min: 4 }
+    { path: '/console', label: 'Console', ico: '\u203a_', min: 6 }
   ]},
   { group: null, items: [
     { path: '/settings', label: 'Settings', ico: '⚙', min: 0 }
@@ -70,7 +70,7 @@ export function renderObjective() {
     bar.hidden = false;
     mount(bar,
       h('span.obj-label', 'done'),
-      h('span.obj-goal', 'You wrote the branch. Every tool still works, and your tasks are still here.'),
+      h('span.obj-goal', 'You sent the word. Every tool still works, and your tasks are still here.'),
       h('a.obj-go', { href: '#/ending' }, 'Read the ending again')
     );
     return;
@@ -80,7 +80,7 @@ export function renderObjective() {
   const counted = step.progress;
 
   mount(bar,
-    h('span.obj-label', `step ${step.n + 1} of 6`),
+    h('span.obj-label', `step ${step.n + 1} of ${step.total}`),
     h('span.obj-goal',
       h('span', step.goal),
       step.hint ? h('span.obj-hint', step.hint) : null),
@@ -90,6 +90,17 @@ export function renderObjective() {
     })) : null,
     step.link ? h('a.obj-go', { href: step.link }, 'Go →') : null
   );
+
+  /* The tools this act needs, as links, so nobody has to hunt the Toolbox for
+     the one thing the puzzle wants. */
+  if (step.tools && step.tools.length) {
+    const row = h('span.obj-tools', h('span.small.dim', 'needs:'));
+    for (const id of step.tools) {
+      const tool = byId(id);
+      if (tool) row.appendChild(h('a.obj-tool', { href: '#/tools/' + id }, tool.name));
+    }
+    bar.appendChild(row);
+  }
 }
 
 export function renderAccount() {
@@ -131,13 +142,12 @@ export function initShell() {
     renderNav();
     renderAccount();
     renderObjective();
-    const beat = CHAPTERS[to];
-    if (beat) announce(`${beat.name}. ${beat.goal}`);
+    const current = ACTS[to];
+    if (current) announce(`${current.name}. ${current.goal}`);
   });
   on('flag', () => { renderNav(); renderAccount(); renderObjective(); });
+  on('story:act', () => { renderNav(); renderAccount(); renderObjective(); });
   on('tool:first', () => renderObjective());
-  on('finding', () => renderObjective());
-  on('challenge:solved', () => renderObjective());
 
   for (const signal of ['task:add', 'task:complete', 'task:reopen', 'task:remove', 'task:clearDone']) {
     on(signal, () => { renderNav(); renderObjective(); });

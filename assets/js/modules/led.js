@@ -1,7 +1,9 @@
 import { h, mount } from '../core/dom.js';
 import { liveNote, lastUsed } from '../story/live.js';
 import { chapter } from '../core/state.js';
-import { SIGNAL_WORD } from '../story/beats.js';
+import { SIGNAL_WORD, LAST_ACT } from '../story/acts.js';
+import { decode } from './morse.js';
+import { emit } from '../core/bus.js';
 import { tone } from '../core/audio.js';
 
 const MORSE = {
@@ -10,9 +12,8 @@ const MORSE = {
   u:'..-',v:'...-',w:'.--',x:'-..-',y:'-.--',z:'--..'
 };
 
-/* Letters are separated by a space, which is what real Morse does and what
-   the translator in the Toolbox expects. Pasting the pattern straight into it
-   gives back a word rather than a row of single letters. */
+/* Letters separated by a space, which is what the Morse translator expects,
+   so the pattern can be pasted between the two tools in either direction. */
 function toMorse(word) {
   return word.toLowerCase().split('').filter(c => MORSE[c]).map(c => MORSE[c]).join(' ');
 }
@@ -27,16 +28,16 @@ export default {
 
   mount(root) {
     const ch = chapter();
-    /* From act 2 the light is not showing what anybody programmed. It is
-       repeating one word, and reading it is the whole of the puzzle. */
-    const listening = ch >= 2;
-    let word = listening ? SIGNAL_WORD : 'sos';
-    let pattern = toMorse(word);
+    const sending = ch >= LAST_ACT;
+    const listening = ch >= 2 && !sending;
+
+    let pattern = sending ? '' : toMorse(listening ? SIGNAL_WORD : 'sos');
     let seq = [], step = 0, timer = null, running = false;
     let unit = 220;
 
     const bulb = h('span.led-bulb');
-    const patternOut = h('div.readout.mono', { style: { fontSize: 'var(--step-1)', userSelect: 'all' } }, pattern);
+    const patternOut = h('div.readout.mono', { style: { fontSize: 'var(--step-1)', userSelect: 'all' } },
+      pattern || '(nothing)');
     const status = h('div.small.dim');
 
     function build() {
@@ -45,7 +46,7 @@ export default {
         if (token === '.') seq.push([true, 1], [false, 1]);
         else if (token === '-') seq.push([true, 3], [false, 1]);
         else if (token === ' ') seq.push([false, 3]);
-        else if (token === '/') seq.push([false, 3]);
+        else if (token === '/') seq.push([false, 5]);
       }
       if (!seq.length) seq = [[false, 4]];
       seq.push([false, 7]);
@@ -66,57 +67,87 @@ export default {
     const controls = h('div.row');
     function paint() {
       mount(controls,
-        h('button.btn.btn-primary', { type: 'button', onclick: () => (running ? stop() : start()) },
-          running ? 'Stop' : 'Watch it'),
+        h('button.btn.btn-primary', { type: 'button', disabled: sending && !pattern,
+          onclick: () => (running ? stop() : start()) }, running ? 'Stop' : 'Blink it'),
         h('label.row.tight', { style: { gap: '.4rem' } },
           h('span.small.lbl', 'Speed'),
-          h('input', {
-            type: 'range', min: '80', max: '450', value: String(unit), style: { width: '7rem' },
-            'aria-label': 'Blink speed',
-            oninput: e => { unit = +e.target.value; }
-          }),
-          h('span.small.mono', unit + ' ms')
-        )
+          h('input', { type: 'range', min: '80', max: '450', value: String(unit),
+            style: { width: '7rem' }, 'aria-label': 'Blink speed',
+            oninput: e => { unit = +e.target.value; } }),
+          h('span.small.mono', unit + ' ms'))
       );
-      status.textContent = `${pattern.replace(/[^.-]/g, '').length} symbols · ${running ? 'repeating' : 'stopped'}`;
+      const symbols = pattern.replace(/[^.-]/g, '').length;
+      status.textContent = symbols
+        ? `${symbols} symbols · ${running ? 'repeating' : 'stopped'}`
+        : 'nothing to send';
     }
 
-    const input = h('input.input', {
-      value: word, 'aria-label': 'Word to blink', disabled: listening,
-      style: { maxWidth: '10rem' }
+    /* ---- the last act: the light works the other way ---- */
+    const sendField = h('input.input.mono', {
+      placeholder: '... - --- .--.',
+      'aria-label': 'Pattern to send',
+      style: { flex: '1', minWidth: '12rem' }
     });
-    input.oninput = () => {
-      if (listening) return;
-      word = input.value;
-      pattern = toMorse(word);
+    const sendWord = h('div.small.dim');
+    const sendBtn = h('button.btn.btn-primary', { type: 'button', disabled: true }, 'Send to bench');
+
+    function readSend() {
+      pattern = sendField.value.replace(/[^.\-\s/]/g, '').replace(/\s+/g, ' ').trim();
       patternOut.textContent = pattern || '(nothing)';
+      const word = decode(pattern).trim().toLowerCase();
+      sendWord.textContent = word ? `reads as: ${word}` : 'not a readable pattern yet';
+      sendBtn.disabled = !word;
+      sendBtn.dataset.word = word;
       if (running) { stop(); start(); }
       paint();
+    }
+
+    sendField.addEventListener('input', readSend);
+    sendBtn.onclick = () => {
+      const word = sendBtn.dataset.word;
+      if (!word) return;
+      stop();
+      start();
+      emit('tool:value', { tool: 'led', value: word });
     };
 
     mount(root,
       h('div.led-board', h('div.led', bulb, h('span.led-label', 'gpio 17'))),
       h('div.card',
-        h('div.row',
-          h('span.lbl', listening ? 'Incoming' : 'Word'),
-          listening ? h('span.small.mono.dim', 'source: bench, not this app') : input,
-          h('span.spacer'), status),
+        sending
+          ? h('div',
+              h('div.row', h('span.lbl', 'Outgoing'), sendField),
+              h('div', { style: { marginTop: '.4rem' } }, sendWord))
+          : h('div.row',
+              h('span.lbl', 'Incoming'),
+              h('span.small.mono.dim', 'source: bench, not this app'),
+              h('span.spacer'), status),
         h('div', { style: { marginTop: '.75rem' } }, patternOut),
         h('div', { style: { marginTop: '.75rem' } }, controls),
-        liveNote('gpio 17 → indicator', { reveal: 'live' })
+        sending ? h('div.row', { style: { marginTop: '.75rem' } }, sendBtn) : null,
+        liveNote('gpio 17 → indicator')
       ),
-      listening
-        ? h('div.card', { style: { borderColor: 'var(--warn)' } },
+
+      sending
+        ? h('div.card', { style: { borderColor: 'var(--danger)' } },
             h('p', { style: { marginBottom: '.5rem' } },
-              'This is not a pattern anybody set. The controller has been driving the indicator with the same short sequence for nineteen days, and it repeats forever.'),
+              'The controller has one channel it will listen on and this is it. Put a word through the Morse translator, paste the dots and dashes here, and send it.'),
             h('p.small', { style: { marginBottom: '.75rem' } },
-              'Copy the dots and dashes above into the Morse translator. Then write what it says on your task list.'),
-            h('a.btn.btn-primary', { href: '#/tools/morse' }, 'Open the Morse translator'))
-        : null,
+              'It knows two words. One of them ends the test. The other is the word it has been sending you.'),
+            h('a.btn', { href: '#/tools/morse' }, 'Open the Morse translator'))
+        : listening
+          ? h('div.card', { style: { borderColor: 'var(--warn)' } },
+              h('p', { style: { marginBottom: '.5rem' } },
+                'This is not a pattern anybody set. The controller has been driving the indicator with the same short sequence for nineteen days and it repeats forever.'),
+              h('p.small', { style: { marginBottom: '.75rem' } },
+                'Copy the dots and dashes above into the Morse translator, then write what it says on your task list.'),
+              h('a.btn.btn-primary', { href: '#/tools/morse' }, 'Open the Morse translator'))
+          : null,
       lastUsed()
     );
+
     paint();
-    start();
+    if (!sending) start();
     return () => { running = false; clearTimeout(timer); };
   }
 };

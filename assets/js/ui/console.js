@@ -4,7 +4,6 @@
 
 import { h, mount, $ } from '../core/dom.js';
 import { FS, readFile, isDir, listDir } from '../story/archive.js';
-import { resolveFinding } from '../story/engine.js';
 import { get, update, chapter } from '../core/state.js';
 import { ANCHORS, human, daysSince, NOW } from '../story/cast.js';
 import { setTitle } from './shell.js';
@@ -39,18 +38,22 @@ function join(cwd, arg) {
 }
 
 export function mountConsole() {
-  const view = $('#view');
-  view.dataset.page = 'console';
-  setTitle('Console');
-
-  if (chapter() < 4) {
-    mount(view, h('div.page', h('div.empty',
-      h('div.big', '›_'),
-      h('p', 'The console is not available in this build yet.'),
-      h('a.btn', { href: '#/tasks' }, 'Back to your tasks')
+  /* The archive is reachable only once the incident key has been generated,
+     because that is what act five is for. */
+  if (chapter() < 6) {
+    const locked = $('#view');
+    locked.dataset.page = 'console';
+    mount(locked, h('div.page', h('div.empty',
+      h('div.big', '•••'),
+      h('p', 'The archive needs a key. Generate one in the password tool and put it on the list.'),
+      h('a.btn', { href: '#/tools/passwordgen' }, 'Password generator')
     )));
     return;
   }
+
+  const view = $('#view');
+  view.dataset.page = 'console';
+  setTitle('Console');
 
   let cwd = '/';
   const history = [];
@@ -109,7 +112,6 @@ export function mountConsole() {
     writeBlock(file.body, 'file');
     write('');
     update(s => { s.reads = { ...s.reads, [path]: true }; return s; });
-    if (file.reveals) resolveFinding(file.reveals);
     return true;
   }
 
@@ -153,13 +155,11 @@ export function mountConsole() {
 
       case 'whoami':
         writeBlock(`user_04\n\nCreated ${human(ANCHORS.projectStart)}.\nNot assigned to a person.\nLast interactive login before this session: never.`);
-        resolveFinding('who');
         break;
 
       case 'uptime': {
         const d = daysSince(ANCHORS.lastHuman);
         writeBlock(`session open ${Math.floor(d / 365)}y ${d % 365}d\nlast human login on any account: ${human(ANCHORS.lastHuman)}\nlogins by user_04 since then: ${d}`);
-        resolveFinding('alone');
         break;
       }
 

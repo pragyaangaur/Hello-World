@@ -4,7 +4,6 @@
 
 import { h } from '../core/dom.js';
 import { chapter, hasFlag, setFlag } from '../core/state.js';
-import { resolveFinding } from './engine.js';
 import { PEOPLE, human, daysSince, ANCHORS } from './cast.js';
 
 export function accountCard() {
@@ -18,7 +17,6 @@ export function accountCard() {
   }
 
   setFlag('accounts.seen');
-  if (ch >= 3) queueMicrotask(() => resolveFinding('who'));
 
   const rows = Object.values(PEOPLE).map(p => {
     const stale = daysSince(p.last) > 90;

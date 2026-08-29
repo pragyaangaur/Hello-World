@@ -45,11 +45,7 @@ export function mountSettings() {
             h('div.s-main', h('div.s-name', 'Theme'), h('div.s-desc', 'Light, dark, or whatever your system is set to.')),
             themeSel
           ),
-          toggleRow('Calm mode', 'Turns off every visual effect and sudden sound. Nothing else changes.', 'calm', () => {
-            applyDocumentAttributes();
-            toast('Calm mode', setting('calm') ? 'Effects are off.' : 'Effects are back on.');
-          }),
-          toggleRow('Sound', 'Lets the tools that make noise make noise. Off by default.', 'sound')
+          toggleRow('Sound', 'The bench is noisy. Turning this off keeps everything else the same.', 'sound')
         )
       ),
 

@@ -5,7 +5,6 @@
 import { h } from '../core/dom.js';
 import { chapter } from '../core/state.js';
 import { RIG, bayTemp } from './cast.js';
-import { resolveFinding } from './engine.js';
 
 export function liveNote(binding, { reveal = null, value = null } = {}) {
   const ch = chapter();
@@ -17,8 +16,6 @@ export function liveNote(binding, { reveal = null, value = null } = {}) {
   if (ch < 3) {
     return h('div.live-note', `source: bench 4B · ${binding} · last read 04:10`);
   }
-
-  if (reveal) queueMicrotask(() => resolveFinding(reveal));
 
   const temp = bayTemp(19);
   const level = temp > 55 ? 'hot' : temp > 40 ? 'warn' : '';

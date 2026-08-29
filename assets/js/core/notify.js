@@ -1,7 +1,6 @@
 /* Toasts and modal dialogs. */
 
 import { h, $, clear } from './dom.js';
-import { get } from './state.js';
 
 const holder = () => $('#toasts');
 
@@ -11,7 +10,7 @@ export function toast(title, body, { kind = '', ms = 4200 } = {}) {
     body ? h('div.t-body', body) : null
   );
   holder().appendChild(el);
-  const life = get().settings.calm ? ms + 2000 : ms;
+  const life = ms;
   setTimeout(() => {
     el.style.transition = 'opacity 200ms, transform 200ms';
     el.style.opacity = '0';

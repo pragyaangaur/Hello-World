@@ -1,9 +1,6 @@
 import { h, mount, fmt } from '../core/dom.js';
 import { RIG, bayTemp, isoDate, NOW, readings } from '../story/cast.js';
-import { setFlag, hasFlag } from '../core/state.js';
 import { liveNote } from '../story/live.js';
-import { resolveFinding } from '../story/engine.js';
-import { toast } from '../core/notify.js';
 
 export default {
   id: 'sensorlog',
@@ -112,40 +109,16 @@ export default {
       ));
     }
 
-    /* Marking the bay is the whole exercise. It is one click, and the log
-       has never worked out its own answer because nobody wrote that part. */
+    /* No puzzle here. It is a chart, and the shape of one of these lines is
+       the whole point of it. */
     function paintVerdict() {
-      const found = hasFlag('bay.found');
-      if (found) {
-        queueMicrotask(() => resolveFinding('bay'));
-        mount(verdict,
-          h('div.card-head', { style: { border: 0, padding: 0, marginBottom: '.75rem' } }, 'Marked'),
-          h('h3', { style: { marginBottom: '.5rem' } }, 'Bay ' + RIG.faultBay),
-          h('p.small', `Up ${fmt(bayTemp(19) - bayTemp(0), 1)} degrees in nineteen days, and reading ${fmt(bayTemp(19), 1)} °C right now.`),
-          h('p.small.dim', { style: { marginBottom: 0 } },
-            'Storage range for the pack is 18 to 30. The separator starts breaking down at 60.')
-        );
-        verdict.style.borderColor = 'var(--accent)';
-        return;
-      }
       verdict.style.borderColor = 'var(--warn)';
       mount(verdict,
         h('div.card-head', { style: { border: 0, padding: 0, marginBottom: '.75rem' } }, 'Four channels, no summary'),
-        h('p.small', 'The log records every reading and works out nothing at all. Look at the lines and mark the one that is failing.'),
-        h('div.row.tight', ...[1, 2, 3, 4].map(bay =>
-          h('button.btn', {
-            type: 'button',
-            onclick: () => {
-              if (bay !== RIG.faultBay) {
-                toast('Not that one', `Bay ${bay} has stayed inside its range for the whole nineteen days.`);
-                showBay = bay; draw(); paintBays();
-                return;
-              }
-              setFlag('bay.found');
-              showBay = bay; draw(); paintBays(); paintVerdict();
-            }
-          }, 'Bay ' + bay))
-        )
+        h('p.small', 'The log records every reading and works out nothing at all.'),
+        h('p.small', `Bay ${RIG.faultBay} is up ${fmt(bayTemp(19) - bayTemp(0), 1)} degrees in nineteen days and reads ${fmt(bayTemp(19), 1)} °C right now.`),
+        h('p.small.dim', { style: { marginBottom: 0 } },
+          'Storage range for the pack is 18 to 30.')
       );
     }
 

@@ -16,11 +16,9 @@ const DEFAULTS = {
   challenges: { blink: false, parse: false, branch: false },
   reads: {},
   ending: null,
-  noticeAccepted: false,
   settings: {
     theme: 'system',
-    calm: false,
-    sound: false,
+    sound: true,
     showCompleted: true
   }
 };
@@ -116,7 +114,6 @@ export function factoryReset() {
 export function applyDocumentAttributes() {
   const root = document.documentElement;
   root.dataset.chapter = String(state.chapter);
-  root.dataset.calm = state.settings.calm ? '1' : '0';
   if (state.settings.theme === 'system') delete root.dataset.theme;
   else root.dataset.theme = state.settings.theme;
 }

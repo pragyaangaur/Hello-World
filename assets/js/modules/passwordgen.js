@@ -1,5 +1,6 @@
 import { h, mount, field } from '../core/dom.js';
 import { toast } from '../core/notify.js';
+import { emit } from '../core/bus.js';
 
 const SETS = {
   lower: 'abcdefghijkmnopqrstuvwxyz',
@@ -68,6 +69,7 @@ export default {
       const label = bits < 45 ? 'weak' : bits < 65 ? 'reasonable' : bits < 90 ? 'strong' : 'very strong';
       strength.textContent = `About ${bits} bits of entropy, which is ${label}.`;
       strength.style.color = bits < 45 ? 'var(--danger)' : bits < 65 ? 'var(--warn)' : 'var(--ok)';
+      if (value) emit('tool:value', { tool: 'passwordgen', value });
     }
 
     slider.oninput = e => { len = +e.target.value; lenLabel.textContent = String(len); regen(); };

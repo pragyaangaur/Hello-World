@@ -1,5 +1,6 @@
 import { h, mount } from '../core/dom.js';
 import { blip } from '../core/audio.js';
+import { emit } from '../core/bus.js';
 
 /* Standard dice notation: 2d6+3, 4d10, d20-1. */
 export function parseNotation(src) {
@@ -66,6 +67,8 @@ export default {
         : '';
       tally.set(r.total, (tally.get(r.total) || 0) + 1);
       drawChart();
+      /* A single die is the only roll anything outside this tool cares about. */
+      if (spec.count === 1 && !spec.mod) emit('tool:value', { tool: 'dice', value: r.total });
     }
 
     input.addEventListener('keydown', e => { if (e.key === 'Enter') doRoll(); });

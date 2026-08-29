@@ -12,7 +12,7 @@ const ENDINGS = {
     key: 'Cut',
     title: 'The relay opens at 04:10',
     lines: [
-      `The script logs in. Bay ${RIG.faultBay} reads 61.4 degrees. It reaches the branch you wrote, opens the relay, and the pack stops drawing.`,
+      `The pattern goes down the wire at 04:10:02. The controller reads four letters, matches them, and throws the relay on bay ${RIG.faultBay}. The pack stops drawing.`,
       'Over the next six hours the temperature falls back through 45, through 30, and settles at 24. The morning after that, all four bays report nominal and the checklist comes back six out of six for the first time in nineteen days.',
       'It writes one more line to the log and then, for the first time in two years, it has nothing to say.'
     ],
@@ -23,7 +23,7 @@ const ENDINGS = {
     key: 'Reported',
     title: 'A report leaves the building',
     lines: [
-      `The script logs in. Bay ${RIG.faultBay} reads 61.4 degrees. It reaches the branch you wrote, writes an incident report, and sends it to the address in the bench booking, which is the only address it has.`,
+      `You sent it its own word back. The controller takes that as a confirmed alarm, writes the incident report it has been unable to justify for nineteen days, and pushes it to the only address the bench booking has.`,
       'That address belongs to the Applied Sciences store room. Somebody reads it at nine. Somebody else finds a key.',
       'The pack keeps climbing while all that happens, because a report is not a relay. It is still climbing when the door opens.'
     ],
@@ -34,9 +34,9 @@ const ENDINGS = {
     key: 'Waiting',
     title: 'It writes another one',
     lines: [
-      `The script logs in. Bay ${RIG.faultBay} reads 61.4 degrees. It reaches the branch you wrote, and the branch you wrote is the branch it already had.`,
+      `The controller reads the pattern, finds nothing it recognises, and falls back to the only thing it knows how to do.`,
       'It writes a task. It waits for an operator. There is no timeout on that wait.',
-      'You are the operator. You read the whole log, you found the bay, you decided what happened next, and what you chose was another line on a list.'
+      'You are the operator. You opened the cabinet, you found the number nobody converted, and what you finally sent was a word it could not read.'
     ],
     log: 'no branch for state ABOVE_RANGE · fallback: write task, await operator',
     after: 'It will run again tomorrow at 04:10, and it will do exactly this. It is very good at it.'
@@ -51,8 +51,8 @@ export function mountEnding() {
 
   if (!e) {
     mount(view, h('div.page', h('div.empty',
-      h('p', 'You have not written the branch yet.'),
-      h('a.btn', { href: '#/lab/branch' }, 'Write it')
+      h('p', 'You have not sent anything to the bench yet.'),
+      h('a.btn', { href: '#/tools/led' }, 'Open the indicator')
     )));
     return;
   }
@@ -110,7 +110,7 @@ export function mountEnding() {
         h('p.small.muted', 'Your tasks are still in the Tasks tab, and every tool still works. Nothing has been taken away.'),
         h('div.row',
           h('a.btn', { href: '#/tasks' }, 'Back to your tasks'),
-          h('a.btn.btn-ghost', { href: '#/lab/branch' }, 'Write a different branch')
+          h('a.btn.btn-ghost', { href: '#/tools/led' }, 'Send a different word')
         )
       )
     )
