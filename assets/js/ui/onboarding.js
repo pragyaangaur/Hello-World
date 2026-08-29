@@ -15,8 +15,8 @@ export function maybeShowNotice(done) {
     h('p', 'Hello World is a to-do list. It also carries a toolbox of small projects, and a story that unfolds through them as you use the app.'),
     h('p', 'The story is a quiet one. There is no gore, no jump scare, and nothing that pretends your computer has a problem. It does involve an accident at a university and a system that has been left running too long.'),
     h('p.small.muted', 'Everything is stored in your browser. Nothing is uploaded, and there is no account.'),
-    h('label.row.tight', { style: { gap: '.5rem', cursor: 'pointer', marginTop: '1rem' } },
-      calmBox,
+    h('label', { style: { display: 'flex', alignItems: 'flex-start', gap: '.6rem', cursor: 'pointer', marginTop: '1.25rem' } },
+      h('span', { style: { flex: 'none', paddingTop: '.15rem' } }, calmBox),
       h('span.small', 'Start in calm mode. Keeps the whole story, turns off every visual effect and sound.')
     )
   );
