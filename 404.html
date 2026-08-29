@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Not found · Hello World</title>
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232e9e6b'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11.5' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/Hello-World/assets/css/tokens.css">
+<link rel="stylesheet" href="/Hello-World/assets/css/base.css">
+<style>
+  .wrap { max-width: 32rem; margin: 0 auto; padding: 6rem 1.5rem; }
+  .code { font-family: var(--font-mono); font-size: 3.5rem; color: var(--ink-3); line-height: 1; }
+  h1 { margin: 1rem 0 .5rem; font-size: 1.5rem; }
+  .log { font-family: var(--font-mono); font-size: .8rem; color: var(--ink-3);
+         border-left: 2px solid var(--rule-2); padding-left: .9rem; margin-top: 2rem; white-space: pre-wrap; }
+  .btn { display:inline-block; margin-top: 1.5rem; padding: .5rem .9rem; border-radius: 6px;
+         border: 1px solid var(--rule-2); text-decoration: none; color: var(--ink); }
+  .btn:hover { background: var(--surface-2); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="code">404</div>
+  <h1>There is nothing at that address.</h1>
+  <p class="muted">Hello World keeps its pages behind the hash, so a link like
+    <code>/tools/calculator</code> without the <code>#</code> lands here.</p>
+  <a class="btn" href="/Hello-World/">Back to your tasks</a>
+  <div class="log" id="log" hidden></div>
+</div>
+<script>
+  /* If this browser has been through the app, say so in the app's own voice. */
+  try {
+    const raw = localStorage.getItem('helloworld.v1');
+    const chapter = raw ? (JSON.parse(raw).chapter || 0) : 0;
+    if (chapter >= 4) {
+      const el = document.getElementById('log');
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      el.textContent =
+        hh + ':' + mm + '  GET ' + location.pathname + ' 404\n' +
+        hh + ':' + mm + '  logged by user_04\n' +
+        hh + ':' + mm + '  no branch for state NOT_FOUND\n' +
+        hh + ':' + mm + '  fallback: write task, await operator';
+      el.hidden = false;
+    }
+  } catch (e) { /* private mode, nothing to say */ }
+</script>
+</body>
+</html>
