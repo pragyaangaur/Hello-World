@@ -1,0 +1,171 @@
+/* Design tokens.
+   The palette is keyed off <html data-chapter> so the interface can shift
+   its temperature over time without any component knowing about it. */
+
+:root {
+  --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --step--1: 0.8125rem;
+  --step-0:  0.9375rem;
+  --step-1:  1.0625rem;
+  --step-2:  1.3125rem;
+  --step-3:  1.75rem;
+  --step-4:  2.25rem;
+
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
+
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-pill: 999px;
+
+  --paper:    #FBFAF7;
+  --surface:  #FFFFFF;
+  --surface-2:#F3F2ED;
+  --sunken:   #EEEDE7;
+  --ink:      #1C1B19;
+  --ink-2:    #55534E;
+  --ink-3:    #8B8880;
+  --rule:     #E2E0D9;
+  --rule-2:   #CFCCC3;
+
+  --accent:      #2E9E6B;
+  --accent-ink:  #FFFFFF;
+  --accent-soft: #E4F3EC;
+  --accent-line: #A9DCC5;
+
+  --danger:  #B4402F;
+  --warn:    #A87413;
+  --ok:      #2E9E6B;
+  --info:    #2F6F8C;
+
+  --shadow-1: 0 1px 2px rgba(28,27,25,.06), 0 1px 1px rgba(28,27,25,.04);
+  --shadow-2: 0 4px 16px rgba(28,27,25,.10), 0 1px 3px rgba(28,27,25,.06);
+
+  --scan: 0;      /* CRT scanline opacity, raised in later chapters */
+  --grain: 0;     /* film grain opacity */
+  --shift: 0deg;  /* global hue rotation */
+  --sat: 1;       /* global saturation */
+
+  --sidebar-w: 15rem;
+  --measure: 40rem;
+  --dur: 180ms;
+  --ease: cubic-bezier(.2,.7,.3,1);
+}
+
+/* ---- Dark, for the three states the viewer can be in ---- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:    #16181A;
+    --surface:  #1D2023;
+    --surface-2:#23272A;
+    --sunken:   #121416;
+    --ink:      #E6E8E6;
+    --ink-2:    #A6ABA8;
+    --ink-3:    #71776F;
+    --rule:     #2C3033;
+    --rule-2:   #3A3F43;
+    --accent:      #46C48A;
+    --accent-ink:  #0E1A14;
+    --accent-soft: #163023;
+    --accent-line: #2A5C44;
+    --danger: #E2705C;
+    --warn:   #D9A441;
+    --ok:     #46C48A;
+    --info:   #6BB4D4;
+    --shadow-1: 0 1px 2px rgba(0,0,0,.45);
+    --shadow-2: 0 6px 22px rgba(0,0,0,.55);
+  }
+}
+:root[data-theme="dark"] {
+  --paper:    #16181A;
+  --surface:  #1D2023;
+  --surface-2:#23272A;
+  --sunken:   #121416;
+  --ink:      #E6E8E6;
+  --ink-2:    #A6ABA8;
+  --ink-3:    #71776F;
+  --rule:     #2C3033;
+  --rule-2:   #3A3F43;
+  --accent:      #46C48A;
+  --accent-ink:  #0E1A14;
+  --accent-soft: #163023;
+  --accent-line: #2A5C44;
+  --danger: #E2705C;
+  --warn:   #D9A441;
+  --ok:     #46C48A;
+  --info:   #6BB4D4;
+  --shadow-1: 0 1px 2px rgba(0,0,0,.45);
+  --shadow-2: 0 6px 22px rgba(0,0,0,.55);
+}
+
+/* ---- Chapter drift ----
+   Chapter 0 and 1 use the palette above untouched. From chapter 2 the
+   interface cools down, and from chapter 4 it stops asking the viewer. */
+
+:root[data-chapter="2"] { --accent:#2F8C8C; --accent-soft:#E1F0F0; --accent-line:#A6D6D6; --sat:.96; }
+:root[data-theme="dark"][data-chapter="2"],
+:root[data-chapter="2"] { }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"])[data-chapter="2"] { --accent:#4FBFC0; --accent-soft:#123030; --accent-line:#265A5A; --accent-ink:#08201F; }
+}
+:root[data-theme="dark"][data-chapter="2"] { --accent:#4FBFC0; --accent-soft:#123030; --accent-line:#265A5A; --accent-ink:#08201F; }
+
+:root[data-chapter="3"] {
+  --paper:#F1F0EA; --surface:#F8F7F2; --surface-2:#E9E7DF; --sunken:#E3E1D8;
+  --rule:#D8D5CB; --rule-2:#C2BEB2;
+  --accent:#8A7434; --accent-soft:#F0EADA; --accent-line:#D3C49A; --accent-ink:#FFFFFF;
+  --sat:.82; --grain:.035;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"])[data-chapter="3"] {
+    --paper:#141513; --surface:#1B1D19; --surface-2:#222420; --sunken:#0F100E;
+    --accent:#C9A martin; --accent:#C9A551; --accent-soft:#2A2413; --accent-line:#5A4C22; --accent-ink:#141210;
+  }
+}
+:root[data-theme="dark"][data-chapter="3"] {
+  --paper:#141513; --surface:#1B1D19; --surface-2:#222420; --sunken:#0F100E;
+  --accent:#C9A551; --accent-soft:#2A2413; --accent-line:#5A4C22; --accent-ink:#141210;
+}
+
+/* Chapters 4 and 5 commit to one look and ignore the viewer's theme. */
+:root[data-chapter="4"], :root[data-chapter="5"] {
+  --paper:    #0F1113;
+  --surface:  #15181B;
+  --surface-2:#1B1F22;
+  --sunken:   #0A0C0D;
+  --ink:      #D6DAD4;
+  --ink-2:    #8E948B;
+  --ink-3:    #5F655D;
+  --rule:     #23282B;
+  --rule-2:   #333A3E;
+  --accent:      #D9902E;
+  --accent-ink:  #120C04;
+  --accent-soft: #2A1D0B;
+  --accent-line: #5A3E15;
+  --danger: #D9564A;
+  --warn:   #D9902E;
+  --ok:     #5FA872;
+  --info:   #6497AD;
+  --grain: .05;
+  --scan: .05;
+  --shadow-1: 0 1px 2px rgba(0,0,0,.6);
+  --shadow-2: 0 8px 28px rgba(0,0,0,.7);
+}
+:root[data-chapter="5"] {
+  --paper:#08090A; --surface:#0E1011; --sunken:#050607;
+  --accent:#E8A63C; --scan:.07;
+}
+
+/* Calm mode removes every effect layer but keeps the palette. */
+:root[data-calm="1"] { --scan:0; --grain:0; }
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur: 0ms; }
+}
