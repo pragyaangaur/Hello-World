@@ -127,7 +127,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"])[data-chapter="3"] {
     --paper:#141513; --surface:#1B1D19; --surface-2:#222420; --sunken:#0F100E;
-    --accent:#C9A martin; --accent:#C9A551; --accent-soft:#2A2413; --accent-line:#5A4C22; --accent-ink:#141210;
+    --accent:#C9A551; --accent-soft:#2A2413; --accent-line:#5A4C22; --accent-ink:#141210;
   }
 }
 :root[data-theme="dark"][data-chapter="3"] {
