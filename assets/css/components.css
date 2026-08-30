@@ -642,6 +642,40 @@ canvas.stage { width: 100%; border: 1px solid var(--rule); border-radius: var(--
 }
 .objective[data-done="1"] { border-bottom-color: var(--accent-line); }
 
+/* ---- the end ---- */
+.end-hero {
+  display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-2);
+  padding: var(--sp-6) var(--sp-5); margin-bottom: var(--sp-5);
+  border: 1px solid var(--rule); border-radius: var(--r-md); background: var(--surface);
+}
+.end-mark {
+  width: 3rem; height: 3rem; border-radius: 50%; display: grid; place-items: center;
+  font-size: var(--step-3); font-weight: 700;
+  background: var(--sunken); color: var(--ink-2); margin-bottom: var(--sp-2);
+}
+.end-good .end-mark { background: var(--accent-soft); color: var(--ok); }
+.end-good { border-color: var(--accent-line); }
+.end-warn .end-mark { background: transparent; border: 1px solid var(--warn); color: var(--warn); }
+.end-bad .end-mark { background: transparent; border: 1px solid var(--danger); color: var(--danger); }
+.end-hero h1 { font-size: var(--step-3); }
+.end-final { margin-top: var(--sp-3); }
+.end-temp {
+  display: block; font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  font-size: var(--step-2); font-weight: 700;
+}
+.end-good .end-temp { color: var(--ok); }
+.end-warn .end-temp { color: var(--warn); }
+.end-bad .end-temp { color: var(--danger); }
+.end-temp-sub { font-size: var(--step--1); color: var(--ink-3); }
+
+.end-card { text-align: center; padding: var(--sp-6) 0; }
+.end-rule { height: 1px; background: var(--rule); }
+.end-word {
+  font-size: var(--step-4); font-weight: 700; letter-spacing: -.02em;
+  padding: var(--sp-5) 0 var(--sp-2);
+}
+.end-sub { color: var(--ink-3); font-size: var(--step--1); padding-bottom: var(--sp-5); margin: 0; }
+.end-back { border-color: var(--accent-line); }
 .quest-bands { display: inline-flex; gap: 4px; align-items: center; margin-left: var(--sp-1); }
 .quest-band {
   width: 9px; height: 1.4rem; border-radius: 2px; border: 1px solid rgba(0,0,0,.2);
