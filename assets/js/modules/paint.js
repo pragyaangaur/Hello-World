@@ -1,4 +1,6 @@
 import { h, mount } from '../core/dom.js';
+import { LEFT_SKETCH, ghost, setGhost } from '../story/residue.js';
+import { chapter } from '../core/state.js';
 
 export default {
   id: 'paint',
@@ -16,6 +18,11 @@ export default {
     let last = null;
     const strokes = [];
     let currentStroke = null;
+
+    /* The pad opens with somebody else's drawing on it. It is a bench, four
+       cells, and a ring round the third one, and it is stored in normalised
+       coordinates so it lands correctly whatever size the canvas ends up. */
+    let inherited = chapter() >= 1 && !ghost('paint.cleared', false);
 
     function fit() {
       const rect = canvas.getBoundingClientRect();
@@ -35,6 +42,23 @@ export default {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.restore();
       ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+
+      if (inherited) {
+        const w = canvas.clientWidth || 640;
+        const style2 = getComputedStyle(document.documentElement);
+        for (const s of LEFT_SKETCH) {
+          ctx.strokeStyle = s.hot
+            ? (style2.getPropertyValue('--danger').trim() || '#b4402f')
+            : (style2.getPropertyValue('--ink-3').trim() || '#8b8880');
+          ctx.globalAlpha = 0.55;
+          ctx.lineWidth = s.w;
+          ctx.beginPath();
+          s.p.forEach(([x, y], i) => (i ? ctx.lineTo(x * w, y * 460) : ctx.moveTo(x * w, y * 460)));
+          ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+      }
+
       for (const s of strokes) {
         if (s.points.length < 2) continue;
         ctx.strokeStyle = s.colour; ctx.lineWidth = s.size;
@@ -98,7 +122,7 @@ export default {
         h('button.btn.btn-sm', { type: 'button', 'aria-pressed': String(erasing), onclick: () => { erasing = !erasing; paintBar(); } }, erasing ? 'Erasing' : 'Eraser'),
         h('span.spacer'),
         h('button.btn.btn-sm', { type: 'button', onclick: () => { strokes.pop(); redraw(); } }, 'Undo'),
-        h('button.btn.btn-sm.btn-ghost', { type: 'button', onclick: () => { strokes.length = 0; redraw(); } }, 'Clear'),
+        h('button.btn.btn-sm.btn-ghost', { type: 'button', onclick: () => { strokes.length = 0; inherited = false; setGhost('paint.cleared', true); redraw(); } }, 'Clear'),
         h('button.btn.btn-sm', { type: 'button', onclick: () => {
           const a = h('a', { href: canvas.toDataURL('image/png'), download: 'sketch.png' });
           document.body.appendChild(a); a.click(); a.remove();
@@ -107,7 +131,10 @@ export default {
     }
     paintBar();
 
-    mount(root, bar, canvas, h('p.small.dim', 'Works with a mouse, a trackpad, or a finger.'));
+    mount(root, bar, canvas,
+      h('p.small.dim', inherited
+        ? 'Works with a mouse, a trackpad, or a finger. Clear wipes the restored drawing too.'
+        : 'Works with a mouse, a trackpad, or a finger.'));
     requestAnimationFrame(fit);
 
     return () => {
