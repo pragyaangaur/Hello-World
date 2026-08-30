@@ -35,7 +35,6 @@ const TRACES = {
   passwordgen:{ who: DR, line: 'test account key generated here · never used' },
   dice:       { who: NV, line: 'rota roll · 4 players · one result kept' },
   weather:    { who: IS, line: 'last sync ' + ago() },
-  sensorlog:  { who: NV, line: 'still logging · 19 days above range' },
   scope:      { who: NV, line: 'one capture saved · channel A · bench supply' },
   orbit:      { who: DR, line: 'system saved · she called it "the good one"' },
   pendulum:   { who: DR, line: 'preset restored · lab demo 3' },

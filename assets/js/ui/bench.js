@@ -88,7 +88,8 @@ export function mountBench() {
     ),
 
     h('div.card.flush', { style: { marginTop: 'var(--sp-4)' } },
-      h('div.card-head', 'bay temperatures · last 19 days'),
+      h('div.card-head', 'bay temperatures · last 19 days',
+        h('span.spacer'), h('span.small.dim.mono', 'ds18b20 1-4 · 04:10 daily')),
       h('div.card-body', chart())
     ),
 
