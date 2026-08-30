@@ -574,6 +574,25 @@ canvas.stage { width: 100%; border: 1px solid var(--rule); border-radius: var(--
 .art-sheet-live .art-sheet-v { color: var(--danger); }
 .art-bench { padding: var(--sp-3); }
 
+/* A tool saying what the story wants from it, in the tool itself. */
+.quest {
+  display: flex; align-items: center; gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4); margin-bottom: var(--sp-3);
+  border: 1px solid var(--accent-line); border-radius: var(--r-sm);
+  background: var(--accent-soft); font-size: var(--step--1); font-weight: 600;
+}
+.quest[data-hit="1"] { border-color: var(--ok); }
+.quest-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+  animation: sync-pulse 1.2s ease-in-out infinite;
+}
+.quest-dot.hit { background: var(--ok); animation: none; }
+@media (prefers-reduced-motion: reduce) { .quest-dot { animation: none; } }
+
+.quest-bands { display: inline-flex; gap: 4px; align-items: center; margin-left: var(--sp-1); }
+.quest-band {
+  width: 9px; height: 1.4rem; border-radius: 2px; border: 1px solid rgba(0,0,0,.2);
+}
 
 /* On a phone the sidebar is a horizontal strip, so the chip lies down and
    drops everything that will not fit on one line. */
