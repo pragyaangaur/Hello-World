@@ -458,6 +458,15 @@ canvas.stage { width: 100%; border: 1px solid var(--rule); border-radius: var(--
 .bc-bar span { display: block; height: 100%; background: var(--danger); transition: width 900ms var(--ease); }
 .bc-sub { font-size: 11px; color: var(--ink-3); }
 
+/* On a phone the sidebar is a horizontal strip, so the chip lies down and
+   drops everything that will not fit on one line. */
+@media (max-width: 800px) {
+  .bench-slot { padding: 0; flex: none; }
+  .bench-chip { flex-direction: row; align-items: center; gap: var(--sp-2); padding: var(--sp-2) var(--sp-3); white-space: nowrap; }
+  .bench-chip .bc-bar, .bench-chip .bc-sub { display: none; }
+  .bc-top { gap: var(--sp-2); }
+}
+
 /* ---- the bench page ---- */
 .bench-hero {
   display: grid; grid-template-columns: 1fr auto; gap: var(--sp-5); align-items: center;
@@ -679,13 +688,4 @@ canvas.stage { width: 100%; border: 1px solid var(--rule); border-radius: var(--
 .quest-bands { display: inline-flex; gap: 4px; align-items: center; margin-left: var(--sp-1); }
 .quest-band {
   width: 9px; height: 1.4rem; border-radius: 2px; border: 1px solid rgba(0,0,0,.2);
-}
-
-/* On a phone the sidebar is a horizontal strip, so the chip lies down and
-   drops everything that will not fit on one line. */
-@media (max-width: 800px) {
-  .bench-slot { padding: 0; flex: none; }
-  .bench-chip { flex-direction: row; align-items: center; gap: var(--sp-2); padding: var(--sp-2) var(--sp-3); white-space: nowrap; }
-  .bench-chip .bc-bar, .bench-chip .bc-sub { display: none; }
-  .bc-top { gap: var(--sp-2); }
 }

@@ -130,7 +130,7 @@ async function answer(text) {
   }
 
   busy = true;
-  const wait = hasFlag('talked') ? 2200 + Math.random() * 1600 : 3200;
+  const wait = hasFlag('talked') ? 1600 + Math.random() * 1200 : 2400;
   await new Promise(r => setTimeout(r, wait));
 
   /* A question it asked is answered before anything else. */

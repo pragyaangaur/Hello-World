@@ -55,11 +55,23 @@ export function renderNav() {
     }
   }
   mount(nav, ...nodes);
+
+  /* On a phone the navigation is a strip that scrolls sideways, and by the
+     last act there are more items in it than fit. Keep the page you are on
+     where you can see it. */
+  const current = nav.querySelector('[aria-current="page"]');
+  if (current && nav.scrollWidth > nav.clientWidth) {
+    current.scrollIntoView({ block: 'nearest', inline: 'center' });
+  }
 }
 
 /* The line across the top of the screen that says what the app is waiting
-   for. It is rebuilt on every change that could move the player forward, so
-   a tool they just opened or a task they just ticked shows up straight away. */
+   for. It used to carry the goal, a hint and a tool list all at once, which
+   is three things to read before you can do one thing. Now it carries the
+   goal and a button. The hint is behind a question mark, for the player who
+   actually wants it. */
+let hintOpen = false;
+
 export function renderObjective() {
   const bar = $('#objective');
   if (!bar) return;

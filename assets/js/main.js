@@ -26,7 +26,10 @@ function page(fn, title) {
     fn(ctx);
     if (title) setTitle(title);
     const view = $('#view');
-    view.scrollIntoView?.({ block: 'start' });
+    /* Scrolling the view into place pushed the objective strip off the top of
+       the screen, which is the one line telling the player what to do. Go to
+       the top of the page instead. */
+    window.scrollTo({ top: 0, behavior: 'auto' });
     if (document.activeElement === document.body) view.focus({ preventScroll: true });
   };
 }

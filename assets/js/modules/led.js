@@ -131,16 +131,16 @@ export default {
       sending
         ? h('div.card', { style: { borderColor: 'var(--danger)' } },
             h('p', { style: { marginBottom: '.5rem' } },
-              'The controller has one channel it will listen on and this is it. Put a word through the Morse translator, paste the dots and dashes here, and send it.'),
+              'This is the only channel it listens on. Encode a word, paste the dots and dashes above, send it.'),
             h('p.small', { style: { marginBottom: '.75rem' } },
-              'It knows two words. One of them ends the test. The other is the word it has been sending you.'),
+              'It knows two words. One ends the test. The other is the word it has been sending you.'),
             h('a.btn', { href: '#/tools/morse' }, 'Open the Morse translator'))
         : listening
           ? h('div.card', { style: { borderColor: 'var(--warn)' } },
               h('p', { style: { marginBottom: '.5rem' } },
-                'This is not a pattern anybody set. The controller has been driving the indicator with the same short sequence for nineteen days and it repeats forever.'),
+                'Nobody set this pattern. The controller has repeated it for nineteen days.'),
               h('p.small', { style: { marginBottom: '.75rem' } },
-                'Copy the dots and dashes above into the Morse translator, then write what it says on your task list.'),
+                'Copy the dots and dashes above into the Morse translator, then write what it says on your list.'),
               h('a.btn.btn-primary', { href: '#/tools/morse' }, 'Open the Morse translator'))
           : null,
       lastUsed()
