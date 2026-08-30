@@ -483,6 +483,97 @@ canvas.stage { width: 100%; border: 1px solid var(--rule); border-radius: var(--
   .bench-side { text-align: left; }
 }
 
+/* ---- the beat, which is a picture and two sentences ---- */
+.beat { display: flex; flex-direction: column; gap: var(--sp-4); }
+.glyph {
+  font-family: var(--font-mono); font-weight: 700; line-height: 1;
+  font-size: clamp(2.6rem, 12vw, 4.5rem); letter-spacing: -.02em;
+  color: var(--ink); text-align: center;
+}
+.glyph.warn { color: var(--warn); }
+.glyph.danger { color: var(--danger); }
+.beat-words p { color: var(--ink-2); margin-bottom: var(--sp-3); }
+.beat-words p:last-child { margin-bottom: 0; }
+.beat-cta {
+  border-top: 1px solid var(--rule); padding-top: var(--sp-3);
+}
+.beat-step {
+  display: block; font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3);
+  margin-bottom: var(--sp-1);
+}
+.beat-do { margin: 0; font-weight: 600; color: var(--ink); }
+
+/* ---- the pictures inside a beat ---- */
+.art {
+  border: 1px solid var(--rule); border-radius: var(--r-sm);
+  background: var(--sunken); padding: var(--sp-4);
+}
+.art-cap {
+  margin-top: var(--sp-3); text-align: center;
+  font-family: var(--font-mono); font-size: var(--step--1); color: var(--ink-3);
+}
+
+.art-log { display: flex; flex-direction: column; gap: 2px; padding: var(--sp-3); }
+.art-row {
+  display: flex; gap: var(--sp-3); align-items: baseline;
+  font-family: var(--font-mono); font-size: var(--step--1);
+  padding: 3px var(--sp-2); border-radius: 3px; opacity: .55;
+}
+.art-row .art-when { flex: none; width: 6.5rem; color: var(--ink-3); }
+.art-row .art-what { color: var(--ink-2); }
+.art-row-now { opacity: 1; background: var(--accent-soft); }
+.art-row-now .art-what { color: var(--ink); font-weight: 700; }
+
+.art-blink { display: flex; flex-direction: column; align-items: center; gap: var(--sp-3); }
+.art-bulb {
+  width: 2.2rem; height: 2.2rem; border-radius: 50%;
+  background: var(--warn); box-shadow: 0 0 22px var(--warn);
+  animation: art-blink 1.6s steps(1, end) infinite;
+}
+@keyframes art-blink { 0%, 45% { opacity: 1; } 46%, 100% { opacity: .12; } }
+.art-morse { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; justify-content: center; }
+.art-mark { width: 7px; height: 7px; border-radius: 2px; background: var(--ink-2); }
+.art-mark.dash { width: 20px; }
+.art-gap { width: 12px; }
+
+.art-resistor { display: flex; flex-direction: column; align-items: center; }
+.art-res { display: flex; align-items: center; }
+.art-lead { width: 2.5rem; height: 3px; background: var(--rule-2); }
+.art-body {
+  display: flex; align-items: center; gap: 7px; justify-content: center;
+  width: 11rem; height: 3.4rem; border-radius: 10px;
+  background: #d9c9a8; border: 1px solid rgba(0,0,0,.18);
+}
+.art-band { width: 11px; height: 100%; }
+
+.art-people { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-2); }
+.art-person { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; opacity: .45; }
+.art-face {
+  width: 2.4rem; height: 2.4rem; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--surface-2); border: 1px solid var(--rule-2);
+  font-family: var(--font-mono); font-size: var(--step--1); font-weight: 700; color: var(--ink-2);
+}
+.art-person .art-name { font-size: var(--step--1); font-weight: 600; }
+.art-person .art-when { font-size: 10px; color: var(--ink-3); font-family: var(--font-mono); }
+.art-oncall { opacity: 1; }
+.art-oncall .art-face { border-color: var(--accent); color: var(--accent); }
+.art-you { opacity: 1; }
+.art-you .art-face { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+@media (max-width: 520px) { .art-people { grid-template-columns: repeat(2, 1fr); gap: var(--sp-3); } }
+
+.art-sheet { display: grid; grid-template-columns: 1fr auto 1fr; gap: var(--sp-3); align-items: center; }
+.art-sheet-col { display: flex; flex-direction: column; gap: 3px; text-align: center; }
+.art-sheet-h { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.art-sheet-v {
+  font-family: var(--font-mono); font-size: var(--step-3); font-weight: 700; color: var(--ink);
+}
+.art-sheet-s { font-size: var(--step--1); color: var(--ink-3); }
+.art-sheet-vs { font-size: var(--step-3); color: var(--danger); }
+.art-sheet-live .art-sheet-v { color: var(--danger); }
+.art-bench { padding: var(--sp-3); }
+
 
 /* On a phone the sidebar is a horizontal strip, so the chip lies down and
    drops everything that will not fit on one line. */
