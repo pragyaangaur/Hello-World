@@ -153,7 +153,10 @@ async function answer(text) {
   const first = !hasFlag('talked');
   if (first) await blackout();
 
-  speak(reply.text);
+  /* The reveal never lands on "parse failed". If the parser recognised what
+     the player said it gets to answer, and if it did not, the scripted line
+     covers it. */
+  speak(first && !reply.understood ? firstReply() : reply.text);
   busy = false;
 
   if (first) { setFlag('talked'); advance(2); }
@@ -161,23 +164,25 @@ async function answer(text) {
 
 /* ---- values reported by a tool ---- */
 function toolValue({ tool, value }) {
-  if (busy) return;
   const current = act();
-  if (!current) return;
 
-  if (current.listen && current.listen.tool === tool && current.listen.test(value)) {
-    solved(ACCEPTED[current.n] || null);
-    return;
-  }
-
-  /* The last act is finished by sending a word back through the indicator. */
+  /* The last act is finished by sending a word back through the indicator,
+     and that is checked before the busy guard, because the player has already
+     committed by the time they press the button. */
   if (chapter() === LAST_ACT && tool === 'led') {
+    if (get().ending) return;
     const word = String(value || '').toLowerCase().trim();
     const command = COMMANDS[word];
     const ending = command ? command.ending : 'addTask';
     update(s => { s.ending = ending; return s; });
     emit('story:ending', { ending });
     setTimeout(() => go('/ending'), 2200);
+    return;
+  }
+
+  if (busy || !current) return;
+  if (current.listen && current.listen.tool === tool && current.listen.test(value)) {
+    solved(ACCEPTED[current.n] || null);
   }
 }
 

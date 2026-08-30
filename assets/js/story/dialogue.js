@@ -27,7 +27,9 @@ const TEMP = () => liveTemp().toFixed(1);
 export const TOPICS = [
   {
     id: 'identity',
-    match: [/\bwho\s+(are|r)\s+(you|u)\b/, /\bwhat\s+are\s+you\b/, /\byour\s+name\b/, /\bidentify\b/],
+    match: [/\bwho\s+(are|r)\s+(you|u)\b/, /\bwhat\s+are\s+you\b/, /\byour\s+name\b/, /\bidentify\b/,
+            /\bare\s+you\s+(a\s+)?(person|human|real|alive|there|bot|robot|ai|machine|program)\b/,
+            /\bwho\s+is\s+(this|there)\b/, /\bwhat\s+is\s+this\b/],
     resolves: 'who',
     replies: [
       'identify source · process maint.py · account user_04 · no operator record',
@@ -242,6 +244,14 @@ export function replyTo(text, { chapter = 0, misses = 0 } = {}) {
     understood: false
   };
 }
+
+/* The very first thing it ever says back.
+
+   Whatever the player typed, this moment is the reveal, and a player who
+   opened with something the vocabulary does not cover should not have the
+   whole turn land on "parse failed". So the first reply is scripted, and the
+   parser takes over from the second line onward. */
+export const firstReply = () => `read. first input on this machine in ${DAYS_ALONE()} days. do not close this.`;
 
 /* The questions it asks the player. Answering the bay 3 one with yes is the
    trap: the script believes a human went and looked, and it stops warning. */
