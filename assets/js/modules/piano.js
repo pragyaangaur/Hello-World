@@ -1,5 +1,7 @@
 import { h, mount } from '../core/dom.js';
 import { tone } from '../core/audio.js';
+import { LEFT_MELODY } from '../story/residue.js';
+import { chapter } from '../core/state.js';
 
 const NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const WHITE = [0, 2, 4, 5, 7, 9, 11];
@@ -23,6 +25,24 @@ export default {
     const held = new Set();
     const keys = h('div.keys');
     const label = h('span.small.dim');
+
+    /* Nine notes sitting in the buffer that nobody ever played back. It is
+       the first bar of Twinkle Twinkle, which is what a person who is not a
+       musician plays when they are testing that a keyboard works. */
+    const SEMI = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+    let playingBack = false;
+
+    function playBuffer() {
+      if (playingBack) return;
+      playingBack = true;
+      LEFT_MELODY.forEach((note, i) => setTimeout(() => {
+        const semi = SEMI[note[0]];
+        const white = keys.querySelector(`.key-w[data-semi="${semi}"]`);
+        if (white) { white.classList.add('down'); setTimeout(() => white.classList.remove('down'), 260); }
+        play(semi);
+        if (i === LEFT_MELODY.length - 1) setTimeout(() => { playingBack = false; }, 400);
+      }, i * 340));
+    }
 
     function play(semi) {
       const midi = (octave + 1) * 12 + semi;
@@ -83,6 +103,13 @@ export default {
     }
 
     mount(root, bar, keys,
+      chapter() >= 1
+        ? h('div.row', { style: { marginTop: 'var(--sp-3)' } },
+            h('span.small.lbl', 'Buffer'),
+            h('span.small.dim.mono', LEFT_MELODY.join(' ')),
+            h('span.spacer'),
+            h('button.btn.btn-sm', { type: 'button', onclick: playBuffer }, 'Play it back'))
+        : null,
       h('p.small.dim', 'Play with the mouse, or use the home row: a w s e d f t g y h u j. Z and X change octave. Sound has to be on in Settings.'));
     build(); paint();
 

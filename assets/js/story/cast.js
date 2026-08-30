@@ -2,6 +2,8 @@
    Dates are anchored to the day the visitor opens the app so the gap always
    reads as a real, current gap rather than a hard-coded year. */
 
+import { chapter } from '../core/state.js';
+
 const DAY = 86400000;
 
 export const NOW = new Date();
@@ -66,13 +68,21 @@ export const RIG = {
 };
 
 /* The bay 3 temperature curve. Nineteen days of slow climb, which is the
-   shape that matters: nothing broke, something is failing slowly. */
+   shape that matters: nothing broke, something is failing slowly. It starts
+   just over the limit in the script, which is the morning the machine began
+   writing tasks nobody read, and it ends where the last logged reading is. */
 export function bayTemp(dayIndex) {
-  const t = dayIndex / 19;
-  return 26.4 + 35.5 * Math.pow(t, 1.7) + Math.sin(dayIndex * 1.9) * 0.55;
+  const t = Math.max(0, Math.min(1, dayIndex / 19));
+  return 45.5 + 8.5 * Math.pow(t, 1.7) + Math.sin(dayIndex * 1.9) * 0.3;
 }
 
-export function currentBayTemp() { return bayTemp(19); }
+/* And this is now. The log stops at 54; the pack does not. It keeps climbing
+   for as long as the player is in the app, which is what turns the story from
+   a thing that happened into a thing that is happening. The vent limit of 60
+   is crossed at the exact act where the player works out what 60 means. */
+export function liveTemp() { return 54.0 + chapter() * 1.15; }
+
+export function currentBayTemp() { return liveTemp(); }
 
 /* Nineteen days of readings across the four bays. One shape of data used by
    the chart, the log file, and anything else that needs to agree with them. */

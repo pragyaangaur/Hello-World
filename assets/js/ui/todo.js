@@ -99,14 +99,20 @@ function render(focusTaskId) {
   const c = tasks.counts();
   const list = tasks.visible(filter).filter(t => (setting('showCompleted') ? true : !t.done));
 
-  const form = h('form.task-form', {
-    onsubmit: e => {
-      e.preventDefault();
-      const input = form.querySelector('input');
-      if (tasks.add(input.value)) { input.value = ''; render(); input.focus(); }
-    }
-  },
-    h('input.input', { type: 'text', name: 'task', placeholder: 'What needs doing?', 'aria-label': 'New task', autocomplete: 'off', maxlength: '240' }),
+  const submit = () => {
+    const input = form.querySelector('input');
+    if (tasks.add(input.value)) { input.value = ''; render(); input.focus(); }
+  };
+
+  const form = h('form.task-form', { onsubmit: e => { e.preventDefault(); submit(); } },
+    h('input.input', {
+      type: 'text', name: 'task', placeholder: 'What needs doing?', 'aria-label': 'New task',
+      autocomplete: 'off', maxlength: '240',
+      /* Implicit form submission covers this already on a normal keyboard,
+         but this is the one control the entire second half of the game runs
+         through, so it does not get to depend on that. */
+      onkeydown: e => { if (e.key === 'Enter') { e.preventDefault(); submit(); } }
+    }),
     h('button.btn.btn-primary', { type: 'submit' }, 'Add')
   );
 

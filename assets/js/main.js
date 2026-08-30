@@ -11,6 +11,7 @@ import { mountToolbox, mountTool, disposeTool } from './ui/toolbox.js';
 import { mountSettings, mountAbout } from './ui/settings.js';
 import { mountConsole } from './ui/console.js';
 import { mountEnding } from './ui/ending.js';
+import { mountBench } from './ui/bench.js';
 import { mountNotFound } from './ui/notfound.js';
 import { seed } from './core/tasks.js';
 import { LEFTOVER, leftoverNote } from './story/acts.js';
@@ -25,7 +26,10 @@ function page(fn, title) {
     fn(ctx);
     if (title) setTitle(title);
     const view = $('#view');
-    view.scrollIntoView?.({ block: 'start' });
+    /* Scrolling the view into place pushed the objective strip off the top of
+       the screen, which is the one line telling the player what to do. Go to
+       the top of the page instead. */
+    window.scrollTo({ top: 0, behavior: 'auto' });
     if (document.activeElement === document.body) view.focus({ preventScroll: true });
   };
 }
@@ -34,6 +38,7 @@ router.route('/tasks',     page(mountTasks, 'Tasks'));
 router.route('/tools',     page(mountToolbox));
 router.route('/tools/:id', page(ctx => mountTool(ctx.params.id)));
 router.route('/ending',    page(mountEnding));
+router.route('/bench',     page(mountBench));
 router.route('/console',   page(mountConsole, 'Console'));
 router.route('/settings',  page(mountSettings, 'Settings'));
 router.route('/about',     page(mountAbout, 'About'));
