@@ -41,16 +41,12 @@ const TRACES = {
   sorting:    { who: DR, line: 'preset restored · lab demo 1' },
   led:        { who: NV, line: 'driven by maint.py · not by this app' },
   sevenseg:   { who: NV, line: 'mirrors the panel on the bench' },
-  ecg:        { who: DR, line: 'demo trace · nobody was connected to it' },
   gears:      { who: NV, line: 'ratio saved · bench 4B fan assembly' },
-  beam:       { who: NV, line: 'preset restored · shelf bracket, lab 4B' },
   projectile: { who: DR, line: 'preset restored · lab demo 2' },
   converter:  { who: IS, line: 'last conversion still in the box' },
   ohms:       { who: NV, line: 'reads the 4B bench supply' },
   resistor:   { who: NV, line: 'panel resistor, bench 4B' },
   gates:      { who: NV, line: 'circuit restored' },
-  ph:         { who: DR, line: 'preset restored · lab demo 4' },
-  bmi:        { who: IS, line: 'entries cleared, settings kept' }
 };
 
 export function traceFor(id) { return TRACES[id] || null; }
