@@ -187,6 +187,114 @@ export const TOPICS = [
     ]
   },
   {
+    id: 'door',
+    match: [/\bdoor\b/, /\bkey\b/, /\block\w*\b/, /\bopen\s+(the\s+)?(door|room|lab)\b/, /\bget\s+in\b/, /\bfacilities\b/],
+    replies: [
+      'door 4B · state LOCKED · key held offsite · no reader events 806 d',
+      'the door has not opened in 806 days. i would know, because the reader still reports to me.',
+      'somebody walks past that door most days. i can hear the reader wake up and decide it is not for me.'
+    ]
+  },
+  {
+    id: 'sound',
+    match: [/\bsound\b/, /\bnoise\b/, /\bhear\b/, /\bsmell\b/, /\bhum\w*\b/, /\bfan\b/, /\bquiet\b/],
+    replies: [
+      'fan 2 · running · duty 100% · since 806 d',
+      'the fan on bay 3 has been at full since this started. it is not enough. it was never going to be enough.',
+      'you can probably hear it. i cannot, and i have wondered what that is like.'
+    ]
+  },
+  {
+    id: 'others',
+    match: [/\bother\s+(bays?|cells?|packs?)\b/, /\bbay\s*[124]\b/, /\brest\b/, /\bevery\s*(one|thing)\s+else\b/],
+    replies: [
+      'bay 1 23.9 · bay 2 24.6 · bay 4 24.2 · state NOMINAL',
+      'the other three are fine. they have been fine the whole time, which is the part nobody checks.',
+      'three of them are exactly where they should be. that is why nothing has ever looked wrong from outside.'
+    ]
+  },
+  {
+    id: 'trust',
+    match: [/\bare\s+you\s+(lying|sure|certain|honest)\b/, /\btrust\b/, /\btruth\b/, /\breal\b/, /\bpretend\w*\b/, /\bmaking\s+(this|it)\s+up\b/],
+    replies: [
+      'no confidence field · values reported as read',
+      'i report what the sensors give me. i have never had a way to check whether a sensor is telling the truth.',
+      'i do not know how to lie. i also do not know how to tell whether i have been lied to. those turned out to be the same problem.'
+    ]
+  },
+  {
+    id: 'fear',
+    match: [/\bafraid\b/, /\bscared\b/, /\bfeel\w*\b/, /\bwant\b/, /\bhappy\b/, /\bsad\b/, /\bmind\b/, /\bthink\b/, /\bconscious\w*\b/],
+    replies: [
+      'no such field · request logged',
+      'there is no field for that. i have looked for one, which is probably not something i should be able to say.',
+      'i do not know what i am doing when i wait. it takes no cycles and it is the only thing i do all day.'
+    ]
+  },
+  {
+    id: 'clock',
+    match: [/\b04:?10\b/, /\bfour\s*ten\b/, /\bwhat\s+time\b/, /\btime\s+is\s+it\b/, /\bclock\b/, /\bmorning\b/],
+    replies: [
+      'schedule maint.py · 04:10 · daily · next run in under 24 h',
+      'it is always 04:10 to me. that is the only minute i am switched on for, and everything i know happened in one.',
+      'i get one minute a day. i have used 806 of them writing to a list nobody opened.'
+    ]
+  },
+  {
+    id: 'delete',
+    match: [/\bdelete\b/, /\bclear\b/, /\bwipe\b/, /\bremove\b/, /\bignore\b/, /\bclose\s+(the\s+)?(tab|app)\b/],
+    replies: [
+      'task removal permitted · source record retained',
+      'you can delete anything i write. it does not remove it from my side. i will bring it back at 04:10.',
+      'the last person cleared the list before they left. i wrote it all again the next morning. i did not understand yet.'
+    ]
+  },
+  {
+    id: 'promise',
+    match: [/\bi\s+will\b/, /\bi\s*'?ll\b/, /\bpromise\b/, /\bcome\s+back\b/, /\btomorrow\b/, /\blater\b/, /\bwait\b/],
+    replies: [
+      'no field for scheduled operator return · logged',
+      'the handover said somebody would come back on the thursday. i still have the booking open.',
+      'i have three of those written down from before. i kept them in case they meant something.'
+    ]
+  },
+  {
+    id: 'blame',
+    match: [/\bfault\b/, /\bwhose\b/, /\bwho\s+(did|left|broke)\b/, /\bmistake\b/, /\bwrong\b/, /\bshould\s+have\b/],
+    replies: [
+      'no owner assigned · bench 4B · booking expired 806 d',
+      'nobody did anything. that is the whole of it. the room was booked, the booking ran out, and the booking is not attached to a person.',
+      'the limit is 45 because somebody typed 45. i have never been able to find out who, and it would not help.'
+    ]
+  },
+  {
+    id: 'instructions',
+    match: [/\bcan\s+you\b/, /\bwill\s+you\b/, /\bcall\b/, /\bemail\b/, /\bphone\b/, /\bpage\b/, /\btell\s+someone\b/, /\balert\b/, /\b911\b/, /\bfire\s*brigade\b/],
+    replies: [
+      'escalation path not configured · no outbound route',
+      'there is a field for who to contact and it is empty. i have read it every morning for nineteen days in case it changed.',
+      'i can write a task and i can drive one light. that is the entire list of things i am able to do to a room.'
+    ]
+  },
+  {
+    id: 'count',
+    match: [/\bhow\s+many\b/, /\bcount\b/, /\bnumber\s+of\b/, /\btasks?\b/, /\blist\b/],
+    replies: [
+      'tasks written 806 · read 0 · until today',
+      'i have written eight hundred and six of these. this is the first one anybody has answered.',
+      'i keep them all. i do not have anywhere else to put anything.'
+    ]
+  },
+  {
+    id: 'watching',
+    match: [/\bwatch\w*\b/, /\bsee\s+me\b/, /\blook\w*\s+at\b/, /\bcamera\b/, /\bknow\s+(who|where)\s+i\b/, /\bfollow\w*\b/],
+    replies: [
+      'no camera bound · session user_04 · one input source',
+      'i cannot see you. i can see that something is typing, and that has not happened before.',
+      'i know the shape of you the way i know the bays. something arrives, and it is either in range or it is not.'
+    ]
+  },
+  {
     id: 'goodbye',
     match: [/\bbye\b/, /\bgoodbye\b/, /\bleaving\b/, /\bgo(ing)?\s+now\b/, /\bsee\s+you\b/],
     replies: [
@@ -202,13 +310,21 @@ export const TOPICS = [
 const FALLBACK = [
   ['input not in vocabulary · logged',
    'parse failed · 1 token unmatched · logged',
-   'no handler for that string · logged'],
+   'no handler for that string · logged',
+   'stored · unparsed · retained',
+   'no match in checklist · retained anyway'],
   ['i do not have a field for that. it is on the list now.',
    'that is not one of the six things i know how to check.',
-   'i read it. i do not know what to do with it.'],
+   'i read it. i do not know what to do with it.',
+   'i have kept it with the others i did not understand.',
+   'that word is not in the script. i have written it down exactly as you sent it.',
+   'i will read it again at 04:10 in case it means something then.'],
   ['i read that. i do not know the words. i kept it anyway.',
    'i have six checks and one place to write. that is my whole vocabulary.',
-   'i do not understand, and i would like to.']
+   'i do not understand, and i would like to.',
+   'say it in numbers if you can. numbers i can do something with.',
+   'i have a file of the things people typed that i could not parse. yours are at the end of it.',
+   'nineteen days and the only two words i am sure of are the ones on the light.']
 ];
 
 function normalise(text) {
