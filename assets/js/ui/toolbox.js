@@ -6,12 +6,15 @@ import { registry, byId, DEPT_ORDER } from '../modules/index.js';
 import { get, chapter, update } from '../core/state.js';
 import { emit } from '../core/bus.js';
 import { setTitle } from './shell.js';
+import { trace, haunt } from '../story/residue.js';
 
 let activeCleanup = null;
+let stopHaunt = null;
 
 export function disposeTool() {
   if (typeof activeCleanup === 'function') { try { activeCleanup(); } catch (e) { console.error(e); } }
   activeCleanup = null;
+  if (stopHaunt) { stopHaunt(); stopHaunt = null; }
 }
 
 function unlocked() {
@@ -96,4 +99,13 @@ export function mountTool(id) {
     console.error('[tool]', id, err);
     mount(body, h('div.card', h('p', 'This tool failed to start. Reloading the page usually fixes it.')));
   }
+
+  /* Every tool in here was somebody's before it was yours, and every tool
+     says so in the same place, in the same shape. Once the player has seen it
+     under four unrelated tools it stops reading as decoration. */
+  const left = trace(mod.id);
+  if (left) body.appendChild(left);
+
+  /* And from the middle of the game, tools occasionally misbehave. */
+  stopHaunt = haunt(body);
 }

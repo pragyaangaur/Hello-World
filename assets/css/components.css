@@ -574,6 +574,26 @@ canvas.stage { width: 100%; border: 1px solid var(--rule); border-radius: var(--
 .art-sheet-live .art-sheet-v { color: var(--danger); }
 .art-bench { padding: var(--sp-3); }
 
+/* ---- the trace under every tool ---- */
+.trace {
+  display: flex; gap: var(--sp-3); align-items: flex-start;
+  margin-top: var(--sp-4); padding: var(--sp-3);
+  border: 1px dashed var(--rule-2); border-radius: var(--r-sm);
+  background: transparent;
+}
+.trace-dot {
+  flex: none; width: 6px; height: 6px; margin-top: .45rem;
+  border-radius: 50%; background: var(--ink-3); opacity: .6;
+}
+.trace-body { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.trace-line { font-size: var(--step--1); color: var(--ink-2); }
+.trace-who { font-family: var(--font-mono); font-size: 10px; color: var(--ink-3); }
+
+/* A readout saying something it should not. It gets no styling of its own on
+   purpose, beyond going the colour of everything else that is wrong. */
+[data-haunted="1"] { color: var(--danger) !important; }
+[data-drain="1"] { filter: grayscale(1) contrast(.8); transition: filter 180ms linear; }
+
 /* ---- dice, drawn as dice ---- */
 .dice-faces {
   display: flex; gap: var(--sp-2); justify-content: center; flex-wrap: wrap;
