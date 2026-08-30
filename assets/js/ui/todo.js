@@ -6,6 +6,27 @@ import * as tasks from '../core/tasks.js';
 import { setting, chapter } from '../core/state.js';
 import { on } from '../core/bus.js';
 import { toast } from '../core/notify.js';
+import { VENT_C, CEILING_C } from '../story/rig.js';
+
+/* A task the machine wrote about a temperature gets the temperature drawn.
+   Scrolling the backlog then shows the climb instead of describing it nine
+   times in a row, and the two lines that matter, the limit somebody typed in
+   and the point the cells vent, are on every one of them. */
+function readingBar(text) {
+  const m = /(\d{2}(?:\.\d)?)\s*C\b/.exec(text);
+  if (!m) return null;
+  const t = Number(m[1]);
+  if (!Number.isFinite(t) || t < 20 || t > 90) return null;
+  const pos = v => Math.max(0, Math.min(100, ((v - 20) / (VENT_C + 8 - 20)) * 100));
+  return h('div.reading', { title: t + ' °C' },
+    h('span.reading-track',
+      h('span.reading-fill', { dataset: { level: t >= VENT_C ? 'vent' : t >= CEILING_C ? 'hot' : 'warm' },
+        style: { width: pos(t) + '%' } }),
+      h('span.reading-mark.limit', { style: { left: pos(CEILING_C) + '%' } }),
+      h('span.reading-mark.vent', { style: { left: pos(VENT_C) + '%' } })),
+    h('span.reading-val', t.toFixed(1) + '°')
+  );
+}
 
 let filter = 'all';
 let editing = null;
@@ -59,6 +80,8 @@ function taskRow(t) {
   if (t.note && t.source !== 'objective' && t.source !== 'leftover') meta.appendChild(h('span.task-note', t.note));
   if (t.done && t.completedAt) meta.appendChild(h('span.task-note', 'done ' + timeAgo(t.completedAt)));
 
+  const bar = t.source === 'auto' ? readingBar(t.text) : null;
+
   const text = t.link
     ? h('a.task-text', { href: t.link, style: { color: 'var(--accent)', fontWeight: '600' } }, t.text, ' \u2192')
     : h('div.task-text', { tabindex: '0', role: 'button', 'aria-label': 'Edit task: ' + t.text,
@@ -90,7 +113,7 @@ function taskRow(t) {
 
   return h('li.task' + (t.done ? '.done' : ''), {
     dataset: { source: t.source, locked: t.locked ? '1' : '0', taskId: t.id }
-  }, check, h('div.task-main', text, meta.children.length ? meta : null), t.locked ? null : del);
+  }, check, h('div.task-main', text, bar, meta.children.length ? meta : null), t.locked ? null : del);
 }
 
 function render(focusTaskId) {
