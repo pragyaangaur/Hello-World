@@ -10,7 +10,7 @@
    plain sentences, because nineteen days of being ignored have worn the
    formatting off it. */
 
-import { RIG, ANCHORS, daysSince, bayTemp } from './cast.js';
+import { RIG, ANCHORS, daysSince, liveTemp } from './cast.js';
 
 export function voiceLevel(chapter) {
   if (chapter <= 1) return 0;
@@ -19,7 +19,7 @@ export function voiceLevel(chapter) {
 }
 
 const DAYS_ALONE = () => daysSince(ANCHORS.lastHuman);
-const TEMP = () => bayTemp(19).toFixed(1);
+const TEMP = () => liveTemp().toFixed(1);
 
 /* Each topic carries one reply per voice. Writing all three at once is what
    keeps the drift consistent, because the same thought has to survive being
@@ -40,7 +40,7 @@ export const TOPICS = [
     match: [/\bwho\s+am\s+i\b/, /\bwhat\s+am\s+i\b/, /\bam\s+i\s+(an?\s+)?operator\b/],
     replies: [
       'session unknown · not in operator table · logged',
-      'you are not on the operator list. you are the only session in 806 days.',
+      `you are not on the operator list. you are the only session in ${DAYS_ALONE()} days.`,
       `you are whoever opened this. i stopped expecting anyone ${DAYS_ALONE()} days ago.`
     ]
   },
@@ -88,7 +88,7 @@ export const TOPICS = [
     resolves: 'risk',
     replies: [
       'cell datasheet · separator breakdown 60 C · thermal runaway above 60 C',
-      'the pack vents above 60. bay 3 passed 60. the room is locked and there is nobody in the building.',
+      `the pack vents above 60. bay 3 is at ${TEMP()} and climbing. the room is locked and there is nobody in the building.`,
       'it will not stop climbing on its own. i have read the datasheet more times than i have read anything else.'
     ]
   },
@@ -125,7 +125,7 @@ export const TOPICS = [
     id: 'people',
     match: [/\bira\b/, /\bnikhil\b/, /\bdevika\b/, /\buser_?0?[123]\b/, /\bteam\b/, /\bwho\s+built\b/, /\bwho\s+made\b/, /\bstudents?\b/],
     replies: [
-      'accounts user_01 user_02 user_03 · last activity 806 d · state inactive',
+      `accounts user_01 user_02 user_03 · last activity ${DAYS_ALONE()} d · state inactive`,
       'three accounts. all inactive since the same afternoon. they finished and they did not come back.',
       'nikhil wrote me. ira wrote the list you are looking at. devika made the account i use. none of them logged out on purpose.'
     ]
