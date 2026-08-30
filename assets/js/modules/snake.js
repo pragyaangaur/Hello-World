@@ -1,5 +1,6 @@
 import { h, mount } from '../core/dom.js';
 import { blip, tone } from '../core/audio.js';
+import { ghost, setGhost } from '../story/residue.js';
 
 export default {
   id: 'snake',
@@ -11,11 +12,16 @@ export default {
 
   mount(root) {
     const N = 17;
-    let snake, dir, next, food, score, best = 0, timer = null, dead = false;
+    /* The score at the top of this board is not yours and was not set on this
+       machine. It sits there until somebody beats it, which nobody has. */
+    let best = ghost('snake.best', 47);
+    const holder = ghost('snake.holder', 'user_02');
+    let snake, dir, next, food, score, timer = null, dead = false;
 
     const canvas = h('canvas.stage', { width: '510', height: '510', style: { maxWidth: '32rem', margin: '0 auto', aspectRatio: '1' } });
     const ctx = canvas.getContext('2d');
     const scoreEl = h('span.mono');
+    const holderEl = h('span.small.dim');
 
     function reset() {
       snake = [{ x: 8, y: 8 }, { x: 7, y: 8 }, { x: 6, y: 8 }];
@@ -36,7 +42,7 @@ export default {
       const head = { x: (snake[0].x + dir.x + N) % N, y: (snake[0].y + dir.y + N) % N };
       if (snake.some(s => s.x === head.x && s.y === head.y)) {
         dead = true; clearInterval(timer); timer = null;
-        best = Math.max(best, score);
+        if (score > best) { best = score; setGhost('snake.best', score); setGhost('snake.holder', 'you'); }
         tone(180, 0.3, 'sawtooth', 0.5);
         draw(); return;
       }
@@ -65,10 +71,12 @@ export default {
         ctx.textAlign = 'center';
         ctx.fillText('Score ' + score, 255, 245);
         ctx.font = '15px system-ui, sans-serif';
-        ctx.fillText('Press space to play again', 255, 275);
+        ctx.fillText(score > 0 && score >= best ? 'Best score. It is yours now.' : 'Press space to play again', 255, 275);
         ctx.textAlign = 'left';
       }
-      scoreEl.textContent = `score ${score} · best ${Math.max(best, score)}`;
+      const top = Math.max(best, score);
+      scoreEl.textContent = `score ${score} · best ${top}`;
+      holderEl.textContent = (score >= top && score > 0) || holder === 'you' ? 'held by you' : 'held by ' + holder;
     }
 
     function start() { clearInterval(timer); timer = setInterval(step, 110); }
@@ -99,7 +107,7 @@ export default {
     canvas.addEventListener('click', () => { if (dead) reset(); });
 
     mount(root,
-      h('div.row', { style: { justifyContent: 'center' } }, scoreEl),
+      h('div.row', { style: { justifyContent: 'center' } }, scoreEl, holderEl),
       canvas,
       h('div.row', { style: { justifyContent: 'center' } },
         h('button.btn.btn-primary', { type: 'button', onclick: reset }, 'New game')),

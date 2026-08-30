@@ -1,6 +1,8 @@
 import { h, mount, kv } from '../core/dom.js';
 import { blip } from '../core/audio.js';
 import { emit } from '../core/bus.js';
+import { LEFT_TAPE, ghost } from '../story/residue.js';
+import { chapter } from '../core/state.js';
 
 /* A real expression parser rather than eval, because eval on user input is
    how you end up with an app that can run anything anyone pastes into it. */
@@ -110,7 +112,9 @@ export default {
 
   mount(root) {
     let expr = '';
-    let history = [];
+    /* The tape is not empty. Somebody sat here and did this arithmetic once,
+       and every line of it is about the same thing. */
+    let history = chapter() >= 1 && !ghost('calc.cleared', false) ? LEFT_TAPE.slice() : [];
     const display = h('div.readout.big', { style: { textAlign: 'right' } }, '0');
     const sub = h('div.small.dim.mono', { style: { textAlign: 'right', minHeight: '1.2em' } }, '');
     const histBox = h('div.stack');

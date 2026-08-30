@@ -1,5 +1,7 @@
 import { h, mount } from '../core/dom.js';
 import { blip } from '../core/audio.js';
+import { LEFT_BOARD, ghost, setGhost } from '../story/residue.js';
+import { chapter } from '../core/state.js';
 
 const LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
 
@@ -34,13 +36,17 @@ export default {
   blurb: 'Minimax, and it does not lose',
 
   mount(root) {
-    let board = Array(9).fill(null);
+    /* There is a game already on the board. It is X's turn and it has been
+       X's turn since the last person in this room stood up. */
+    const resumed = chapter() >= 1 && !ghost('ttt.cleared', false);
+    let board = resumed ? LEFT_BOARD.map(v => v || null) : Array(9).fill(null);
     let over = false;
-    let record = { w: 0, l: 0, d: 0 };
+    let record = ghost('ttt.record', { w: 0, l: 11, d: 34 });
     let difficulty = 'perfect';
 
     const grid = h('div.board');
-    const status = h('p', { style: { textAlign: 'center' } }, 'You are X. Your move.');
+    const status = h('p', { style: { textAlign: 'center' } },
+      resumed ? 'Game in progress. You are X, and it is your move.' : 'You are X. Your move.');
     const tally = h('p.small.dim', { style: { textAlign: 'center' } });
 
     function aiMove() {
@@ -60,6 +66,7 @@ export default {
       if (w === 'X') { record.w++; status.textContent = 'You won.'; }
       else if (w === 'O') { record.l++; status.textContent = 'It won.'; }
       else { record.d++; status.textContent = 'A draw. That is the best available.'; }
+      setGhost('ttt.record', record);
       return true;
     }
 
@@ -76,11 +83,13 @@ export default {
         h('button', { type: 'button', disabled: Boolean(v) || over, 'aria-label': 'Cell ' + (i + 1) + (v ? ', ' + v : ', empty'),
           style: v === 'O' ? { color: 'var(--ink-3)' } : { color: 'var(--accent)' },
           onclick: () => play(i) }, v || '')));
-      tally.textContent = `${record.w} won · ${record.l} lost · ${record.d} drawn`;
+      tally.textContent = `${record.w} won · ${record.l} lost · ${record.d} drawn`
+        + (chapter() >= 1 ? ' · running total, not reset since ' + '2 years ago' : '');
     }
 
     function reset() {
       board = Array(9).fill(null); over = false;
+      setGhost('ttt.cleared', true);
       status.textContent = 'You are X. Your move.';
       paint();
     }

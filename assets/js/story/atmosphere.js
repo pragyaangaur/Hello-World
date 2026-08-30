@@ -20,11 +20,14 @@ let beatTimer = null;
 let creepTimer = null;
 let running = false;
 let level = 0;
+let over = false;
 
 const calmSystem = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* How bad things are, from 0 to 1. */
+/* How bad things are, from 0 to 1. Once the player has sent the word, the
+   room stops being a threat and this goes to nothing. */
 export function heat() {
+  if (over) return 0;
   const base = Math.min(1, chapter() / LAST_ACT);
   return get().flags['said.lied'] ? Math.min(1, base + 0.07) : base;
 }
@@ -153,7 +156,7 @@ export function relayClick() {
 
 function scheduleCreep() {
   clearTimeout(creepTimer);
-  if (!running || level < 2) return;
+  if (!running || over || level < 2) return;
   const gap = 62000 - Math.min(level, LAST_ACT) * 5200;
   creepTimer = setTimeout(() => { creep(); scheduleCreep(); }, gap + Math.random() * gap * 0.6);
 }
@@ -175,7 +178,7 @@ function creep() {
 
 function scheduleBeat() {
   clearTimeout(beatTimer);
-  if (!running || heat() < 0.3) return;
+  if (!running || over || heat() < 0.3) return;
   const gap = 30000 - heat() * 19000;
   beatTimer = setTimeout(() => {
     if (soundOn() && !document.hidden) tone(1180, 0.045, 'sine', 0.22);
@@ -278,7 +281,9 @@ export function flash() {
   withFx(fx => {
     if (soundOn()) { tone(320, 0.5, 'triangle', 0.8); hiss(0.2, 0.3); }
     fx.style.transition = 'none';
-    fx.style.background = 'var(--accent)';
+    /* Not the accent colour. Early in the game the accent is a friendly green
+       and a cheerful flash is the wrong thing entirely. */
+    fx.style.background = 'var(--danger)';
     fx.style.opacity = '.85';
     requestAnimationFrame(() => {
       fx.style.transition = 'opacity 820ms ease-out';
@@ -296,10 +301,39 @@ export async function wipe() {
   relayClick();
 }
 
+/* ---- the way out ---------------------------------------------------------
+   The one thing the old ending never did was stop. The screen stayed red and
+   the fan stayed on, so nobody could tell whether the game had finished or
+   had simply stopped responding. This drains all of it: the grain, the tint,
+   the scanlines, the hum, and every timer that was going to make something
+   twitch. It takes four seconds, on purpose, so the player watches the room
+   let go of them. */
+export function settle() {
+  if (over) return;
+  over = true;
+  clearTimeout(beatTimer);
+  clearTimeout(creepTimer);
+  stopHum();
+  document.documentElement.dataset.over = '1';
+  const fx = $('#fx');
+  if (fx) { fx.style.background = ''; fx.style.opacity = ''; fx.style.transition = ''; }
+  paintRoom();
+  paintFavicon();
+  if (soundOn()) {
+    /* Three notes going up, which is the only unambiguous sound in the app. */
+    tone(392, 0.5, 'sine', 0.35);
+    setTimeout(() => tone(523, 0.5, 'sine', 0.35), 260);
+    setTimeout(() => tone(659, 0.9, 'sine', 0.3), 520);
+  }
+}
+
+export function isOver() { return over; }
+
 /* ---- lifecycle ---- */
 
 /* Called on every act change. The room gets one notch worse each time. */
 export function escalate(n) {
+  if (over) return;
   level = n;
   paintRoom();
   paintFavicon();
@@ -313,7 +347,7 @@ function watchVisibility() {
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       awayAt = Date.now();
-      if (chapter() >= 2) document.title = 'still here · Hello World';
+      if (chapter() >= 2 && !over) document.title = 'still here · Hello World';
       return;
     }
     document.title = document.title.replace('still here · ', '');
@@ -324,7 +358,11 @@ function watchVisibility() {
 export function startAtmosphere() {
   if (running) return;
   running = true;
+  over = Boolean(get().flags['story.settled']);
+  if (over) document.documentElement.dataset.over = '1';
   escalate(chapter());
+  paintRoom();
+  paintFavicon();
   watchVisibility();
 
   on('story:act', ({ to }) => escalate(to));

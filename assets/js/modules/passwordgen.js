@@ -1,6 +1,7 @@
 import { h, mount, field } from '../core/dom.js';
 import { toast } from '../core/notify.js';
 import { emit } from '../core/bus.js';
+import { chapter } from '../core/state.js';
 
 const SETS = {
   lower: 'abcdefghijkmnopqrstuvwxyz',
@@ -53,9 +54,26 @@ export default {
   blurb: 'Random, from the browser',
 
   mount(root) {
+    /* The incident system wants twenty characters with symbols in it. When
+       that is the thing standing in the player's way, the tool opens on
+       twenty rather than making them find the slider first. */
+    const wanted = chapter() === 5;
     let mode = 'chars';
-    let len = 18;
+    let len = wanted ? 20 : 18;
+    let opening = true;
     const opts = { lower: true, upper: true, digits: true, symbols: true };
+    const quest = h('div.quest', { hidden: !wanted });
+
+    function paintQuest(value) {
+      if (!wanted) return;
+      const ok = mode === 'chars' && value.length >= 20 && /[!@#$%^&*\-_=+?]/.test(value);
+      quest.dataset.hit = ok ? '1' : '0';
+      mount(quest,
+        h('span.quest-dot' + (ok ? '.hit' : '')),
+        h('span', ok
+          ? 'That will do. It cannot tell a real key from this one.'
+          : 'The incident system wants 20 characters, with symbols.'));
+    }
 
     const out = h('div.readout', { style: { wordBreak: 'break-all', whiteSpace: 'normal' } }, '');
     const strength = h('div.small.dim');
@@ -69,7 +87,10 @@ export default {
       const label = bits < 45 ? 'weak' : bits < 65 ? 'reasonable' : bits < 90 ? 'strong' : 'very strong';
       strength.textContent = `About ${bits} bits of entropy, which is ${label}.`;
       strength.style.color = bits < 45 ? 'var(--danger)' : bits < 65 ? 'var(--warn)' : 'var(--ok)';
-      if (value) emit('tool:value', { tool: 'passwordgen', value });
+      paintQuest(value);
+      /* The key the tool makes on the way in is scenery, the same as the
+         opening roll of the dice. Only a key the player asked for counts. */
+      if (value && !opening) emit('tool:value', { tool: 'passwordgen', value });
     }
 
     slider.oninput = e => { len = +e.target.value; lenLabel.textContent = String(len); regen(); };
@@ -83,6 +104,7 @@ export default {
     }
 
     mount(root,
+      quest,
       h('div.tabs', { role: 'tablist' },
         ...[['chars', 'Characters'], ['words', 'Passphrase']].map(([k, l]) =>
           h('button.tab', { type: 'button', role: 'tab', 'aria-selected': String(mode === k),
@@ -107,5 +129,6 @@ export default {
       )
     );
     regen();
+    opening = false;
   }
 };

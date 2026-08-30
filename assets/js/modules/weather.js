@@ -1,6 +1,6 @@
 import { h, mount, fmt } from '../core/dom.js';
 import { chapter } from '../core/state.js';
-import { NOW, bayTemp, RIG } from '../story/cast.js';
+import { NOW, liveTemp, RIG } from '../story/cast.js';
 
 /* No API key, no network to a third party. The forecast is generated from
    monthly climate normals held in a local file, which is honest and also
@@ -94,7 +94,7 @@ export default {
         isCampus && ch >= 3
           ? h('div.card', { style: { borderColor: 'var(--warn)' } },
               h('h3', 'Indoor sensor attached to this location'),
-              h('p.small', `The campus entry has an indoor reading bound to it, from ${RIG.room}. Outside it is ${fmt(today.high, 0)} degrees. Inside bay ${RIG.faultBay} it is ${fmt(bayTemp(19), 1)}.`),
+              h('p.small', `The campus entry has an indoor reading bound to it, from ${RIG.room}. Outside it is ${fmt(today.high, 0)} degrees. Inside bay ${RIG.faultBay} it is ${fmt(liveTemp(), 1)}.`),
               h('p.small.dim', { style: { marginBottom: 0 } }, 'The room has no ventilation and no window. Nothing outside explains that number.'))
           : null,
         h('p.small.dim',

@@ -177,3 +177,85 @@
 @media (prefers-reduced-motion: reduce) {
   :root { --dur: 0ms; }
 }
+
+/* ---- after the ending ----------------------------------------------------
+   The one thing the old ending never did was stop. This puts the palette back
+   exactly where it started, so a player who finishes the game is looking at
+   the same plain green to-do list they opened. It has to come last in this
+   file: it beats every chapter block above by being later, not by being more
+   specific, which keeps both light and dark working without repeating them. */
+:root[data-over="1"] {
+  --paper:    #FBFAF7;
+  --surface:  #FFFFFF;
+  --surface-2:#F3F2ED;
+  --sunken:   #EEEDE7;
+  --ink:      #1C1B19;
+  --ink-2:    #55534E;
+  --ink-3:    #8B8880;
+  --rule:     #E2E0D9;
+  --rule-2:   #CFCCC3;
+  --accent:      #2E9E6B;
+  --accent-ink:  #FFFFFF;
+  --accent-soft: #E4F3EC;
+  --accent-line: #A9DCC5;
+  --danger:  #B4402F;
+  --warn:    #A87413;
+  --ok:      #2E9E6B;
+  --info:    #2F6F8C;
+  --scan: 0 !important;
+  --grain: 0 !important;
+  --sat: 1 !important;
+  --shadow-1: 0 1px 2px rgba(28,27,25,.06), 0 1px 1px rgba(28,27,25,.04);
+  --shadow-2: 0 4px 16px rgba(28,27,25,.10), 0 1px 3px rgba(28,27,25,.06);
+  transition: none;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"])[data-over="1"] {
+    --paper:    #16181A;
+    --surface:  #1D2023;
+    --surface-2:#23272A;
+    --sunken:   #121416;
+    --ink:      #E6E8E6;
+    --ink-2:    #A6ABA8;
+    --ink-3:    #71776F;
+    --rule:     #2C3033;
+    --rule-2:   #3A3F43;
+    --accent:      #46C48A;
+    --accent-ink:  #0E1A14;
+    --accent-soft: #163023;
+    --accent-line: #2A5C44;
+    --danger: #E2705C;
+    --warn:   #D9A441;
+    --ok:     #46C48A;
+    --info:   #6BB4D4;
+    --shadow-1: 0 1px 2px rgba(0,0,0,.45);
+    --shadow-2: 0 6px 22px rgba(0,0,0,.55);
+  }
+}
+:root[data-theme="dark"][data-over="1"] {
+  --paper:    #16181A;
+  --surface:  #1D2023;
+  --surface-2:#23272A;
+  --sunken:   #121416;
+  --ink:      #E6E8E6;
+  --ink-2:    #A6ABA8;
+  --ink-3:    #71776F;
+  --rule:     #2C3033;
+  --rule-2:   #3A3F43;
+  --accent:      #46C48A;
+  --accent-ink:  #0E1A14;
+  --accent-soft: #163023;
+  --accent-line: #2A5C44;
+  --danger: #E2705C;
+  --warn:   #D9A441;
+  --ok:     #46C48A;
+  --info:   #6BB4D4;
+}
+
+/* Four seconds of the room letting go, so the player watches it happen
+   rather than finding a different page after a reload. */
+html { transition: background-color 3.4s ease, color 3.4s ease; }
+body { transition: background-color 3.4s ease, color 3.4s ease; }
+@media (prefers-reduced-motion: reduce) {
+  html, body { transition: none; }
+}

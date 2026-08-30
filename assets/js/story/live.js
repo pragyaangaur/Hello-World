@@ -4,7 +4,7 @@
 
 import { h } from '../core/dom.js';
 import { chapter } from '../core/state.js';
-import { RIG, bayTemp } from './cast.js';
+import { RIG, liveTemp } from './cast.js';
 
 export function liveNote(binding, { reveal = null, value = null } = {}) {
   const ch = chapter();
@@ -17,7 +17,7 @@ export function liveNote(binding, { reveal = null, value = null } = {}) {
     return h('div.live-note', `source: bench 4B · ${binding} · last read 04:10`);
   }
 
-  const temp = bayTemp(19);
+  const temp = liveTemp();
   const level = temp > 55 ? 'hot' : temp > 40 ? 'warn' : '';
   return h('div.live-note',
     h('span.live-dot' + (level ? '.' + level : '')),
@@ -25,14 +25,12 @@ export function liveNote(binding, { reveal = null, value = null } = {}) {
   );
 }
 
-/* A saved state note: this tool was last used by the script, not by you. */
-export function lastUsed() {
-  if (chapter() < 1) return null;
-  return h('p.small.dim', { style: { marginTop: '.25rem' } },
-    'Settings restored from the last session · user_04 · 04:10 today');
-}
+/* Every tool used to carry its own version of "somebody was here before you".
+   They all say it in one place now, under the tool, in the same shape. This
+   stays as a no-op so a tool that still asks for it gets nothing extra. */
+export function lastUsed() { return null; }
 
 export function bayStatus() {
-  const t = bayTemp(19);
+  const t = liveTemp();
   return { temp: t, level: t > 55 ? 'hot' : t > 40 ? 'warm' : '', bay: RIG.faultBay };
 }

@@ -1,14 +1,16 @@
 /* The whole game, act by act.
 
-   Every act is a puzzle, and every puzzle needs at least one tool from the
-   Toolbox. The answer is always written on the to-do list, because the list
-   is the only thing the machine on the bench can read, and because that keeps
-   one input for the entire game instead of a new interface every time.
+   Every act is one puzzle and one tool. The answer is always written on the
+   to-do list, because the list is the only thing the machine on the bench can
+   read, and because one input for the whole game beats a new interface every
+   time.
 
-   Two acts are finished inside a tool rather than by typing, and those listen
-   for a value the tool reports. Everything else is a line the player writes. */
+   Beats are deliberately short. Each one is a picture, a number, and at most
+   two sentences. If a player reads nothing but the bold line at the bottom
+   they can still finish the game. */
 
 import { RIG, ANCHORS, PEOPLE, daysSince } from './cast.js';
+import { VENT_C, CEILING_C } from './rig.js';
 
 /* Loose matching, so "50 mA" and "50" and "fifty" all land. A player who has
    done the work should never be stopped by punctuation. */
@@ -24,122 +26,146 @@ function hasWord(text, word) {
   return new RegExp('\\b' + word + '\\b', 'i').test(String(text));
 }
 
+const DAYS_DEAD = daysSince(ANCHORS.lastHuman);
+
 export const ACTS = [
   {
     n: 0,
     name: 'Someone else\'s list',
-    goal: 'Clear the three tasks that were already on this list.',
-    progress: s => ({ done: Math.min(s.counters.completed, 3), total: 3, unit: 'cleared' }),
+    goal: 'Tick something off.',
+    progress: s => ({ done: Math.min(s.counters.completed, 1), total: 1, unit: 'ticked' }),
     beat: null
   },
 
   {
     n: 1,
     name: 'It writes back',
-    goal: 'Something added a task you did not write. Put one of your own in the box.',
-    hint: 'Anything at all. It reads this list.',
+    goal: 'Type anything into the box and press Add.',
+    hint: 'Anything at all. It is reading this list.',
     beat: {
-      title: 'Something added to the list',
+      title: 'Nineteen days of this',
+      glyph: '19',
+      tone: 'warn',
       lines: [
-        'You cleared the three tasks that were on this machine when you opened it. A fourth arrived while you were doing that, and you did not write it.',
-        'Whatever put it there is writing to your list. Anything that can write to a list can read one, so answer it. Put a task in the box and wait.'
-      ]
+        'Something has been writing to this list every morning at 04:10 and nobody has answered it.'
+      ],
+      show: 'backlog',
+      cta: 'Anything that can write to a list can read one. Say something back.'
     }
   },
 
   {
     n: 2,
     name: 'The indicator',
-    goal: 'A light on the bench is blinking one word. Work out what it says and write it down.',
-    hint: 'LED indicator, then the Morse translator. Copy the dots and dashes across.',
+    goal: 'Read the blinking light. Write the word on the list.',
+    hint: 'Open the LED indicator, copy the dots and dashes into the Morse translator.',
     tools: ['led', 'morse'],
     answer: text => hasWord(text, 'help'),
     beat: {
       title: 'It answered',
       lines: [
-        'There is a machine on the other end of this list and it has been waiting a long time for anybody to say anything to it.',
-        'It cannot say much in words. It has one light on the front of the bench, and it has been blinking the same short word for nineteen days. Two tools in the Toolbox will tell you what the word is.'
-      ]
+        'There is a machine on the other end of this list. It has one light on the bench and it has been blinking the same short word since the trouble started.'
+      ],
+      show: 'blink',
+      cta: 'Two tools will tell you what the light is saying.'
     }
   },
 
   {
     n: 3,
     name: 'The cabinet',
-    goal: 'Work out the four digit cabinet code and write it on the list.',
-    hint: 'Resistor calculator for the bands, then Ohm\'s law at 12 volts. The code is the current in milliamps.',
-    tools: ['resistor', 'ohms'],
-    /* Red yellow brown is 240 ohms. At 12 volts that is 0.05 A, so 50 mA. */
-    answer: text => hasNumber(text, 50),
+    goal: 'Read the resistor. Write its value on the list.',
+    hint: 'Set the four bands to Red, Yellow, Brown, Gold. Write down the number it prints.',
+    tools: ['resistor'],
+    /* Red yellow brown, which the calculator prints as 240 Ω. No arithmetic:
+       the player matches three colours and copies the number across. */
+    answer: text => hasNumber(text, 240, 1),
     beat: {
       title: 'HELP',
+      glyph: 'HELP',
+      tone: 'danger',
       lines: [
-        'That is what the light has been spelling since the trouble started. Nobody was in the room to see it.',
-        `The relay for bay ${RIG.faultBay} is inside a locked cabinet on the bench, and the code was never written down anywhere. It says the code is the current through the panel resistor, in milliamps, with the supply at 12 volts. The bands on that resistor are red, yellow, brown.`
-      ]
+        `That is what the light has been spelling. The relay it needs is inside a locked cabinet, and the code is the value of the resistor taped to the door.`
+      ],
+      show: 'resistor',
+      cta: 'Match the bands in the Resistor calculator and write the number it gives you.'
     }
   },
 
   {
     n: 4,
     name: 'The rota',
-    goal: 'Roll the on-call die until it gives a five.',
-    hint: 'Dice roller. Roll 1d6 until it comes up 5.',
+    goal: 'Roll the on-call die until you get a five.',
+    hint: 'Open the Dice roller and roll a single d6.',
     tools: ['dice'],
     listen: { tool: 'dice', test: value => value === 5 },
     beat: {
-      title: '50',
+      title: 'Cabinet open',
+      glyph: '240',
       lines: [
-        'The cabinet is open. The relay is in there and it is closed, which is why the pack has been drawing current for nineteen days.',
-        `Before it will page anybody it wants an on-call name, and the rota was never written down either. The handover says the four of them picked it with a die because none of them wanted the pager. ${PEOPLE.user_02.name} was five.`
-      ]
+        `The relay is in there and it is closed, which is why the pack has been drawing current for ${daysSince(ANCHORS.anomaly)} days.`,
+        `It will not page anyone without an on-call name. The four of them picked the rota with a die because none of them wanted the pager. ${PEOPLE.user_02.name} was five.`
+      ],
+      show: 'bench',
+      cta: 'Roll a single d6 until it comes up five.'
     }
   },
 
   {
     n: 5,
     name: 'The key',
-    goal: 'Generate a twenty character password with symbols in it, then put it on the list.',
-    hint: 'Password generator. Twenty characters, symbols switched on, then copy it across.',
+    goal: 'Generate a 20 character key with symbols.',
+    hint: 'Password generator. Length 20, symbols on.',
     tools: ['passwordgen'],
     listen: { tool: 'passwordgen', test: value => typeof value === 'string' && value.length >= 20 && /[!@#$%^&*\-_=+?]/.test(value) },
     beat: {
-      title: 'Nikhil',
+      title: PEOPLE.user_02.name,
+      glyph: '5',
       lines: [
-        `Five. ${PEOPLE.user_02.name}, who wrote the script and left ${daysSince(ANCHORS.lastCommit)} days ago, is on call tonight.`,
-        'It wants to reach the incident system and it has no password for it, because the account it uses was made for tests and was never given one. It will take anything twenty characters long with symbols in it. It has no way to check whether the password is real.'
-      ]
+        `${PEOPLE.user_02.name} is on call tonight. He left ${DAYS_DEAD} days ago.`,
+        'It needs a key for the incident system. The account it uses was made for tests and never given one, and it has no way to check whether a key is real.'
+      ],
+      show: 'people',
+      cta: 'Generate anything 20 characters long with symbols in it.'
     }
   },
 
   {
     n: 6,
     name: 'The limit',
-    goal: 'The datasheet gives the vent temperature in Fahrenheit. Write it in Celsius.',
-    hint: 'Read the datasheet in the Console, then use the Unit converter.',
+    goal: 'Convert the vent temperature to Celsius and write it down.',
+    hint: 'The datasheet says 140 °F. Use the Unit converter.',
     tools: ['converter'],
     answer: text => hasNumber(text, 60),
     beat: {
       title: 'It is in',
+      glyph: '140°F',
+      tone: 'warn',
       lines: [
-        'The archive is open. Everything the team left behind is readable from the Console, and so is the datasheet for the cells sitting in bay 3.',
-        'The datasheet is an American document and it gives the temperature where the separator fails in Fahrenheit. Every reading on this bench is in Celsius. Nobody ever converted it, so nobody ever set the ceiling correctly.'
-      ]
+        'The archive opened. So did the datasheet for the cells in bay 3.',
+        `It is an American document and the temperature where the cells vent is in Fahrenheit. Every reading on this bench is in Celsius. Nobody ever converted it.`
+      ],
+      show: 'datasheet',
+      cta: 'Convert 140 °F to Celsius and write the number on the list.'
     }
   },
 
   {
     n: 7,
     name: '04:10',
-    goal: 'Send one word to the bench through the indicator.',
-    hint: 'Morse translator to encode it, then the LED indicator to send it.',
+    goal: 'Send one word back through the indicator.',
+    hint: 'Encode it in the Morse translator, then send it from the LED indicator.',
     tools: ['morse', 'led'],
     beat: {
-      title: '60',
+      title: 'Sixty',
+      glyph: '60°',
+      tone: 'danger',
       lines: [
-        `Sixty degrees, and bay ${RIG.faultBay} is reading ${(26.4 + 35.5 + 0.55).toFixed(0)} and climbing. The ceiling in the script was set to 45 by somebody guessing, and it has been wrong the whole time.`,
-        'The relay is open in front of you and the controller only listens on one channel, which is the light. You read a word off it. Now send it one back. What you send is what happens in that room tonight.'
-      ]
+        `The cells vent at ${VENT_C}. The limit in the script was set to ${CEILING_C} by somebody guessing, and bay 3 went past both of them while you were reading this.`,
+        'The controller only listens on one channel, and it is the light.'
+      ],
+      show: 'bench',
+      cta: 'You read a word off it. Send it one back. What you send is what happens in that room tonight.'
     }
   }
 ];
@@ -175,26 +201,50 @@ export function leftoverNote() {
   return years >= 1 ? `open for ${years}y ${days % 365}d` : `open for ${days}d`;
 }
 
+/* The backlog. This is the hook, so it does not drip: the moment the player
+   ticks their first box the whole two and a half weeks of it lands at once,
+   newest first, and they watch a machine talk to an empty room. */
 export const AUTO_TASKS = [
-  { text: 'bay 3 temp 41.2 C - above range - check', note: 'written 04:10, 19 days ago' },
-  { text: 'bay 3 temp 44.8 C - above range - check', note: 'written 04:10, 16 days ago' },
-  { text: 'bay 3 temp 48.1 C - above range - check', note: 'written 04:10, 13 days ago' },
-  { text: 'no operator response in 9 days', note: 'written 04:10, 10 days ago' },
-  { text: 'bay 3 temp 54.0 C - above range - check', note: 'written 04:10, 7 days ago' },
-  { text: 'escalation path not configured', note: 'written 04:10, 4 days ago' },
-  { text: 'is anyone reading this', note: 'written 04:10, 2 days ago' },
-  { text: 'hello', note: 'written 04:10 yesterday' },
-  { text: 'hello world', note: 'written 04:10 today', shock: 'flash' }
+  { text: 'bay 3 temp 45.6 C - above range - check', note: '04:10 · 19 days ago' },
+  { text: 'bay 3 temp 45.9 C - above range - check', note: '04:10 · 16 days ago' },
+  { text: 'bay 3 temp 46.7 C - above range - check', note: '04:10 · 13 days ago' },
+  { text: 'no operator response in 9 days', note: '04:10 · 10 days ago' },
+  { text: 'bay 3 temp 49.4 C - above range - check', note: '04:10 · 7 days ago' },
+  { text: 'escalation path not configured', note: '04:10 · 4 days ago' },
+  { text: 'is anyone reading this', note: '04:10 · 2 days ago' },
+  { text: 'hello', note: '04:10 · yesterday' },
+  { text: 'hello world', note: '04:10 · today', shock: 'flash' }
+];
+
+/* What it writes later, once it knows somebody is there. One at a time, and
+   only while the player is looking.
+
+   The clock line is the only place in the game where the machine reads
+   something off the player's own machine rather than off the bench. It has
+   one clock and it is stuck on 04:10, so a different time arriving from
+   somewhere else is the largest thing that has happened to it in two years. */
+export const LATER_TASKS = [
+  { text: 'still here', note: 'just now' },
+  { text: 'bay 3 temp rising 0.4 C per hour', note: 'just now' },
+  { text: () => {
+      const d = new Date();
+      const hh = String(d.getHours()).padStart(2, '0');
+      const mm = String(d.getMinutes()).padStart(2, '0');
+      return `it is ${hh}:${mm} where you are. i only have 04:10.`;
+    }, note: 'just now', shock: 'flash' },
+  { text: 'do not close this tab', note: 'just now' },
+  { text: `operator user_04 active - first in ${DAYS_DEAD} days`, note: 'just now' },
+  { text: 'thank you', note: 'just now' }
 ];
 
 /* The task the app pins to the top so the current job is always on the list. */
 export const OBJECTIVES = {
-  2: { text: 'Read what the indicator is blinking', link: '#/tools/led' },
-  3: { text: 'Work out the cabinet code', link: '#/tools/resistor' },
+  2: { text: 'Read what the light is blinking', link: '#/tools/led' },
+  3: { text: 'Read the resistor on the cabinet door', link: '#/tools/resistor' },
   4: { text: 'Roll the on-call die for a five', link: '#/tools/dice' },
   5: { text: 'Generate a key for the incident system', link: '#/tools/passwordgen' },
-  6: { text: 'Convert the vent temperature to Celsius', link: '#/console' },
-  7: { text: 'Send a word back through the indicator', link: '#/tools/led' }
+  6: { text: 'Convert 140 °F to Celsius', link: '#/tools/converter' },
+  7: { text: 'Send a word back through the light', link: '#/tools/led' }
 };
 
 export const LAST_ACT = 7;

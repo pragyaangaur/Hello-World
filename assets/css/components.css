@@ -374,3 +374,318 @@ canvas.stage { width: 100%; border: 1px solid var(--rule); border-radius: var(--
 }
 .objective .obj-tool:hover { background: var(--accent-soft); }
 @media (max-width: 800px) { .objective .obj-tools { width: 100%; } }
+
+/* ==========================================================================
+   The story, drawn
+   ==========================================================================
+   Everything below here exists because the game used to explain itself in
+   paragraphs and nobody read them. A bar climbing toward a red line does the
+   same job in half a second. */
+
+/* ---- the bench, four cells in a rack ---- */
+.bench { display: flex; flex-direction: column; gap: var(--sp-2); }
+.bench-rack {
+  position: relative;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-2);
+  height: 9rem; padding: var(--sp-2);
+  background: var(--sunken); border: 1px solid var(--rule); border-radius: var(--r-sm);
+}
+.bench-compact .bench-rack { height: 4.5rem; }
+.bay {
+  position: relative; overflow: hidden;
+  border: 1px solid var(--rule-2); border-radius: 3px; background: var(--surface);
+  display: flex; flex-direction: column; justify-content: flex-end; align-items: center;
+  padding-bottom: 3px;
+}
+.bay-fill {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(to top, var(--ok), var(--ok));
+  opacity: .28; transition: height 900ms var(--ease);
+}
+.bay[data-level="warm"] .bay-fill { background: var(--warn); opacity: .3; }
+.bay[data-level="hot"]  .bay-fill { background: var(--danger); opacity: .38; }
+.bay[data-level="vent"] .bay-fill { background: var(--danger); opacity: .55; }
+.bay-hot { border-color: var(--danger); }
+/* The bay number sits at the foot of the cell with its reading, out of the
+   way of the vent line, which can cross the rack at any height. */
+.bay-num {
+  position: relative; order: 2;
+  font-family: var(--font-mono); font-size: 10px; color: var(--ink-3);
+}
+.bay-temp {
+  position: relative; order: 1;
+  font-family: var(--font-mono); font-size: var(--step--1);
+  font-variant-numeric: tabular-nums; color: var(--ink-2);
+}
+.bay-hot .bay-temp { color: var(--danger); font-weight: 700; }
+.bench-compact .bay-num { display: none; }
+.bench-limit {
+  position: absolute; left: var(--sp-2); right: var(--sp-2); height: 0;
+  border-top: 1px dashed var(--danger); z-index: 2; pointer-events: none;
+}
+/* The label sits under its own line and at the left end, away from the bay
+   numbers that run along the top edge of the rack. */
+.bench-limit span {
+  position: absolute; left: 0; top: 3px;
+  font-family: var(--font-mono); font-size: 10px; color: var(--danger);
+  background: var(--sunken); padding: 0 3px; border-radius: 2px;
+}
+.bench-foot {
+  display: flex; justify-content: space-between; gap: var(--sp-3);
+  font-family: var(--font-mono); font-size: var(--step--1); color: var(--ink-3);
+}
+.bench-read[data-level="hot"], .bench-read[data-level="vent"] { color: var(--danger); }
+.bench-read[data-level="warm"] { color: var(--warn); }
+
+/* ---- the chip in the sidebar ---- */
+.bench-slot { padding: var(--sp-3) var(--sp-4) 0; }
+.bench-chip {
+  display: flex; flex-direction: column; gap: 5px;
+  padding: var(--sp-3); border: 1px solid var(--rule); border-radius: var(--r-sm);
+  background: var(--surface); text-decoration: none; color: inherit;
+}
+.bench-chip:hover { border-color: var(--rule-2); }
+.bench-chip[data-level="hot"], .bench-chip[data-level="vent"] { border-color: var(--danger); }
+.bc-top { display: flex; justify-content: space-between; align-items: baseline; gap: var(--sp-2); }
+.bc-name { font-size: var(--step--1); font-weight: 600; }
+.bc-temp {
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  font-size: var(--step-0); font-weight: 700; color: var(--ink-2);
+}
+.bench-chip[data-level="warm"] .bc-temp { color: var(--warn); }
+.bench-chip[data-level="hot"] .bc-temp, .bench-chip[data-level="vent"] .bc-temp { color: var(--danger); }
+.bc-bar { display: block; height: 3px; border-radius: var(--r-pill); background: var(--sunken); overflow: hidden; }
+.bc-bar span { display: block; height: 100%; background: var(--danger); transition: width 900ms var(--ease); }
+.bc-sub { font-size: 11px; color: var(--ink-3); }
+
+/* On a phone the sidebar is a horizontal strip, so the chip lies down and
+   drops everything that will not fit on one line. */
+@media (max-width: 800px) {
+  .bench-slot { padding: 0; flex: none; }
+  .bench-chip { flex-direction: row; align-items: center; gap: var(--sp-2); padding: var(--sp-2) var(--sp-3); white-space: nowrap; }
+  .bench-chip .bc-bar, .bench-chip .bc-sub { display: none; }
+  .bc-top { gap: var(--sp-2); }
+}
+
+/* ---- the bench page ---- */
+.bench-hero {
+  display: grid; grid-template-columns: 1fr auto; gap: var(--sp-5); align-items: center;
+  padding: var(--sp-5); border: 1px solid var(--rule); border-radius: var(--r-md);
+  background: var(--surface);
+}
+.bench-hero[data-level="hot"], .bench-hero[data-level="vent"] { border-color: var(--danger); }
+.bench-side { text-align: right; }
+.bench-big {
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  font-size: var(--step-4); font-weight: 700; line-height: 1; color: var(--danger);
+}
+.bench-big span { font-size: var(--step-1); margin-left: 2px; }
+.bench-tag { font-size: var(--step--1); color: var(--danger); margin-top: var(--sp-1); }
+.bench-vs { margin-top: var(--sp-4); font-size: var(--step--1); color: var(--ink-3); }
+.bench-vs span { display: block; }
+.bench-vs strong { font-family: var(--font-mono); color: var(--ink-2); }
+.chart-wrap { width: 100%; overflow-x: auto; }
+.chart-wrap svg { width: 100%; min-width: 22rem; height: auto; display: block; }
+.kv.kv-wide dd { text-align: left; }
+@media (max-width: 620px) {
+  .bench-hero { grid-template-columns: 1fr; }
+  .bench-side { text-align: left; }
+}
+
+/* ---- the beat, which is a picture and two sentences ---- */
+.beat { display: flex; flex-direction: column; gap: var(--sp-4); }
+.glyph {
+  font-family: var(--font-mono); font-weight: 700; line-height: 1;
+  font-size: clamp(2.6rem, 12vw, 4.5rem); letter-spacing: -.02em;
+  color: var(--ink); text-align: center;
+}
+.glyph.warn { color: var(--warn); }
+.glyph.danger { color: var(--danger); }
+.beat-words p { color: var(--ink-2); margin-bottom: var(--sp-3); }
+.beat-words p:last-child { margin-bottom: 0; }
+.beat-cta {
+  border-top: 1px solid var(--rule); padding-top: var(--sp-3);
+}
+.beat-step {
+  display: block; font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3);
+  margin-bottom: var(--sp-1);
+}
+.beat-do { margin: 0; font-weight: 600; color: var(--ink); }
+
+/* ---- the pictures inside a beat ---- */
+.art {
+  border: 1px solid var(--rule); border-radius: var(--r-sm);
+  background: var(--sunken); padding: var(--sp-4);
+}
+.art-cap {
+  margin-top: var(--sp-3); text-align: center;
+  font-family: var(--font-mono); font-size: var(--step--1); color: var(--ink-3);
+}
+
+.art-log { display: flex; flex-direction: column; gap: 2px; padding: var(--sp-3); }
+.art-row {
+  display: flex; gap: var(--sp-3); align-items: baseline;
+  font-family: var(--font-mono); font-size: var(--step--1);
+  padding: 3px var(--sp-2); border-radius: 3px; opacity: .55;
+}
+.art-row .art-when { flex: none; width: 6.5rem; color: var(--ink-3); }
+.art-row .art-what { color: var(--ink-2); }
+.art-row-now { opacity: 1; background: var(--accent-soft); }
+.art-row-now .art-what { color: var(--ink); font-weight: 700; }
+
+.art-blink { display: flex; flex-direction: column; align-items: center; gap: var(--sp-3); }
+.art-bulb {
+  width: 2.2rem; height: 2.2rem; border-radius: 50%;
+  background: var(--warn); box-shadow: 0 0 22px var(--warn);
+  animation: art-blink 1.6s steps(1, end) infinite;
+}
+@keyframes art-blink { 0%, 45% { opacity: 1; } 46%, 100% { opacity: .12; } }
+.art-morse { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; justify-content: center; }
+.art-mark { width: 7px; height: 7px; border-radius: 2px; background: var(--ink-2); }
+.art-mark.dash { width: 20px; }
+.art-gap { width: 12px; }
+
+.art-resistor { display: flex; flex-direction: column; align-items: center; }
+.art-res { display: flex; align-items: center; }
+.art-lead { width: 2.5rem; height: 3px; background: var(--rule-2); }
+.art-body {
+  display: flex; align-items: center; gap: 7px; justify-content: center;
+  width: 11rem; height: 3.4rem; border-radius: 10px;
+  background: #d9c9a8; border: 1px solid rgba(0,0,0,.18);
+}
+.art-band { width: 11px; height: 100%; }
+
+.art-people { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-2); }
+.art-person { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; opacity: .45; }
+.art-face {
+  width: 2.4rem; height: 2.4rem; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--surface-2); border: 1px solid var(--rule-2);
+  font-family: var(--font-mono); font-size: var(--step--1); font-weight: 700; color: var(--ink-2);
+}
+.art-person .art-name { font-size: var(--step--1); font-weight: 600; }
+.art-person .art-when { font-size: 10px; color: var(--ink-3); font-family: var(--font-mono); }
+.art-oncall { opacity: 1; }
+.art-oncall .art-face { border-color: var(--accent); color: var(--accent); }
+.art-you { opacity: 1; }
+.art-you .art-face { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+@media (max-width: 520px) { .art-people { grid-template-columns: repeat(2, 1fr); gap: var(--sp-3); } }
+
+.art-sheet { display: grid; grid-template-columns: 1fr auto 1fr; gap: var(--sp-3); align-items: center; }
+.art-sheet-col { display: flex; flex-direction: column; gap: 3px; text-align: center; }
+.art-sheet-h { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.art-sheet-v {
+  font-family: var(--font-mono); font-size: var(--step-3); font-weight: 700; color: var(--ink);
+}
+.art-sheet-s { font-size: var(--step--1); color: var(--ink-3); }
+.art-sheet-vs { font-size: var(--step-3); color: var(--danger); }
+.art-sheet-live .art-sheet-v { color: var(--danger); }
+.art-bench { padding: var(--sp-3); }
+
+/* ---- the trace under every tool ---- */
+.trace {
+  display: flex; gap: var(--sp-3); align-items: flex-start;
+  margin-top: var(--sp-4); padding: var(--sp-3);
+  border: 1px dashed var(--rule-2); border-radius: var(--r-sm);
+  background: transparent;
+}
+.trace-dot {
+  flex: none; width: 6px; height: 6px; margin-top: .45rem;
+  border-radius: 50%; background: var(--ink-3); opacity: .6;
+}
+.trace-body { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.trace-line { font-size: var(--step--1); color: var(--ink-2); }
+.trace-who { font-family: var(--font-mono); font-size: 10px; color: var(--ink-3); }
+
+/* A readout saying something it should not. It gets no styling of its own on
+   purpose, beyond going the colour of everything else that is wrong. */
+[data-haunted="1"] { color: var(--danger) !important; }
+[data-drain="1"] { filter: grayscale(1) contrast(.8); transition: filter 180ms linear; }
+
+/* ---- dice, drawn as dice ---- */
+.dice-faces {
+  display: flex; gap: var(--sp-2); justify-content: center; flex-wrap: wrap;
+  margin-bottom: var(--sp-3); min-height: 0;
+}
+.dice-faces:empty { display: none; }
+.die {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px;
+  width: 3rem; height: 3rem; padding: 6px;
+  border: 1px solid var(--rule-2); border-radius: var(--r-sm); background: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+.pip { border-radius: 50%; background: transparent; }
+.pip.on { background: var(--ink); }
+.dice-faces.rolled .die { animation: die-in 260ms var(--ease); }
+@keyframes die-in { from { transform: scale(.82) rotate(-8deg); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .dice-faces.rolled .die { animation: none; } .art-bulb { animation: none; } }
+
+/* A tool saying what the story wants from it, in the tool itself. */
+.quest {
+  display: flex; align-items: center; gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4); margin-bottom: var(--sp-3);
+  border: 1px solid var(--accent-line); border-radius: var(--r-sm);
+  background: var(--accent-soft); font-size: var(--step--1); font-weight: 600;
+}
+.quest[data-hit="1"] { border-color: var(--ok); }
+.quest-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+  animation: sync-pulse 1.2s ease-in-out infinite;
+}
+.quest-dot.hit { background: var(--ok); animation: none; }
+@media (prefers-reduced-motion: reduce) { .quest-dot { animation: none; } }
+
+/* ---- the objective strip, after the diet ---- */
+.objective .obj-hint-btn {
+  flex: none; width: 1.5rem; height: 1.5rem; border-radius: 50%;
+  border: 1px solid var(--rule-2); background: var(--surface); color: var(--ink-2);
+  cursor: pointer; font-size: var(--step--1); font-weight: 700; line-height: 1;
+  display: grid; place-items: center;
+}
+.objective .obj-hint-btn:hover { background: var(--sunken); color: var(--ink); }
+.objective .obj-hint {
+  flex-basis: 100%; margin-top: var(--sp-2); padding-top: var(--sp-2);
+  border-top: 1px dashed var(--rule); color: var(--ink-2);
+  display: flex; gap: var(--sp-3); align-items: center; flex-wrap: wrap;
+}
+.objective[data-done="1"] { border-bottom-color: var(--accent-line); }
+
+/* ---- the end ---- */
+.end-hero {
+  display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-2);
+  padding: var(--sp-6) var(--sp-5); margin-bottom: var(--sp-5);
+  border: 1px solid var(--rule); border-radius: var(--r-md); background: var(--surface);
+}
+.end-mark {
+  width: 3rem; height: 3rem; border-radius: 50%; display: grid; place-items: center;
+  font-size: var(--step-3); font-weight: 700;
+  background: var(--sunken); color: var(--ink-2); margin-bottom: var(--sp-2);
+}
+.end-good .end-mark { background: var(--accent-soft); color: var(--ok); }
+.end-good { border-color: var(--accent-line); }
+.end-warn .end-mark { background: transparent; border: 1px solid var(--warn); color: var(--warn); }
+.end-bad .end-mark { background: transparent; border: 1px solid var(--danger); color: var(--danger); }
+.end-hero h1 { font-size: var(--step-3); }
+.end-final { margin-top: var(--sp-3); }
+.end-temp {
+  display: block; font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  font-size: var(--step-2); font-weight: 700;
+}
+.end-good .end-temp { color: var(--ok); }
+.end-warn .end-temp { color: var(--warn); }
+.end-bad .end-temp { color: var(--danger); }
+.end-temp-sub { font-size: var(--step--1); color: var(--ink-3); }
+
+.end-card { text-align: center; padding: var(--sp-6) 0; }
+.end-rule { height: 1px; background: var(--rule); }
+.end-word {
+  font-size: var(--step-4); font-weight: 700; letter-spacing: -.02em;
+  padding: var(--sp-5) 0 var(--sp-2);
+}
+.end-sub { color: var(--ink-3); font-size: var(--step--1); padding-bottom: var(--sp-5); margin: 0; }
+.end-back { border-color: var(--accent-line); }
+.quest-bands { display: inline-flex; gap: 4px; align-items: center; margin-left: var(--sp-1); }
+.quest-band {
+  width: 9px; height: 1.4rem; border-radius: 2px; border: 1px solid rgba(0,0,0,.2);
+}

@@ -79,3 +79,9 @@
   .account-text { display: none; }
   #view { padding: var(--sp-5) var(--sp-4) var(--sp-7); }
 }
+
+/* The one line telling the player what the app is waiting for should not be
+   something they have to scroll back up to find. */
+@media (min-width: 801px) {
+  #objective { position: sticky; top: 0; z-index: 15; }
+}

@@ -1,5 +1,5 @@
 import { h, mount, fmt } from '../core/dom.js';
-import { RIG, bayTemp, isoDate, NOW, readings } from '../story/cast.js';
+import { RIG, bayTemp, liveTemp, isoDate, NOW, readings } from '../story/cast.js';
 import { liveNote } from '../story/live.js';
 
 export default {
@@ -116,7 +116,7 @@ export default {
       mount(verdict,
         h('div.card-head', { style: { border: 0, padding: 0, marginBottom: '.75rem' } }, 'Four channels, no summary'),
         h('p.small', 'The log records every reading and works out nothing at all.'),
-        h('p.small', `Bay ${RIG.faultBay} is up ${fmt(bayTemp(19) - bayTemp(0), 1)} degrees in nineteen days and reads ${fmt(bayTemp(19), 1)} °C right now.`),
+        h('p.small', `Bay ${RIG.faultBay} is up ${fmt(liveTemp() - bayTemp(0), 1)} degrees in nineteen days and reads ${fmt(liveTemp(), 1)} °C right now.`),
         h('p.small.dim', { style: { marginBottom: 0 } },
           'Storage range for the pack is 18 to 30.')
       );

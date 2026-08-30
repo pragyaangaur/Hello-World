@@ -1,4 +1,5 @@
 import { h, mount } from '../core/dom.js';
+import { chapter } from '../core/state.js';
 
 const COLOURS = [
   ['Black', '#111111', 0, null, null],
@@ -34,6 +35,26 @@ export default {
     let bands = 4;
     let pick = [1, 0, 2, 10];   /* brown black red gold = 1 kΩ ±5% */
 
+    /* When the cabinet is the thing standing in the player's way, the tool
+       shows the resistor they are looking for, in colour, above the controls.
+       Nobody should have to hold four colour names in their head between one
+       screen and the next. */
+    const wanted = chapter() === 3;
+    const TARGET = [['Red', '#c2312a'], ['Yellow', '#e0b820'], ['Brown', '#6b3f1d'], ['Gold', '#c8a44a']];
+    const quest = h('div.quest', { hidden: !wanted });
+
+    function paintQuest(value) {
+      if (!wanted) return;
+      const hit = Math.abs(value - 240) < 1;
+      quest.dataset.hit = hit ? '1' : '0';
+      mount(quest,
+        h('span.quest-dot' + (hit ? '.hit' : '')),
+        h('span', hit ? 'That is the cabinet resistor. Write the number on your list.' : 'Cabinet 4B. Match these:'),
+        h('span.quest-bands', ...TARGET.map(([name, col]) =>
+          h('span.quest-band', { style: { background: col }, title: name })))
+      );
+    }
+
     const body = h('div.resistor-body');
     const readout = h('div.readout.big', { style: { textAlign: 'center' } }, '');
     const selects = h('div.grid-3');
@@ -51,6 +72,7 @@ export default {
       const tol = COLOURS[pick[dCount + 1]]?.[3];
       const value = digits * mult;
       readout.textContent = fmtOhms(value) + (tol ? '  ±' + tol + '%' : '');
+      paintQuest(value);
       mount(body,
         h('span.wire'),
         ...pick.slice(0, bands).map((c, i) =>
@@ -79,6 +101,7 @@ export default {
     }
 
     mount(root,
+      quest,
       h('div.tabs', { role: 'tablist' },
         ...[4, 5].map(n => h('button.tab', { type: 'button', role: 'tab', 'aria-selected': String(bands === n),
           onclick: e => {

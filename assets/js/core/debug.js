@@ -20,7 +20,7 @@ export function installDebug() {
   const paint = () => {
     mount(bar,
       h('span.small.dim', { style: { padding: '.2rem .4rem' } }, 'ch'),
-      ...[0, 1, 2, 3, 4, 5].map(n => h('button.btn.btn-sm', {
+      ...[0, 1, 2, 3, 4, 5, 6, 7].map(n => h('button.btn.btn-sm', {
         type: 'button',
         style: n === get().chapter ? { borderColor: 'var(--accent)', color: 'var(--accent)' } : {},
         onclick: () => {
