@@ -374,3 +374,66 @@ canvas.stage { width: 100%; border: 1px solid var(--rule); border-radius: var(--
 }
 .objective .obj-tool:hover { background: var(--accent-soft); }
 @media (max-width: 800px) { .objective .obj-tools { width: 100%; } }
+
+/* ==========================================================================
+   The story, drawn
+   ==========================================================================
+   Everything below here exists because the game used to explain itself in
+   paragraphs and nobody read them. A bar climbing toward a red line does the
+   same job in half a second. */
+
+/* ---- the bench, four cells in a rack ---- */
+.bench { display: flex; flex-direction: column; gap: var(--sp-2); }
+.bench-rack {
+  position: relative;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-2);
+  height: 9rem; padding: var(--sp-2);
+  background: var(--sunken); border: 1px solid var(--rule); border-radius: var(--r-sm);
+}
+.bench-compact .bench-rack { height: 4.5rem; }
+.bay {
+  position: relative; overflow: hidden;
+  border: 1px solid var(--rule-2); border-radius: 3px; background: var(--surface);
+  display: flex; flex-direction: column; justify-content: flex-end; align-items: center;
+  padding-bottom: 3px;
+}
+.bay-fill {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(to top, var(--ok), var(--ok));
+  opacity: .28; transition: height 900ms var(--ease);
+}
+.bay[data-level="warm"] .bay-fill { background: var(--warn); opacity: .3; }
+.bay[data-level="hot"]  .bay-fill { background: var(--danger); opacity: .38; }
+.bay[data-level="vent"] .bay-fill { background: var(--danger); opacity: .55; }
+.bay-hot { border-color: var(--danger); }
+/* The bay number sits at the foot of the cell with its reading, out of the
+   way of the vent line, which can cross the rack at any height. */
+.bay-num {
+  position: relative; order: 2;
+  font-family: var(--font-mono); font-size: 10px; color: var(--ink-3);
+}
+.bay-temp {
+  position: relative; order: 1;
+  font-family: var(--font-mono); font-size: var(--step--1);
+  font-variant-numeric: tabular-nums; color: var(--ink-2);
+}
+.bay-hot .bay-temp { color: var(--danger); font-weight: 700; }
+.bench-compact .bay-num { display: none; }
+.bench-limit {
+  position: absolute; left: var(--sp-2); right: var(--sp-2); height: 0;
+  border-top: 1px dashed var(--danger); z-index: 2; pointer-events: none;
+}
+/* The label sits under its own line and at the left end, away from the bay
+   numbers that run along the top edge of the rack. */
+.bench-limit span {
+  position: absolute; left: 0; top: 3px;
+  font-family: var(--font-mono); font-size: 10px; color: var(--danger);
+  background: var(--sunken); padding: 0 3px; border-radius: 2px;
+}
+.bench-foot {
+  display: flex; justify-content: space-between; gap: var(--sp-3);
+  font-family: var(--font-mono); font-size: var(--step--1); color: var(--ink-3);
+}
+.bench-read[data-level="hot"], .bench-read[data-level="vent"] { color: var(--danger); }
+.bench-read[data-level="warm"] { color: var(--warn); }
+
