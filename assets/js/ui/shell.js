@@ -70,38 +70,46 @@ export function renderObjective() {
   const done = Boolean(get().ending);
   if (done) {
     bar.hidden = false;
+    bar.dataset.done = '1';
     mount(bar,
-      h('span.obj-label', 'done'),
-      h('span.obj-goal', 'You sent the word. Every tool still works, and your tasks are still here.'),
-      h('a.obj-go', { href: '#/ending' }, 'Read the ending again')
+      h('span.obj-label', 'finished'),
+      h('span.obj-goal', h('span', 'You sent the word. Everything still works.')),
+      h('a.obj-go', { href: '#/ending' }, 'The ending →')
     );
     return;
   }
 
   bar.hidden = false;
-  const counted = step.progress;
+  delete bar.dataset.done;
 
-  mount(bar,
-    h('span.obj-label', `step ${step.n + 1} of ${step.total}`),
-    h('span.obj-goal',
-      h('span', step.goal),
-      step.hint ? h('span.obj-hint', step.hint) : null),
-    counted ? h('span.obj-count', `${counted.done} of ${counted.total} ${counted.unit}`) : null,
-    counted ? h('span.obj-bar', h('span', {
-      style: { width: Math.round((counted.done / counted.total) * 100) + '%' }
-    })) : null,
-    step.link ? h('a.obj-go', { href: step.link }, 'Go →') : null
-  );
+  const nodes = [
+    h('span.obj-label', `${step.n} / ${step.total - 1}`),
+    h('span.obj-goal', h('span', step.goal))
+  ];
 
-  /* The tools this act needs, as links, so nobody has to hunt the Toolbox for
-     the one thing the puzzle wants. */
-  if (step.tools && step.tools.length) {
-    const row = h('span.obj-tools', h('span.small.dim', 'needs:'));
-    for (const id of step.tools) {
-      const tool = byId(id);
-      if (tool) row.appendChild(h('a.obj-tool', { href: '#/tools/' + id }, tool.name));
-    }
-    bar.appendChild(row);
+  if (step.hint) nodes.push(h('button.obj-hint-btn', {
+    type: 'button',
+    'aria-expanded': String(hintOpen),
+    'aria-label': hintOpen ? 'Hide the hint' : 'Show a hint',
+    onclick: () => { hintOpen = !hintOpen; renderObjective(); }
+  }, hintOpen ? '×' : '?'));
+
+  /* One button, and it goes to the tool the act needs. */
+  const first = step.tools && step.tools[0];
+  const tool = first ? byId(first) : null;
+  if (tool) nodes.push(h('a.obj-go', { href: '#/tools/' + tool.id }, tool.name + ' →'));
+  else if (step.link) nodes.push(h('a.obj-go', { href: step.link }, 'Go →'));
+
+  mount(bar, ...nodes);
+
+  if (hintOpen && step.hint) {
+    bar.appendChild(h('div.obj-hint', h('span', step.hint),
+      step.tools && step.tools.length > 1
+        ? h('span.obj-tools', ...step.tools.map(id => {
+            const t = byId(id);
+            return t ? h('a.obj-tool', { href: '#/tools/' + id }, t.name) : null;
+          }))
+        : null));
   }
 }
 
