@@ -201,26 +201,50 @@ export function leftoverNote() {
   return years >= 1 ? `open for ${years}y ${days % 365}d` : `open for ${days}d`;
 }
 
+/* The backlog. This is the hook, so it does not drip: the moment the player
+   ticks their first box the whole two and a half weeks of it lands at once,
+   newest first, and they watch a machine talk to an empty room. */
 export const AUTO_TASKS = [
-  { text: 'bay 3 temp 41.2 C - above range - check', note: 'written 04:10, 19 days ago' },
-  { text: 'bay 3 temp 44.8 C - above range - check', note: 'written 04:10, 16 days ago' },
-  { text: 'bay 3 temp 48.1 C - above range - check', note: 'written 04:10, 13 days ago' },
-  { text: 'no operator response in 9 days', note: 'written 04:10, 10 days ago' },
-  { text: 'bay 3 temp 54.0 C - above range - check', note: 'written 04:10, 7 days ago' },
-  { text: 'escalation path not configured', note: 'written 04:10, 4 days ago' },
-  { text: 'is anyone reading this', note: 'written 04:10, 2 days ago' },
-  { text: 'hello', note: 'written 04:10 yesterday' },
-  { text: 'hello world', note: 'written 04:10 today', shock: 'flash' }
+  { text: 'bay 3 temp 45.6 C - above range - check', note: '04:10 · 19 days ago' },
+  { text: 'bay 3 temp 45.9 C - above range - check', note: '04:10 · 16 days ago' },
+  { text: 'bay 3 temp 46.7 C - above range - check', note: '04:10 · 13 days ago' },
+  { text: 'no operator response in 9 days', note: '04:10 · 10 days ago' },
+  { text: 'bay 3 temp 49.4 C - above range - check', note: '04:10 · 7 days ago' },
+  { text: 'escalation path not configured', note: '04:10 · 4 days ago' },
+  { text: 'is anyone reading this', note: '04:10 · 2 days ago' },
+  { text: 'hello', note: '04:10 · yesterday' },
+  { text: 'hello world', note: '04:10 · today', shock: 'flash' }
+];
+
+/* What it writes later, once it knows somebody is there. One at a time, and
+   only while the player is looking.
+
+   The clock line is the only place in the game where the machine reads
+   something off the player's own machine rather than off the bench. It has
+   one clock and it is stuck on 04:10, so a different time arriving from
+   somewhere else is the largest thing that has happened to it in two years. */
+export const LATER_TASKS = [
+  { text: 'still here', note: 'just now' },
+  { text: 'bay 3 temp rising 0.4 C per hour', note: 'just now' },
+  { text: () => {
+      const d = new Date();
+      const hh = String(d.getHours()).padStart(2, '0');
+      const mm = String(d.getMinutes()).padStart(2, '0');
+      return `it is ${hh}:${mm} where you are. i only have 04:10.`;
+    }, note: 'just now', shock: 'flash' },
+  { text: 'do not close this tab', note: 'just now' },
+  { text: `operator user_04 active - first in ${DAYS_DEAD} days`, note: 'just now' },
+  { text: 'thank you', note: 'just now' }
 ];
 
 /* The task the app pins to the top so the current job is always on the list. */
 export const OBJECTIVES = {
-  2: { text: 'Read what the indicator is blinking', link: '#/tools/led' },
-  3: { text: 'Work out the cabinet code', link: '#/tools/resistor' },
+  2: { text: 'Read what the light is blinking', link: '#/tools/led' },
+  3: { text: 'Read the resistor on the cabinet door', link: '#/tools/resistor' },
   4: { text: 'Roll the on-call die for a five', link: '#/tools/dice' },
   5: { text: 'Generate a key for the incident system', link: '#/tools/passwordgen' },
-  6: { text: 'Convert the vent temperature to Celsius', link: '#/console' },
-  7: { text: 'Send a word back through the indicator', link: '#/tools/led' }
+  6: { text: 'Convert 140 °F to Celsius', link: '#/tools/converter' },
+  7: { text: 'Send a word back through the light', link: '#/tools/led' }
 };
 
 export const LAST_ACT = 7;

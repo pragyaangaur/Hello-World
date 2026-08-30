@@ -10,13 +10,13 @@ import { on, emit } from '../core/bus.js';
 import { get, setChapter, chapter, setFlag, hasFlag, update } from '../core/state.js';
 import * as tasks from '../core/tasks.js';
 import { toast } from '../core/notify.js';
-import { ACTS, AUTO_TASKS, OBJECTIVES, COMMANDS, LAST_ACT } from './acts.js';
+import { ACTS, AUTO_TASKS, LATER_TASKS, OBJECTIVES, COMMANDS, LAST_ACT } from './acts.js';
 import { showBeat } from './interlude.js';
-import { replyTo, PROMPTS } from './dialogue.js';
+import { replyTo, PROMPTS, firstReply } from './dialogue.js';
 import { blackout, flash, wipe, relayClick, escalate } from './atmosphere.js';
 import { go } from '../core/router.js';
 
-let autoIndex = 0;
+let laterIndex = 0;
 let autoTimer = null;
 let misses = 0;
 let busy = false;
@@ -44,24 +44,48 @@ function completeObjective(n) {
   });
 }
 
-/* ---- the backlog ---- */
-function releaseAuto() {
-  if (chapter() < 1 || autoIndex >= AUTO_TASKS.length) return;
-  const spec = AUTO_TASKS[autoIndex++];
-  update(s => { s.autoIndex = autoIndex; return s; });
-
-  const t = tasks.add(spec.text, { source: 'auto', note: spec.note, top: true });
-  if (!t) return;
-
-  relayClick();
-  if (spec.shock === 'flash') setTimeout(flash, 250);
-  toast('[auto] added a task', spec.text, { kind: 'auto', ms: 5200 });
+/* ---- the hook -----------------------------------------------------------
+   The player ticks one box and the backlog lands, oldest first, one entry
+   every quarter second. They are not told that a machine has been writing to
+   this list for nineteen days. They watch it happen, from the first flat
+   temperature warning up to the word it wrote this morning. */
+function floodBacklog() {
+  if (get().flags['backlog.done']) return Promise.resolve();
+  setFlag('backlog.done');
+  return new Promise(resolve => {
+    let i = 0;
+    const step = () => {
+      const spec = AUTO_TASKS[i++];
+      if (!spec) { setTimeout(resolve, 600); return; }
+      tasks.add(spec.text, { source: 'auto', note: spec.note, top: true });
+      relayClick();
+      if (spec.shock === 'flash') setTimeout(flash, 200);
+      setTimeout(step, spec.shock ? 900 : 240);
+    };
+    toast('9 entries restored', 'bench 4B · maint.py', { kind: 'auto', ms: 5000 });
+    setTimeout(step, 500);
+  });
 }
 
-function startAutoDrip() {
+/* ---- what it writes once it knows somebody is there ---- */
+function releaseLater() {
+  if (chapter() < 3 || laterIndex >= LATER_TASKS.length) return;
+  const spec = LATER_TASKS[laterIndex++];
+  update(s => { s.laterIndex = laterIndex; return s; });
+  /* One of these reads the player's own clock, so it is written the moment it
+     is released rather than when the file was loaded. */
+  const text = typeof spec.text === 'function' ? spec.text() : spec.text;
+  const t = tasks.add(text, { source: 'auto', note: spec.note, top: true });
+  if (!t) return;
+  relayClick();
+  if (spec.shock === 'flash') setTimeout(flash, 250);
+  toast('[auto] added a task', text, { kind: 'auto', ms: 5200 });
+}
+
+function startLaterDrip() {
   clearTimeout(autoTimer);
-  if (chapter() < 2 || autoIndex >= AUTO_TASKS.length) return;
-  autoTimer = setTimeout(() => { releaseAuto(); startAutoDrip(); }, 52000);
+  if (chapter() < 3 || laterIndex >= LATER_TASKS.length) return;
+  autoTimer = setTimeout(() => { releaseLater(); startLaterDrip(); }, 74000);
 }
 
 /* ---- speaking ---- */
@@ -167,7 +191,9 @@ function maybeAskConfirm() {
 /* ---- progression ---- */
 export function checkAct() {
   const s = get();
-  if (s.chapter === 0 && s.counters.completed >= 3) return advance(1);
+  /* One tick. The whole opening is over in about fifteen seconds, which is
+     roughly how long anyone gives a to-do list before deciding what it is. */
+  if (s.chapter === 0 && s.counters.completed >= 1) return advance(1);
   return false;
 }
 
@@ -183,13 +209,13 @@ async function advance(n) {
 
   ensureObjective(n);
   escalate(n);
-  showBeat(n);
-
-  if (n === 1) setTimeout(releaseAuto, 2400);
-  if (n >= 2) { startAutoDrip(); setTimeout(releaseAuto, 2600); }
-  if (n === 4) maybeAskConfirm();
-
   emit('story:act', { from, to: n });
+
+  if (n === 1) await floodBacklog();
+  if (n === 4) maybeAskConfirm();
+  if (n >= 3) startLaterDrip();
+
+  showBeat(n);
   return true;
 }
 
@@ -211,7 +237,7 @@ export function currentStep() {
 }
 
 export function startStory() {
-  autoIndex = get().autoIndex || 0;
+  laterIndex = get().laterIndex || 0;
 
   on('task:complete', () => checkAct());
 
@@ -222,10 +248,10 @@ export function startStory() {
 
   on('tool:value', toolValue);
 
-  on('story:returned', () => { if (chapter() >= 2) releaseAuto(); });
+  on('story:returned', () => { if (chapter() >= 3) releaseLater(); });
 
   ensureObjective(chapter());
   escalate(chapter());
-  if (chapter() >= 2) startAutoDrip();
+  if (chapter() >= 3) startLaterDrip();
   setTimeout(checkAct, 300);
 }
