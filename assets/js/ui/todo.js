@@ -33,6 +33,7 @@ let editing = null;
 let lastRemoved = null;
 let waiting = false;
 let wiped = false;
+let receiving = 0;
 
 function timeAgo(iso) {
   if (!iso) return '';
@@ -176,12 +177,18 @@ function render(focusTaskId) {
           : 'Anything you add here is read by the bench. Ask it something.')
     : null;
 
-  mount(view,
-    h('div.page',
-      h('div.page-head', h('div.grow', h('h1', 'Tasks'), h('p', c.active === 0 && c.total > 0 ? 'Everything is ticked off.' : `${c.active} to do`))),
-      form, line, filters, body
-    )
-  );
+  /* While the backlog is landing the page stops being a to-do list for a few
+     seconds and says what is actually happening, because that is the moment
+     the game starts and it should not go past in silence. */
+  const head = receiving
+    ? h('div.page-head.receiving', h('div.grow',
+        h('h1', 'Receiving'),
+        h('p', `bench 4B · ${receiving} ${receiving === 1 ? 'entry' : 'entries'} restored`)))
+    : h('div.page-head', h('div.grow',
+        h('h1', 'Tasks'),
+        h('p', c.active === 0 && c.total > 0 ? 'Everything is ticked off.' : `${c.active} to do`)));
+
+  mount(view, h('div.page', head, form, line, filters, body));
 
   /* Re-rendering the whole list is simple and fast enough, but it throws
      focus away, so put it back where the person left it. */
@@ -213,5 +220,7 @@ on('story:spoke', () => { waiting = false; render(); });
 /* The list is taken away for two seconds before the last act and then handed
    straight back. Nothing is actually deleted. */
 on('fx:wipe', ({ state }) => { wiped = state === 'out'; render(); });
+
+on('story:receiving', ({ n, done }) => { receiving = done ? 0 : n; render(); });
 
 export { render as renderTasks };

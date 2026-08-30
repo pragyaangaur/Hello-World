@@ -708,3 +708,19 @@ canvas.stage { width: 100%; border: 1px solid var(--rule); border-radius: var(--
   flex: none; font-family: var(--font-mono); font-size: 11px;
   font-variant-numeric: tabular-nums; color: var(--ink-3);
 }
+
+/* The few seconds when the backlog is landing. The page stops calling itself
+   a to-do list, because for those seconds it is not one. */
+.page-head.receiving h1 { color: var(--danger); }
+.page-head.receiving p { font-family: var(--font-mono); color: var(--warn); }
+
+/* A row the bench wrote, marked so a glance down the list separates what you
+   put there from what arrived on its own. */
+.task[data-source="reply"] .task-main::before,
+.task[data-source="auto"] .task-main::before {
+  content: ""; position: absolute; left: -.85rem; top: .55rem;
+  width: 5px; height: 5px; border-radius: 50%; background: var(--warn);
+}
+.task[data-source="reply"] .task-main::before { background: var(--info); }
+.task[data-source="reply"] .task-main,
+.task[data-source="auto"] .task-main { position: relative; margin-left: .85rem; }
