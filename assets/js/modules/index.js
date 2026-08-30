@@ -20,15 +20,11 @@ import piano from './piano.js';
 import projectile from './projectile.js';
 import pendulum from './pendulum.js';
 import gears from './gears.js';
-import beam from './beam.js';
-import ph from './ph.js';
 import orbit from './orbit.js';
-import bmi from './bmi.js';
 
 import sorting from './sorting.js';
 import tictactoe from './tictactoe.js';
 import snake from './snake.js';
-import ecg from './ecg.js';
 import weather from './weather.js';
 import alarm from './alarm.js';
 
@@ -38,17 +34,14 @@ export const DEPT_ORDER = [
   'Electronics',
   'Electrical',
   'Mechanical',
-  'Civil',
-  'Chemical',
-  'Aerospace',
-  'Biomedical'
+  'Aerospace'
 ];
 
 export const registry = [
   calculator, converter, notepad, passwordgen, dice, timers, paint,
   led, morse, resistor, gates, sevenseg, scope, ohms, piano,
-  projectile, pendulum, gears, beam, ph, orbit, bmi,
-  sorting, tictactoe, snake, ecg, weather, alarm
+  projectile, pendulum, gears, orbit,
+  sorting, tictactoe, snake, weather, alarm
 ].sort((a, b) => a.chapter - b.chapter || a.name.localeCompare(b.name));
 
 const index = new Map(registry.map(m => [m.id, m]));
