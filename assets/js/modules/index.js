@@ -25,7 +25,6 @@ import ph from './ph.js';
 import orbit from './orbit.js';
 import bmi from './bmi.js';
 
-import sensorlog from './sensorlog.js';
 import sorting from './sorting.js';
 import tictactoe from './tictactoe.js';
 import snake from './snake.js';
@@ -49,7 +48,7 @@ export const registry = [
   calculator, converter, notepad, passwordgen, dice, timers, paint,
   led, morse, resistor, gates, sevenseg, scope, ohms, piano,
   projectile, pendulum, gears, beam, ph, orbit, bmi,
-  sensorlog, sorting, tictactoe, snake, ecg, weather, alarm
+  sorting, tictactoe, snake, ecg, weather, alarm
 ].sort((a, b) => a.chapter - b.chapter || a.name.localeCompare(b.name));
 
 const index = new Map(registry.map(m => [m.id, m]));

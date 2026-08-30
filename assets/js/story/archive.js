@@ -173,7 +173,7 @@ controller.keepalive = true
 bind indicator.led      -> gpio 17        # "LED blinker"
 bind scope.channel_a    -> adc 0          # "Oscilloscope"
 bind bench.supply       -> psu 1          # "Ohm's law"
-bind thermal.bay[1..4]  -> ds18b20 1..4   # "Sensor log"
+bind thermal.bay[1..4]  -> ds18b20 1..4   # panel + Bench 4B
 bind relay.bay[1..4]    -> relay 1..4     # not exposed in the UI
 
 decommission = false`
