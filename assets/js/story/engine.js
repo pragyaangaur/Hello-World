@@ -56,8 +56,9 @@ function floodBacklog() {
     let i = 0;
     const step = () => {
       const spec = AUTO_TASKS[i++];
-      if (!spec) { setTimeout(resolve, 600); return; }
+      if (!spec) { emit('story:receiving', { n: 0, done: true }); setTimeout(resolve, 600); return; }
       tasks.add(spec.text, { source: 'auto', note: spec.note, top: true });
+      emit('story:receiving', { n: i, done: false });
       relayClick();
       if (spec.shock === 'flash') setTimeout(flash, 200);
       setTimeout(step, spec.shock ? 900 : 240);
