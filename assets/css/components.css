@@ -689,3 +689,22 @@ canvas.stage { width: 100%; border: 1px solid var(--rule); border-radius: var(--
 .quest-band {
   width: 9px; height: 1.4rem; border-radius: 2px; border: 1px solid rgba(0,0,0,.2);
 }
+
+/* ---- the reading drawn on a task the machine wrote ----------------------
+   Nine near identical lines of text is a wall. Nine bars climbing toward the
+   same two marks is the story. */
+.reading { display: flex; align-items: center; gap: var(--sp-2); margin-top: .3rem; max-width: 22rem; }
+.reading-track {
+  position: relative; flex: 1; height: 5px; border-radius: var(--r-pill);
+  background: var(--sunken); overflow: hidden;
+}
+.reading-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: var(--r-pill); background: var(--warn); }
+.reading-fill[data-level="hot"] { background: var(--danger); opacity: .75; }
+.reading-fill[data-level="vent"] { background: var(--danger); }
+.reading-mark { position: absolute; top: -2px; bottom: -2px; width: 1px; }
+.reading-mark.limit { background: var(--ink-3); }
+.reading-mark.vent { background: var(--danger); }
+.reading-val {
+  flex: none; font-family: var(--font-mono); font-size: 11px;
+  font-variant-numeric: tabular-nums; color: var(--ink-3);
+}
