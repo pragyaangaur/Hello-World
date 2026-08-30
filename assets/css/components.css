@@ -437,3 +437,58 @@ canvas.stage { width: 100%; border: 1px solid var(--rule); border-radius: var(--
 .bench-read[data-level="hot"], .bench-read[data-level="vent"] { color: var(--danger); }
 .bench-read[data-level="warm"] { color: var(--warn); }
 
+/* ---- the chip in the sidebar ---- */
+.bench-slot { padding: var(--sp-3) var(--sp-4) 0; }
+.bench-chip {
+  display: flex; flex-direction: column; gap: 5px;
+  padding: var(--sp-3); border: 1px solid var(--rule); border-radius: var(--r-sm);
+  background: var(--surface); text-decoration: none; color: inherit;
+}
+.bench-chip:hover { border-color: var(--rule-2); }
+.bench-chip[data-level="hot"], .bench-chip[data-level="vent"] { border-color: var(--danger); }
+.bc-top { display: flex; justify-content: space-between; align-items: baseline; gap: var(--sp-2); }
+.bc-name { font-size: var(--step--1); font-weight: 600; }
+.bc-temp {
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  font-size: var(--step-0); font-weight: 700; color: var(--ink-2);
+}
+.bench-chip[data-level="warm"] .bc-temp { color: var(--warn); }
+.bench-chip[data-level="hot"] .bc-temp, .bench-chip[data-level="vent"] .bc-temp { color: var(--danger); }
+.bc-bar { display: block; height: 3px; border-radius: var(--r-pill); background: var(--sunken); overflow: hidden; }
+.bc-bar span { display: block; height: 100%; background: var(--danger); transition: width 900ms var(--ease); }
+.bc-sub { font-size: 11px; color: var(--ink-3); }
+
+/* ---- the bench page ---- */
+.bench-hero {
+  display: grid; grid-template-columns: 1fr auto; gap: var(--sp-5); align-items: center;
+  padding: var(--sp-5); border: 1px solid var(--rule); border-radius: var(--r-md);
+  background: var(--surface);
+}
+.bench-hero[data-level="hot"], .bench-hero[data-level="vent"] { border-color: var(--danger); }
+.bench-side { text-align: right; }
+.bench-big {
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  font-size: var(--step-4); font-weight: 700; line-height: 1; color: var(--danger);
+}
+.bench-big span { font-size: var(--step-1); margin-left: 2px; }
+.bench-tag { font-size: var(--step--1); color: var(--danger); margin-top: var(--sp-1); }
+.bench-vs { margin-top: var(--sp-4); font-size: var(--step--1); color: var(--ink-3); }
+.bench-vs span { display: block; }
+.bench-vs strong { font-family: var(--font-mono); color: var(--ink-2); }
+.chart-wrap { width: 100%; overflow-x: auto; }
+.chart-wrap svg { width: 100%; min-width: 22rem; height: auto; display: block; }
+.kv.kv-wide dd { text-align: left; }
+@media (max-width: 620px) {
+  .bench-hero { grid-template-columns: 1fr; }
+  .bench-side { text-align: left; }
+}
+
+
+/* On a phone the sidebar is a horizontal strip, so the chip lies down and
+   drops everything that will not fit on one line. */
+@media (max-width: 800px) {
+  .bench-slot { padding: 0; flex: none; }
+  .bench-chip { flex-direction: row; align-items: center; gap: var(--sp-2); padding: var(--sp-2) var(--sp-3); white-space: nowrap; }
+  .bench-chip .bc-bar, .bench-chip .bc-sub { display: none; }
+  .bc-top { gap: var(--sp-2); }
+}

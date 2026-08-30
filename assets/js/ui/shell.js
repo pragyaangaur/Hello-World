@@ -11,6 +11,7 @@ import { modal } from '../core/notify.js';
 import { accountCard } from '../story/accounts.js';
 import { ACTS } from '../story/acts.js';
 import { currentStep } from '../story/engine.js';
+import { benchChip } from '../story/rig.js';
 
 const NAV = [
   { group: null, items: [
@@ -20,6 +21,7 @@ const NAV = [
     { path: '/tools', label: 'Toolbox', ico: '⌗', min: 1 }
   ]},
   { group: 'Project', items: [
+    { path: '/bench', label: 'Bench 4B', ico: '▤', min: 2 },
     { path: '/console', label: 'Console', ico: '\u203a_', min: 6 }
   ]},
   { group: null, items: [
@@ -132,21 +134,36 @@ export function setTitle(text) {
   document.title = text ? `${text} · Hello World` : 'Hello World';
 }
 
+/* A live reading of the thing that is going wrong, pinned in the sidebar
+   from the moment the player knows there is a bench at all. It is the one
+   piece of the story that is on screen at all times, and it is a number and
+   a bar rather than a sentence. */
+export function renderBench() {
+  const slot = $('#bench-slot');
+  if (!slot) return;
+  if (chapter() < 2 || hasFlag('story.settled')) { slot.hidden = true; mount(slot); return; }
+  slot.hidden = false;
+  mount(slot, benchChip());
+}
+
 export function initShell() {
   renderNav();
   renderAccount();
   renderObjective();
+  renderBench();
+  setInterval(renderBench, 9000);
 
   on('route', () => renderNav());
   on('chapter', ({ to }) => {
     renderNav();
     renderAccount();
     renderObjective();
+    renderBench();
     const current = ACTS[to];
     if (current) announce(`${current.name}. ${current.goal}`);
   });
-  on('flag', () => { renderNav(); renderAccount(); renderObjective(); });
-  on('story:act', () => { renderNav(); renderAccount(); renderObjective(); });
+  on('flag', () => { renderNav(); renderAccount(); renderObjective(); renderBench(); });
+  on('story:act', () => { renderNav(); renderAccount(); renderObjective(); renderBench(); });
   on('tool:first', () => renderObjective());
 
   for (const signal of ['task:add', 'task:complete', 'task:reopen', 'task:remove', 'task:clearDone']) {
