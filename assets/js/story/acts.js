@@ -88,7 +88,7 @@ export const ACTS = [
        the player matches three colours and copies the number across. */
     answer: text => hasNumber(text, 240, 1),
     beat: {
-      title: 'HELP',
+      title: 'It has been spelling one word',
       glyph: 'HELP',
       tone: 'danger',
       lines: [
@@ -164,7 +164,7 @@ export const ACTS = [
     hint: 'Encode it in the Morse translator, then send it from the LED indicator.',
     tools: ['morse', 'led'],
     beat: {
-      title: 'Sixty',
+      title: 'The ceiling was wrong the whole time',
       glyph: '60°',
       tone: 'danger',
       lines: [
