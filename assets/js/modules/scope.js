@@ -13,7 +13,10 @@ export default {
   wide: true,
 
   mount(root) {
-    let freq = 50, amp = 1, shape = 'sine', running = true, phase = 0;
+    /* The trace runs as soon as the tool opens. The generator does not.
+       A tool that starts making a continuous noise the moment you open it,
+       with no control anywhere near the thing making it, reads as a fault. */
+    let freq = 50, amp = 1, shape = 'sine', running = true, phase = 0, audible = false;
     let timeDiv = 5, voltDiv = 1;
     let osc = null, raf = null;
 
@@ -82,13 +85,13 @@ export default {
 
     function retone() {
       if (osc) { osc.stop(); osc = null; }
-      if (!running) return;
+      if (!audible || !running) return;
       const t = shape === 'noise' || shape === 'mains' ? 'sine' : shape === 'saw' ? 'sawtooth' : shape;
       osc = holdTone(Math.min(4000, Math.max(30, freq)), t);
     }
 
     const freqIn = h('input', { type: 'range', min: '1', max: '2000', value: String(freq), 'aria-label': 'Frequency',
-      oninput: e => { freq = +e.target.value; update(); } });
+      oninput: e => { freq = +e.target.value; update(); if (osc) osc.setFreq(Math.min(4000, Math.max(30, freq))); } });
     const ampIn = h('input', { type: 'range', min: '0', max: '200', value: '100', 'aria-label': 'Amplitude',
       oninput: e => { amp = +e.target.value / 100; update(); } });
     const shapeSel = h('select.select', { 'aria-label': 'Waveform',
@@ -116,7 +119,15 @@ export default {
             h('button.btn.btn-sm', { type: 'button', onclick: () => { timeDiv = Math.min(200, timeDiv * 2); } }, 'Time ×2'),
             h('button.btn.btn-sm', { type: 'button', onclick: () => { voltDiv = Math.max(0.125, voltDiv / 2); } }, 'V ÷2'),
             h('button.btn.btn-sm', { type: 'button', onclick: () => { voltDiv = Math.min(8, voltDiv * 2); } }, 'V ×2'),
-            h('button.btn.btn-sm', { type: 'button', onclick: () => { running = !running; retone(); } }, 'Run / hold')
+            h('button.btn.btn-sm', { type: 'button', onclick: e => {
+              running = !running; retone();
+              e.target.textContent = running ? 'Hold' : 'Run';
+            } }, 'Hold'),
+            h('button.btn.btn-sm', { type: 'button', 'aria-pressed': 'false', onclick: e => {
+              audible = !audible; retone();
+              e.target.setAttribute('aria-pressed', String(audible));
+              e.target.textContent = audible ? 'Sound on' : 'Sound off';
+            } }, 'Sound off')
           )
         ),
         h('div.card', readout,
@@ -127,13 +138,12 @@ export default {
           liveNote('adc 0 → channel A')
         )
       ),
-      h('p.small.dim', 'Turn sound on in Settings and the generator is audible below 4 kHz.')
+      h('p.small.dim', 'Sound off keeps the trace and silences the generator. With it on, anything below 4 kHz is audible, provided sound is enabled in Settings.')
     );
 
     requestAnimationFrame(() => { fit(); draw(); });
     addEventListener('resize', fit);
     update();
-    retone();
 
     return () => {
       cancelAnimationFrame(raf);
