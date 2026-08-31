@@ -7,10 +7,10 @@
    the Toolbox, which by that point is a plain green app again. */
 
 import { h, mount, $ } from '../core/dom.js';
-import { get, setFlag, hasFlag } from '../core/state.js';
+import { get, setFlag, hasFlag, restartStory } from '../core/state.js';
 import { ANCHORS, human, daysSince, RIG, PEOPLE } from '../story/cast.js';
 import { setTitle } from './shell.js';
-import { toast } from '../core/notify.js';
+import { toast, confirmDialog } from '../core/notify.js';
 import { settle } from '../story/atmosphere.js';
 
 const ENDINGS = {
@@ -142,7 +142,16 @@ export function mountEnding() {
         h('div.row',
           h('a.btn.btn-primary', { href: '#/tools' }, 'Back to the Toolbox'),
           h('a.btn', { href: '#/tasks' }, 'My tasks'),
-          h('a.btn.btn-ghost', { href: '#/tools/led' }, 'Send a different word')
+          h('a.btn.btn-ghost', { href: '#/tools/led' }, 'Send a different word'),
+          h('span.spacer'),
+          /* Somebody is going to want to show this to a friend, and telling
+             them to wipe the app first is a bad answer. */
+          h('button.btn.btn-ghost', { type: 'button', onclick: async () => {
+            const ok = await confirmDialog('Start the story again?',
+              'The bench goes back to the morning you found it. Your own tasks, your notes and anything you made in the Toolbox all stay exactly as they are.',
+              'Start again');
+            if (ok) { restartStory(); location.hash = '#/tasks'; location.reload(); }
+          } }, 'Start again')
         )
       )
     )
