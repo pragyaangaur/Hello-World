@@ -3,6 +3,7 @@ import { get, setting, factoryReset, applyDocumentAttributes, store, chapter } f
 import { toast, confirmDialog, modal } from '../core/notify.js';
 import { setTitle } from './shell.js';
 import { registry } from '../modules/index.js';
+import { ANCHORS, human } from '../story/cast.js';
 
 function toggleRow(name, desc, key, onChange) {
   const input = h('input', {
@@ -111,7 +112,7 @@ export function mountAbout() {
         h('p', 'Hello World started as a minor project. The brief was to build a to-do list, so we built a to-do list.'),
         h('p', 'Then we kept adding the other things we had made along the way, because deleting them felt worse than shipping them. That is the Toolbox.'),
         h('p.small.muted', ch >= 4
-          ? 'Maintained by user_04 since 12 May 2024. Last human commit: 03 June 2024.'
+          ? `Maintained by user_04 since ${human(ANCHORS.lastHuman)}. Last human commit: ${human(ANCHORS.lastCommit)}.`
           : 'Built at Meridian Institute of Technology. Version 1.0.4.')
       ),
       h('div.card.flush',
