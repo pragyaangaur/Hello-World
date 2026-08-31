@@ -111,7 +111,11 @@ export default {
       const r = canvas.getBoundingClientRect();
       dragTo = { x: e.clientX - r.left, y: e.clientY - r.top };
     });
-    addEventListener('pointerup', () => {
+    /* The release has to be caught on the window rather than the canvas,
+       because a throw usually ends with the pointer outside the canvas. That
+       means it has to be taken off again when the tool closes, or every visit
+       leaves another one behind. */
+    const onRelease = () => {
       if (!dragFrom || !dragTo) { dragFrom = dragTo = null; return; }
       const r = canvas.getBoundingClientRect();
       const cx = r.width / 2, cy = 210;
@@ -122,7 +126,8 @@ export default {
       trail = [];
       running = true;
       dragFrom = dragTo = null;
-    });
+    };
+    addEventListener('pointerup', onRelease);
 
     mount(root, canvas,
       h('div.grid-2',
@@ -143,6 +148,6 @@ export default {
       h('p.small.dim', 'Two-body Newtonian gravity around Earth, integrated in twelve substeps per frame. Circular orbit at 400 km needs 7.66 km/s. Escape from there needs 10.85.')
     );
     raf = requestAnimationFrame(draw);
-    return () => cancelAnimationFrame(raf);
+    return () => { cancelAnimationFrame(raf); removeEventListener('pointerup', onRelease); };
   }
 };
