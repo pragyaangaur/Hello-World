@@ -12,7 +12,6 @@ import { RIG, liveTemp } from './cast.js';
 export const VENT_C = 60;          /* where the separator fails             */
 export const NOMINAL_C = 24;       /* where the other three bays sit        */
 export const CEILING_C = 45;       /* the wrong limit somebody typed in     */
-export const LAST = 7;
 
 /* Bay 3 climbs as the game does, so the picture is never the same twice and
    the player can feel the clock without being told there is one. The number
@@ -66,12 +65,6 @@ export function bench({ compact = false, showLimit = true } = {}) {
    player takes one thing away from it, so the beat shows one thing. */
 export function glyph(text, tone = '') {
   return h('div.glyph' + (tone ? '.' + tone : ''), String(text));
-}
-
-/* A row of small facts, which is how a person actually reads a status page. */
-export function facts(pairs) {
-  return h('div.factrow', ...pairs.map(([k, v]) =>
-    h('div.fact', h('span.fact-k', k), h('span.fact-v', v))));
 }
 
 /* The bar in the sidebar. It is always there from the moment the player

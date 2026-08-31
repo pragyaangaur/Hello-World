@@ -29,8 +29,3 @@ export function liveNote(binding, { reveal = null, value = null } = {}) {
    They all say it in one place now, under the tool, in the same shape. This
    stays as a no-op so a tool that still asks for it gets nothing extra. */
 export function lastUsed() { return null; }
-
-export function bayStatus() {
-  const t = liveTemp();
-  return { temp: t, level: t > 55 ? 'hot' : t > 40 ? 'warm' : '', bay: RIG.faultBay };
-}

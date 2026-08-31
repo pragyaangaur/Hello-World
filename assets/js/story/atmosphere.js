@@ -327,8 +327,6 @@ export function settle() {
   }
 }
 
-export function isOver() { return over; }
-
 /* ---- lifecycle ---- */
 
 /* Called on every act change. The room gets one notch worse each time. */
