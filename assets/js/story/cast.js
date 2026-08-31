@@ -82,8 +82,6 @@ export function bayTemp(dayIndex) {
    is crossed at the exact act where the player works out what 60 means. */
 export function liveTemp() { return 54.0 + chapter() * 1.15; }
 
-export function currentBayTemp() { return liveTemp(); }
-
 /* Nineteen days of readings across the four bays. One shape of data used by
    the chart, the log file, and anything else that needs to agree with them. */
 export function readings() {

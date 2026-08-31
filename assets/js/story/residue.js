@@ -49,8 +49,6 @@ const TRACES = {
   gates:      { who: NV, line: 'circuit restored' },
 };
 
-export function traceFor(id) { return TRACES[id] || null; }
-
 /* The line that appears under every tool. It is the same shape everywhere,
    which is what makes it read as a system rather than as a spooky message. */
 export function trace(id) {
