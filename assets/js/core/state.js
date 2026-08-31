@@ -96,6 +96,33 @@ export function setChapter(n) {
   return true;
 }
 
+/* ---- playing it again ----------------------------------------------------
+   A full reset takes the tools and the notes and the tasks with it, which is
+   not what somebody wants when they just want to watch the opening land on a
+   friend's laptop. This puts the story back to the beginning and leaves the
+   app alone: your own tasks stay, the drawing you made stays, and the high
+   score you took off user_02 stays taken. */
+export function restartStory() {
+  state = {
+    ...state,
+    chapter: 0,
+    flags: {},
+    ending: null,
+    laterIndex: 0,
+    counters: { ...state.counters, completed: 0 },
+    /* Keep what the player wrote, and put back the three the last person to
+       use this machine left open, because the story starts by finding them.
+       The seed only runs on an empty list, so they have to survive here. */
+    tasks: state.tasks
+      .filter(t => t.source === 'user' || t.source === 'leftover')
+      .map(t => (t.source === 'leftover' ? { ...t, done: false, completedAt: null } : t))
+  };
+  delete document.documentElement.dataset.over;
+  persist();
+  applyDocumentAttributes();
+  emit('state:change', state);
+}
+
 /* ---- reset ---- */
 export function factoryReset() {
   /* This clears the main key. It deliberately leaves the install key alone,
