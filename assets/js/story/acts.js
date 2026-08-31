@@ -22,8 +22,15 @@ function hasNumber(text, want, slack = 0.51) {
   return digits(text).some(d => Math.abs(Number(d) - want) < slack);
 }
 
-function hasWord(text, word) {
-  return new RegExp('\\b' + word + '\\b', 'i').test(String(text));
+/* An answer is a line the player writes down, not a word that happens to
+   appear in a sentence. "help" on its own is the answer to the indicator.
+   "can you help me" is somebody talking, and it should get a reply rather
+   than quietly finishing the puzzle they have not done yet. A short lead-in
+   is allowed, because "it says help" is plainly an answer. */
+function isAnswerWord(text, word) {
+  const clean = String(text).toLowerCase().replace(/[^a-z\s]/g, ' ').replace(/\s+/g, ' ').trim();
+  const lead = '(?:.{0,24}?\\b(?:is|says|say|saying|spells|spelling|said|reads|answer|word)\\s+)?';
+  return new RegExp('^' + lead + word + '$').test(clean);
 }
 
 const DAYS_DEAD = daysSince(ANCHORS.lastHuman);
@@ -60,7 +67,7 @@ export const ACTS = [
     goal: 'Read the blinking light. Write the word on the list.',
     hint: 'Open the LED indicator, copy the dots and dashes into the Morse translator.',
     tools: ['led', 'morse'],
-    answer: text => hasWord(text, 'help'),
+    answer: text => isAnswerWord(text, 'help'),
     beat: {
       title: 'It answered',
       lines: [
