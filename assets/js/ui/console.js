@@ -133,7 +133,11 @@ export function mountConsole() {
       case 'ls': {
         const target = join(cwd, arg);
         const names = listDir(target);
-        if (!names) { write(isDir(target) ? '' : `ls: ${arg || target}: no such directory`, 'err'); break; }
+        if (!names) {
+          if (isDir(target)) write('(empty)');
+          else write(`ls: ${arg || target}: no such directory`, 'err');
+          break;
+        }
         for (const n of names) write(isDir(join(target, n)) ? n + '/' : n, isDir(join(target, n)) ? 'dir' : '');
         break;
       }
@@ -220,7 +224,7 @@ Connected to bench controller 10.14.4.62:8140.
 You are signed in as user_04.
 Type help to see what you can do, or use the buttons below the window.`);
   write('');
-  Object.keys(get().reads || {}).length === 0 && write('Start with: cat /opt/rig/maint.log', 'hint');
+  if (Object.keys(get().reads || {}).length === 0) write('Start with: cat /opt/rig/maint.log', 'hint');
   write('');
   setTimeout(() => input.focus(), 60);
 }
