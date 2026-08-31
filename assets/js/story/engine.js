@@ -106,9 +106,15 @@ async function solved(line) {
      advances a second act and the player skips a puzzle. */
   if (busy) return;
   busy = true;
-  await new Promise(r => setTimeout(r, 700));
-  if (line) speak(line, { note: 'accepted' });
-  busy = false;
+  try {
+    await new Promise(r => setTimeout(r, 700));
+    if (line) speak(line, { note: 'accepted' });
+  } finally {
+    /* The busy flag is the only thing stopping two answers landing at once,
+       which also makes it the one variable that can end the game early by
+       getting stuck. It is released whatever happens above. */
+    busy = false;
+  }
   advance(chapter() + 1);
 }
 
@@ -131,34 +137,43 @@ async function answer(text) {
   }
 
   busy = true;
-  const wait = hasFlag('talked') ? 1600 + Math.random() * 1200 : 2400;
-  await new Promise(r => setTimeout(r, wait));
+  let first = false;
+  try {
+    const wait = hasFlag('talked') ? 1600 + Math.random() * 1200 : 2400;
+    await new Promise(r => setTimeout(r, wait));
 
-  /* A question it asked is answered before anything else. */
-  if (get().flags['prompt.confirm'] && !hasFlag('prompt.confirm.done')) {
-    const prompt = PROMPTS.confirm;
-    const clean = text.trim().toLowerCase();
-    if (prompt.yes.test(clean) || prompt.no.test(clean)) {
-      const yes = prompt.yes.test(clean);
-      setFlag('prompt.confirm.done');
-      setFlag(yes ? 'said.lied' : 'said.honest');
-      speak(yes ? prompt.onYes.text : prompt.onNo.text, { note: yes ? 'confirmation accepted' : 'no confirmation' });
-      busy = false;
-      return;
+    /* A question it asked is answered before anything else. */
+    if (get().flags['prompt.confirm'] && !hasFlag('prompt.confirm.done')) {
+      const prompt = PROMPTS.confirm;
+      const clean = text.trim().toLowerCase();
+      if (prompt.yes.test(clean) || prompt.no.test(clean)) {
+        const yes = prompt.yes.test(clean);
+        setFlag('prompt.confirm.done');
+        setFlag(yes ? 'said.lied' : 'said.honest');
+        speak(yes ? prompt.onYes.text : prompt.onNo.text, { note: yes ? 'confirmation accepted' : 'no confirmation' });
+        return;
+      }
     }
+
+    const reply = replyTo(text, { chapter: chapter(), misses });
+    if (!reply.understood) misses++;
+
+    first = !hasFlag('talked');
+    if (first) await blackout();
+
+    /* The reveal never lands on "parse failed". If the parser recognised what
+       the player said it gets to answer, and if it did not, the scripted line
+       covers it. */
+    speak(first && !reply.understood ? firstReply() : reply.text);
+  } catch (err) {
+    /* Anything unexpected in here would otherwise leave the machine unable to
+       answer for the rest of the session, which looks exactly like the game
+       being broken. It says something instead. */
+    console.error('[story]', err);
+    speak('input received · handler error · retained');
+  } finally {
+    busy = false;
   }
-
-  const reply = replyTo(text, { chapter: chapter(), misses });
-  if (!reply.understood) misses++;
-
-  const first = !hasFlag('talked');
-  if (first) await blackout();
-
-  /* The reveal never lands on "parse failed". If the parser recognised what
-     the player said it gets to answer, and if it did not, the scripted line
-     covers it. */
-  speak(first && !reply.understood ? firstReply() : reply.text);
-  busy = false;
 
   if (first) { setFlag('talked'); advance(2); }
 }
