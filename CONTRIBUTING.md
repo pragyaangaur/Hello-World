@@ -41,6 +41,12 @@ The story engine listens. The tool has no idea whether anything is listening, an
 
 Everything that survives a reload lives in one object in `core/state.js`, saved to a single localStorage key. There is no server and no network request anywhere in the app.
 
+## The saved state
+
+Add a new field by putting it in `DEFAULTS` in `core/state.js`, and that is all. A saved file is merged over the defaults one level down as well as at the top, so somebody who has been playing since before your field existed gets your default rather than `undefined`. That merge is the reason a new setting can be added without a migration, so keep the shape shallow. Arrays and plain values come straight from the saved file, and only objects are merged key by key.
+
+Settings can be exported and imported from the Settings page. Import replaces the whole object, so anything you add is carried between browsers for free, and anything you add that only makes sense on one machine should be put back the way `installedAt` is.
+
 ## Adding a tool
 
 Write `assets/js/modules/yourtool.js`:
@@ -79,9 +85,11 @@ Then import it in `modules/index.js` and add it to the `registry` array. That is
 - `residue.js` is what the four people who used this machine left in each tool.
 - `atmosphere.js` is the room: colour, grain, sound, and the things that make a person look up.
 
-## Two things to be careful with
+## Three things to be careful with
 
 **Reduced motion.** Every sudden effect checks `prefers-reduced-motion` and turns itself off. The game plays identically without any of them. If you add an effect, it goes through the same check. Flashes are kept to one every few minutes and fade over most of a second, which keeps the page well under the rate that causes trouble for photosensitive people.
+
+**A restored task is not a new task.** Deleting a task and undoing it goes through `restore` in `core/tasks.js`, which puts the original back with its own id, its own place in the list and its own ticked state. It announces itself as `task:restore` rather than `task:add`, because the story engine reads a user task landing on the list as the player saying something, and a line they are only putting back is not them saying it twice. Anything that redraws on `task:add` should listen for `task:restore` too.
 
 **Answers are lines, not substrings.** An act that accepts any line containing its answer will fire on a sentence where the player was talking, skip the puzzle, and move the game on before they worked anything out. `isAnswerWord` in `acts.js` shows the shape to copy.
 
