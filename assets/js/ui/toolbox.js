@@ -37,10 +37,10 @@ export function mountToolbox() {
   }
 
   const sections = DEPT_ORDER.filter(d => groups.has(d)).map(dept =>
-    h('section',
+    h('section', { dataset: { dept } },
       h('div.dept-head', h('h2', dept), h('span.line')),
       h('div.tool-grid', ...groups.get(dept).map(m =>
-        h('a.tool-card', { href: '#/tools/' + m.id },
+        h('a.tool-card', { href: '#/tools/' + m.id, dataset: { find: `${m.name} ${m.blurb} ${m.dept}`.toLowerCase() } },
           seen[m.id] ? null : h('span.t-new', { 'aria-label': 'New' }),
           h('span.t-ico', { 'aria-hidden': 'true' }, m.icon),
           h('span.t-name', m.name),
@@ -50,11 +50,46 @@ export function mountToolbox() {
     )
   );
 
+  /* Two dozen tools across five departments is more than anybody scans, and
+     the one you want is usually one you already know the name of. */
+  const nothing = h('p.small.dim.tool-none', { hidden: true });
+  const search = mods.length >= 8
+    ? h('input.input.tool-search', {
+        type: 'search', placeholder: 'Search tools', 'aria-label': 'Search tools', autocomplete: 'off',
+        /* Cards are hidden in place rather than re-rendered, so the box keeps
+           the focus and the caret it had. */
+        oninput: e => {
+          const needle = e.target.value.trim().toLowerCase();
+          let shown = 0;
+          for (const section of sections) {
+            let inSection = 0;
+            for (const card of section.querySelectorAll('.tool-card')) {
+              const hit = !needle || card.dataset.find.includes(needle);
+              card.hidden = !hit;
+              if (hit) inSection++;
+            }
+            section.hidden = inSection === 0;
+            shown += inSection;
+          }
+          nothing.textContent = shown ? '' : `No tool matches “${e.target.value.trim()}”.`;
+          nothing.hidden = Boolean(shown);
+        },
+        onkeydown: e => {
+          if (e.key !== 'Escape' || !e.target.value) return;
+          e.preventDefault();
+          e.target.value = '';
+          e.target.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      })
+    : null;
+
   mount(view, h('div.page.wide',
     h('div.page-head', h('div.grow',
       h('h1', 'Toolbox'),
       h('p', `${mods.length} tools. Small things we built while learning, kept because throwing them away felt worse.`)
     )),
+    search,
+    nothing,
     ...sections
   ));
 }
