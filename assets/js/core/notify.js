@@ -22,8 +22,12 @@ export function toast(title, body, { kind = '', ms = 4200 } = {}) {
 
 let openDialog = null;
 
-export function modal({ title, body, actions = [], dismissable = true, wide = false }) {
+export function modal({ title, body, actions = [], dismissable = true, wide = false, onDismiss = null }) {
   close();
+  /* Whatever had focus before the dialog opened gets it back when the dialog
+     goes away. Without this the focus ring lands on the body and a keyboard
+     player has to tab in from the top of the page again. */
+  const opener = document.activeElement;
   const card = h('div.modal', { role: 'dialog', 'aria-modal': 'true', 'aria-label': title || 'Dialog' });
   if (wide) card.style.maxWidth = '46rem';
   if (title) card.appendChild(h('h2', title));
@@ -33,7 +37,14 @@ export function modal({ title, body, actions = [], dismissable = true, wide = fa
     for (const a of actions) {
       bar.appendChild(h('button.btn' + (a.primary ? '.btn-primary' : a.danger ? '.btn-danger' : ''), {
         type: 'button',
-        onclick: () => { const keep = a.onClick && a.onClick(); if (!keep) close(); }
+        onclick: () => {
+          /* A button that answered the dialog has settled it, so closing must
+             not also fire the dismiss handler. */
+          if (openDialog) openDialog.settled = true;
+          const keep = a.onClick && a.onClick();
+          if (!keep) close();
+          else if (openDialog) openDialog.settled = false;
+        }
       }, a.label));
     }
     card.appendChild(bar);
@@ -47,7 +58,7 @@ export function modal({ title, body, actions = [], dismissable = true, wide = fa
     if (e.key === 'Tab') trap(e, card);
   };
   addEventListener('keydown', onKey);
-  openDialog = { back, onKey };
+  openDialog = { back, onKey, opener, onDismiss, settled: false };
   $('#modal-root').appendChild(back);
   (card.querySelector('button, input, textarea, a[href]') || card).focus?.();
   return { close, card };
@@ -63,10 +74,17 @@ function trap(e, root) {
 
 export function close() {
   if (!openDialog) return;
-  removeEventListener('keydown', openDialog.onKey);
-  openDialog.back.remove();
+  const { onKey, back, opener, onDismiss, settled } = openDialog;
   openDialog = null;
+  removeEventListener('keydown', onKey);
+  back.remove();
   clear($('#modal-root'));
+  /* Escape and a click on the backdrop are answers too. A caller waiting on
+     this dialog has to hear about them, or it waits forever. */
+  if (!settled && onDismiss) onDismiss();
+  if (opener && opener.isConnected && typeof opener.focus === 'function') {
+    opener.focus({ preventScroll: true });
+  }
 }
 
 export function confirmDialog(title, message, confirmLabel = 'Confirm') {
@@ -77,7 +95,8 @@ export function confirmDialog(title, message, confirmLabel = 'Confirm') {
       actions: [
         { label: 'Cancel', onClick: () => resolve(false) },
         { label: confirmLabel, danger: true, onClick: () => resolve(true) }
-      ]
+      ],
+      onDismiss: () => resolve(false)
     });
   });
 }
