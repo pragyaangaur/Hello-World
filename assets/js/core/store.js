@@ -27,11 +27,36 @@ function dropRaw(key) {
   try { localStorage.removeItem(key); } catch { /* ignore */ }
 }
 
+/* Merges a saved object over the defaults, one level down as well as at the
+   top. A flat spread looked right until a new setting was added: the saved
+   settings object replaced the default one whole, so everybody who had used
+   the app before that release got the new key as undefined and whatever
+   undefined happens to mean wherever it is read. Arrays and nulls are taken
+   from the saved copy as they are, because those are values rather than
+   groups of keys. */
+function fill(defaults, saved) {
+  const out = { ...defaults };
+  for (const [key, value] of Object.entries(saved)) {
+    const base = defaults[key];
+    /* A group of settings saved as null is a broken file rather than a
+       choice, so the defaults stand. */
+    if (value === null && base && typeof base === 'object') continue;
+    const nested = base && value
+      && typeof base === 'object' && typeof value === 'object'
+      && !Array.isArray(base) && !Array.isArray(value);
+    out[key] = nested ? fill(base, value) : value;
+  }
+  return out;
+}
+
 export function load(fallback = {}) {
   const raw = readRaw(KEY_MAIN);
   if (!raw) return structuredClone(fallback);
-  try { return { ...structuredClone(fallback), ...JSON.parse(raw) }; }
-  catch { return structuredClone(fallback); }
+  try {
+    const saved = JSON.parse(raw);
+    if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return structuredClone(fallback);
+    return fill(structuredClone(fallback), saved);
+  } catch { return structuredClone(fallback); }
 }
 
 export function save(obj) { writeRaw(KEY_MAIN, JSON.stringify(obj)); }
