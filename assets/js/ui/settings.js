@@ -1,5 +1,5 @@
 import { h, mount, $ } from '../core/dom.js';
-import { get, setting, factoryReset, applyDocumentAttributes, store, chapter } from '../core/state.js';
+import { get, set, setting, factoryReset, applyDocumentAttributes, store, chapter } from '../core/state.js';
 import { toast, confirmDialog, modal } from '../core/notify.js';
 import { setTitle } from './shell.js';
 import { registry } from '../modules/index.js';
@@ -69,6 +69,7 @@ export function mountSettings() {
           ),
           h('div.row', { style: { marginTop: '1rem' } },
             h('button.btn', { type: 'button', onclick: exportData }, 'Export data'),
+            h('button.btn', { type: 'button', onclick: importData }, 'Import data'),
             h('button.btn.btn-danger', { type: 'button', onclick: async () => {
               const ok = await confirmDialog('Reset Hello World?',
                 'This deletes your tasks, your notes, and your settings from this browser. It cannot be undone.',
@@ -98,6 +99,42 @@ function exportData() {
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
   toast('Exported', 'Your data was saved as a JSON file.');
+}
+
+/* The other half of Export. A file that leaves the app should be able to
+   come back into it, on this browser or another one, or the export button is
+   only ever a way to look at your own data in a text editor. */
+function importData() {
+  const picker = h('input', { type: 'file', accept: 'application/json,.json', style: { display: 'none' } });
+  picker.addEventListener('change', async () => {
+    const file = picker.files && picker.files[0];
+    picker.remove();
+    if (!file) return;
+    let incoming;
+    try {
+      incoming = JSON.parse(await file.text());
+    } catch {
+      toast('Could not read that file', 'It is not the JSON this app exports.');
+      return;
+    }
+    if (!incoming || typeof incoming !== 'object' || !Array.isArray(incoming.tasks)) {
+      toast('Could not read that file', 'There is no task list in it.');
+      return;
+    }
+    const n = incoming.tasks.length;
+    const ok = await confirmDialog('Replace everything in this browser?',
+      `That file holds ${n} ${n === 1 ? 'task' : 'tasks'}. Importing it replaces the tasks, notes and progress stored here. Export first if you want to keep them.`,
+      'Import');
+    if (!ok) return;
+    /* installedAt belongs to this browser rather than to the file, so a
+       borrowed export does not change when this copy says it was opened. */
+    set({ ...incoming, installedAt: get().installedAt });
+    applyDocumentAttributes();
+    location.hash = '#/tasks';
+    location.reload();
+  });
+  document.body.appendChild(picker);
+  picker.click();
 }
 
 export function mountAbout() {
