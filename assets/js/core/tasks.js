@@ -71,11 +71,34 @@ export function edit(id, text) {
 }
 
 export function remove(id) {
-  const task = get().tasks.find(t => t.id === id);
-  if (task && task.locked) return false;
+  const list = get().tasks;
+  const index = list.findIndex(t => t.id === id);
+  if (index < 0) return false;
+  const task = list[index];
+  if (task.locked) return false;
   update(s => { s.tasks = s.tasks.filter(t => t.id !== id); return s; });
-  emit('task:remove', task);
+  emit('task:remove', { ...task, index });
   return true;
+}
+
+/* Puts a deleted task back exactly as it was, in the place it was in. Undo
+   goes through here rather than through add, because add makes a new task
+   with a new id at one end of the list, which is not the same thing. */
+export function restore(task, index) {
+  if (!task || !task.id) return null;
+  if (get().tasks.some(t => t.id === task.id)) return null;
+  const copy = { ...task };
+  delete copy.index;
+  update(s => {
+    const at = Math.max(0, Math.min(Number.isInteger(index) ? index : s.tasks.length, s.tasks.length));
+    s.tasks = [...s.tasks.slice(0, at), copy, ...s.tasks.slice(at)];
+    return s;
+  });
+  /* Deliberately not task:add. The story engine treats a user task landing
+     on the list as the player saying something, and putting back a line they
+     already sent is not them saying it again. */
+  emit('task:restore', copy);
+  return copy;
 }
 
 export function clearDone() {

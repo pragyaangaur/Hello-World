@@ -186,7 +186,7 @@ export function initShell() {
   on('story:act', () => { renderNav(); renderAccount(); renderObjective(); renderBench(); });
   on('tool:first', () => renderObjective());
 
-  for (const signal of ['task:add', 'task:complete', 'task:reopen', 'task:remove', 'task:clearDone']) {
+  for (const signal of ['task:add', 'task:complete', 'task:reopen', 'task:remove', 'task:restore', 'task:clearDone']) {
     on(signal, () => { renderNav(); renderObjective(); });
   }
 }

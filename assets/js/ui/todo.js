@@ -30,7 +30,6 @@ function readingBar(text) {
 
 let filter = 'all';
 let editing = null;
-let lastRemoved = null;
 let waiting = false;
 let wiped = false;
 let receiving = 0;
@@ -93,20 +92,19 @@ function taskRow(t) {
   const del = h('button.icon-btn', {
     type: 'button', title: 'Delete task', 'aria-label': 'Delete task: ' + t.text,
     onclick: () => {
-      lastRemoved = { ...t };
+      /* The snapshot belongs to this button, not to the page. Sharing one
+         between every row meant deleting a second task and then undoing the
+         first toast put the wrong task back. */
+      const index = tasks.all().findIndex(x => x.id === t.id);
+      const snapshot = { ...t };
       if (tasks.remove(t.id)) {
+        let undone = false;
         render();
         toast('Task deleted', h('button.btn.btn-sm', { type: 'button', style: { marginTop: '.4rem' }, onclick: () => {
-          if (lastRemoved) {
-            tasks.add(lastRemoved.text, {
-              source: lastRemoved.source,
-              note: lastRemoved.note,
-              by: lastRemoved.by,
-              createdAt: lastRemoved.createdAt
-            });
-            lastRemoved = null;
-            render();
-          }
+          if (undone) return;
+          undone = true;
+          tasks.restore(snapshot, index);
+          render();
         } }, 'Undo'));
       }
     }
@@ -214,6 +212,7 @@ on('task:add', task => {
   render();
 });
 on('task:remove', () => render());
+on('task:restore', () => render());
 on('chapter', () => render());
 on('story:spoke', () => { waiting = false; render(); });
 
