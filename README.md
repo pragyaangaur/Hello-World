@@ -8,4 +8,4 @@
 
 ## Built by
 
-[Pragyaan Gaur](https://github.com/pragyaangaur), [Arkapravo Pal](https://github.com/arkapravopal04), and [Suvam Samanta](https://github.com/Syphonicc).
+[Pragyaan Gaur](https://github.com/pragyaangaur), [Arkapravo Pal](https://github.com/arkapravopal04), [Suvam Samanta](https://github.com/Syphonicc), and [Nishchay Singh](https://github.com/nishchay2306).
