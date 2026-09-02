@@ -3,7 +3,7 @@
    is how new sections appear without a reload. */
 
 import { h, mount, $ } from '../core/dom.js';
-import { get, chapter, hasFlag } from '../core/state.js';
+import { get, chapter, hasFlag, update } from '../core/state.js';
 import { counts } from '../core/tasks.js';
 import { byId } from '../modules/index.js';
 import { on } from '../core/bus.js';
@@ -29,6 +29,14 @@ const NAV = [
   ]}
 ];
 
+/* A section stops being new the moment the player opens it. */
+function markSeen(path) {
+  if (!path) return;
+  const top = '/' + path.split('/').filter(Boolean)[0];
+  if (get().seenPages[top]) return;
+  update(s => { s.seenPages = { ...s.seenPages, [top]: new Date().toISOString() }; return s; });
+}
+
 export function renderNav() {
   const nav = $('#nav');
   if (!nav) return;
@@ -43,7 +51,10 @@ export function renderNav() {
     for (const item of items) {
       const active = hash === item.path || hash.startsWith(item.path + '/');
       const n = item.counter ? item.counter() : null;
-      const fresh = get().seenTools[item.path] === undefined && item.min > 0 && ch >= item.min;
+      /* Sections arrive mid-game, so a new one gets a dot until it has been
+         opened once. This used to read the tool map with a route path as the
+         key, which never matched anything, so the dot never went away. */
+      const fresh = item.min > 0 && ch >= item.min && !get().seenPages[item.path];
       nodes.push(h('a', {
         href: '#' + item.path,
         'aria-current': active ? 'page' : null
@@ -173,7 +184,7 @@ export function initShell() {
   renderBench();
   setInterval(renderBench, 9000);
 
-  on('route', () => renderNav());
+  on('route', ctx => { markSeen(ctx && ctx.path); renderNav(); });
   on('chapter', ({ to }) => {
     renderNav();
     renderAccount();
