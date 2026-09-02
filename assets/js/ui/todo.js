@@ -29,6 +29,7 @@ function readingBar(text) {
 }
 
 let filter = 'all';
+let query = '';
 let editing = null;
 let waiting = false;
 let wiped = false;
@@ -119,7 +120,10 @@ function render(focusTaskId) {
   const view = $('#view');
   if (!view || view.dataset.page !== 'tasks') return;
   const c = tasks.counts();
-  const list = tasks.visible(filter).filter(t => (setting('showCompleted') ? true : !t.done));
+  const needle = query.trim().toLowerCase();
+  const list = tasks.visible(filter)
+    .filter(t => (setting('showCompleted') ? true : !t.done))
+    .filter(t => (needle ? t.text.toLowerCase().includes(needle) : true));
 
   const submit = () => {
     const input = form.querySelector('input');
@@ -137,6 +141,19 @@ function render(focusTaskId) {
     }),
     h('button.btn.btn-primary', { type: 'submit' }, 'Add')
   );
+
+  /* The list is three items when the app opens and past thirty by the last
+     act, most of it written by something else. A box that narrows it is worth
+     having by then and is only in the way before, so it appears once there is
+     enough on the list to lose something in. */
+  const search = c.total >= 8
+    ? h('input.input.task-search', {
+        type: 'search', value: query, placeholder: 'Search tasks', 'aria-label': 'Search tasks',
+        autocomplete: 'off',
+        oninput: e => { query = e.target.value; render(); },
+        onkeydown: e => { if (e.key === 'Escape' && query) { e.preventDefault(); query = ''; render(); } }
+      })
+    : null;
 
   const filters = h('div.filters',
     ...[['all', 'All', c.total], ['active', 'To do', c.active], ['done', 'Done', c.done]].map(([k, label, n]) =>
@@ -156,14 +173,21 @@ function render(focusTaskId) {
   const body = list.length
     ? h('ul.task-list' + (wiped ? '.wiped' : ''), { 'aria-label': 'Tasks' }, ...list.map(taskRow))
     : h('div.empty',
-        h('div.big', '✓'),
-        h('p', c.total === 0
-          ? 'Nothing here yet. Add your first task above.'
-          : filter === 'done' ? 'Nothing completed yet.' : 'All done for now.')
+        h('div.big', needle ? '⌕' : '✓'),
+        h('p', needle
+          ? `Nothing on the list matches “${query.trim()}”.`
+          : c.total === 0
+            ? 'Nothing here yet. Add your first task above.'
+            : filter === 'done' ? 'Nothing completed yet.' : 'All done for now.')
       );
 
-  const hadFormFocus = document.activeElement === view.querySelector('.task-form input');
-  const caret = hadFormFocus ? view.querySelector('.task-form input').value : null;
+  /* Typing in either box re-renders the whole page, so remember which one the
+     person was in and where their caret was. */
+  const active = document.activeElement;
+  const inForm = active === view.querySelector('.task-form input');
+  const inSearch = active === view.querySelector('.task-search');
+  const caret = inForm ? active.value : null;
+  const searchCaret = inSearch ? active.selectionStart : null;
 
   /* From the moment the player learns they can be read, the box says so. It
      is the only instruction the conversation ever needs. */
@@ -186,7 +210,7 @@ function render(focusTaskId) {
         h('h1', 'Tasks'),
         h('p', c.active === 0 && c.total > 0 ? 'Everything is ticked off.' : `${c.active} to do`)));
 
-  mount(view, h('div.page', head, form, line, filters, body));
+  mount(view, h('div.page', head, form, line, search, filters, body));
 
   /* Re-rendering the whole list is simple and fast enough, but it throws
      focus away, so put it back where the person left it. */
@@ -196,6 +220,13 @@ function render(focusTaskId) {
   } else if (caret !== null) {
     const input = view.querySelector('.task-form input');
     if (input) { input.value = caret; input.focus(); }
+  } else if (inSearch) {
+    const box = view.querySelector('.task-search');
+    if (box) {
+      box.focus();
+      const at = searchCaret === null ? box.value.length : searchCaret;
+      box.setSelectionRange(at, at);
+    }
   }
 }
 
