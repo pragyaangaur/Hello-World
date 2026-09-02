@@ -27,7 +27,6 @@ const DEFAULTS = {
 
 let state = store.load(DEFAULTS);
 if (!state.installedAt) state.installedAt = new Date().toISOString();
-if (!state.settings) state.settings = { ...DEFAULTS.settings };
 
 let queued = false;
 function persist() {
