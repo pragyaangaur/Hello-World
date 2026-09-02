@@ -12,6 +12,7 @@ const DEFAULTS = {
   chapter: 0,
   flags: {},
   seenTools: {},
+  seenPages: {},
   counters: { added: 0, completed: 0, toolsOpened: 0 },
   challenges: { blink: false, parse: false, branch: false },
   reads: {},
