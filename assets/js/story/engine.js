@@ -137,7 +137,11 @@ async function answer(text) {
   }
 
   busy = true;
-  let first = false;
+  /* Worked out before anything that can throw. This flag is what moves the
+     game from act one to act two, and deciding it halfway down a block that
+     might fail meant one bad reply could leave the player talking to a
+     machine that never opened the next act. */
+  const first = !hasFlag('talked');
   try {
     const wait = hasFlag('talked') ? 1600 + Math.random() * 1200 : 2400;
     await new Promise(r => setTimeout(r, wait));
@@ -158,7 +162,6 @@ async function answer(text) {
     const reply = replyTo(text, { chapter: chapter(), misses });
     if (!reply.understood) misses++;
 
-    first = !hasFlag('talked');
     if (first) await blackout();
 
     /* The reveal never lands on "parse failed". If the parser recognised what
@@ -173,9 +176,8 @@ async function answer(text) {
     speak('input received · handler error · retained');
   } finally {
     busy = false;
+    if (first) { setFlag('talked'); advance(2); }
   }
-
-  if (first) { setFlag('talked'); advance(2); }
 }
 
 /* ---- values reported by a tool ---- */
