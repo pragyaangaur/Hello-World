@@ -104,11 +104,14 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); width
 .task[data-source="auto"] { background: var(--accent-soft); }
 .task[data-source="auto"] .task-text { font-family: var(--font-mono); font-size: var(--step--1); }
 
-.task-search { width: 100%; margin-bottom: var(--sp-3); }
+.task-search, .tool-search { width: 100%; margin-bottom: var(--sp-3); }
+.tool-search { max-width: 22rem; }
+.tool-none { margin: 0 0 var(--sp-4); }
 /* Safari draws its own clear button on a search field, which sits on top of
    the one the browser already gives every text input on other platforms. */
-.task-search::-webkit-search-decoration,
-.task-search::-webkit-search-results-button { -webkit-appearance: none; }
+.task-search::-webkit-search-decoration, .tool-search::-webkit-search-decoration,
+.task-search::-webkit-search-results-button,
+.tool-search::-webkit-search-results-button { -webkit-appearance: none; }
 
 .filters { display: flex; gap: var(--sp-1); margin-bottom: var(--sp-3); flex-wrap: wrap; align-items: center; }
 .filter {
