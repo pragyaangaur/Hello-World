@@ -342,13 +342,20 @@ export function escalate(n) {
 
 function watchVisibility() {
   let awayAt = 0;
+  let titleBefore = null;
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       awayAt = Date.now();
-      if (chapter() >= 2 && !over) document.title = 'still here · Hello World';
+      if (chapter() >= 2 && !over && titleBefore === null) {
+        /* The old line stripped a prefix off whatever the title had become,
+           which put every player back on a tab called Hello World no matter
+           which page they had left open. Keep the real one and put it back. */
+        titleBefore = document.title;
+        document.title = 'still here · Hello World';
+      }
       return;
     }
-    document.title = document.title.replace('still here · ', '');
+    if (titleBefore !== null) { document.title = titleBefore; titleBefore = null; }
     if (Date.now() - awayAt > 45000 && chapter() >= 2) emit('story:returned', {});
   });
 }
