@@ -6,15 +6,16 @@ import { emit } from './bus.js';
 const DEFAULTS = {
   version: 1,
   installedAt: null,
-  account: 'guest',
   tasks: [],
   notes: '',
   chapter: 0,
+  /* How far down the list of things the machine writes unprompted the game
+     has got. It survives a reload, so the drip does not start over. */
+  laterIndex: 0,
   flags: {},
   seenTools: {},
   seenPages: {},
-  counters: { added: 0, completed: 0, toolsOpened: 0 },
-  challenges: { blink: false, parse: false, branch: false },
+  counters: { added: 0, completed: 0 },
   reads: {},
   ending: null,
   settings: {
