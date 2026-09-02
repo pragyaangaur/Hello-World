@@ -13,6 +13,7 @@ const HELP = `Commands
   ls [path]        list a directory
   cd <path>        change directory
   cat <file>       print a file
+  grep <text>      find that text anywhere in the archive
   tree             show everything at once
   pwd              print the working directory
   whoami           who this session belongs to
@@ -119,7 +120,11 @@ export function mountConsole() {
     const line = raw.trim();
     write(promptEl.textContent + ' ' + raw, 'echo');
     if (!line) return;
-    history.unshift(line);
+    /* Running the same command twice should not put two of it in the
+       history, because walking back up then takes two presses to get past
+       one line. */
+    if (history[0] !== line) history.unshift(line);
+    if (history.length > 100) history.length = 100;
     hIndex = -1;
 
     const [cmd, ...rest] = line.split(/\s+/);
@@ -152,6 +157,29 @@ export function mountConsole() {
       case 'cat': case 'less': case 'open': {
         if (!arg) { write('cat: which file?', 'err'); break; }
         if (!openFile(join(cwd, arg))) write(`cat: ${arg}: no such file`, 'err');
+        break;
+      }
+
+      /* The archive is nine files and the answer to the last two acts is
+         somewhere in them. Reading all nine to find the word ceiling is a
+         chore rather than a puzzle, so the shell can look for it. */
+      case 'grep': case 'find': case 'search': {
+        if (!arg) { write('grep: what are you looking for?', 'err'); break; }
+        const needle = arg.toLowerCase();
+        let hits = 0;
+        for (const path of Object.keys(FS)) {
+          const file = readFile(path);
+          if (!file) continue;
+          String(file.body).split('\n').forEach((text, i) => {
+            if (!text.toLowerCase().includes(needle)) return;
+            hits++;
+            write(`${path}:${i + 1}`, 'dir');
+            write('  ' + text.trim());
+          });
+        }
+        write('');
+        if (hits) write(`${hits} ${hits === 1 ? 'line' : 'lines'} in the archive.`);
+        else write(`Nothing in the archive says "${arg}".`, 'err');
         break;
       }
 
@@ -195,7 +223,7 @@ export function mountConsole() {
   });
 
   const quick = h('div.row.tight');
-  for (const cmd of ['help', 'tree', 'whoami', 'uptime', 'ps',
+  for (const cmd of ['help', 'tree', 'grep bay 3', 'whoami', 'uptime', 'ps',
                      'cat /opt/rig/maint.py', 'cat /opt/rig/maint.log',
                      'cat /lab4b/bench.conf', 'cat /lab4b/cell-datasheet.txt',
                      'cat /team/chat-export.txt', 'cat /team/handover.md', 'cat /team/tasks.json']) {
