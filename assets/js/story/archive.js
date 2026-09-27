@@ -2,7 +2,7 @@
    from the first moment the Console opens. Nothing is gated behind a puzzle,
    because the player has already earned it by getting this far. */
 
-import { ANCHORS, PEOPLE, RIG, human, isoDate, daysSince, bayTemp, NOW } from './cast.js';
+import { ANCHORS, RIG, human, isoDate, daysSince, bayTemp, NOW } from './cast.js';
 
 const D = ANCHORS;
 

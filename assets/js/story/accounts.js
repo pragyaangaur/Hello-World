@@ -3,7 +3,7 @@
    and it is the hook the whole story hangs on. */
 
 import { h } from '../core/dom.js';
-import { chapter, hasFlag, setFlag } from '../core/state.js';
+import { chapter, setFlag } from '../core/state.js';
 import { PEOPLE, human, daysSince, ANCHORS } from './cast.js';
 
 export function accountCard() {

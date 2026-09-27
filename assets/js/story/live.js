@@ -4,7 +4,7 @@
 
 import { h } from '../core/dom.js';
 import { chapter } from '../core/state.js';
-import { RIG, liveTemp } from './cast.js';
+import { liveTemp } from './cast.js';
 
 export function liveNote(binding, { reveal = null, value = null } = {}) {
   const ch = chapter();

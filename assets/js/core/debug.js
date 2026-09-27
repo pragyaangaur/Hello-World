@@ -2,7 +2,7 @@
    A normal visitor never sees it and never triggers it by accident. */
 
 import { h, mount } from './dom.js';
-import { get, setChapter, update, applyDocumentAttributes } from './state.js';
+import { get, update, applyDocumentAttributes } from './state.js';
 import { modal } from './notify.js';
 
 export function installDebug() {

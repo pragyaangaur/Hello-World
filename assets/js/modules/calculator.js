@@ -1,4 +1,4 @@
-import { h, mount, kv } from '../core/dom.js';
+import { h, mount } from '../core/dom.js';
 import { blip } from '../core/audio.js';
 import { emit } from '../core/bus.js';
 import { LEFT_TAPE, ghost } from '../story/residue.js';

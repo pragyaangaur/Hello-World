@@ -33,7 +33,6 @@ export default {
   mount(root) {
     let cat = 'Length';
     let from = 'Metre', to = 'Foot';
-    let value = 1;
 
     const inA = h('input.input.mono', { type: 'number', step: 'any', value: '1', 'aria-label': 'Value to convert' });
     const outA = h('input.input.mono', { type: 'text', readonly: true, 'aria-label': 'Converted value' });
@@ -55,7 +54,6 @@ export default {
     function convert() {
       const v = parseFloat(inA.value);
       if (!Number.isFinite(v)) { outA.value = ''; note.textContent = ''; return; }
-      value = v;
       let result;
       if (cat === 'Temperature') result = TEMP[to].from(TEMP[from].to(v));
       else result = v * SETS[cat].units[from] / SETS[cat].units[to];

@@ -1,4 +1,4 @@
-import { h, mount, field } from '../core/dom.js';
+import { h, mount } from '../core/dom.js';
 import { toast } from '../core/notify.js';
 import { emit } from '../core/bus.js';
 import { chapter } from '../core/state.js';
