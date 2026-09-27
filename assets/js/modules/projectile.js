@@ -1,4 +1,4 @@
-import { h, mount, field, fmt } from '../core/dom.js';
+import { h, mount, fmt } from '../core/dom.js';
 
 export default {
   id: 'projectile',

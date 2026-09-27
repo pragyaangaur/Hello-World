@@ -9,7 +9,7 @@
    two sentences. If a player reads nothing but the bold line at the bottom
    they can still finish the game. */
 
-import { RIG, ANCHORS, PEOPLE, daysSince } from './cast.js';
+import { ANCHORS, PEOPLE, daysSince } from './cast.js';
 import { VENT_C, CEILING_C } from './rig.js';
 
 /* Loose matching, so "50 mA" and "50" and "fifty" all land. A player who has

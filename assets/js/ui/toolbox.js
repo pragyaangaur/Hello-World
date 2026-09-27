@@ -1,7 +1,7 @@
 /* The Toolbox: a grid of every unlocked tool, and the frame each tool
    renders inside. Tools know nothing about routing or chapters. */
 
-import { h, mount, clear, $ } from '../core/dom.js';
+import { h, mount, $ } from '../core/dom.js';
 import { registry, byId, DEPT_ORDER } from '../modules/index.js';
 import { get, chapter, update } from '../core/state.js';
 import { emit } from '../core/bus.js';

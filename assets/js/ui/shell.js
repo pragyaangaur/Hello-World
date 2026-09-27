@@ -139,7 +139,6 @@ export function renderObjective() {
 export function renderAccount() {
   const chip = $('#account-chip');
   if (!chip) return;
-  const s = get();
   const ch = chapter();
   const named = ch >= 3 || hasFlag('accounts.seen');
   const name = named ? 'user_04' : 'Guest';

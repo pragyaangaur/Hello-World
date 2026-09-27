@@ -62,7 +62,6 @@ export default {
         keys.appendChild(k);
       });
       const total = whites.length;
-      let idx = 0;
       for (let oct = 0; oct < 2; oct++) {
         for (let wi = 0; wi < WHITE.length; wi++) {
           if (BLACK_AFTER[wi] !== undefined) {

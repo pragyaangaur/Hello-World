@@ -1,6 +1,6 @@
 import { h, mount, $ } from '../core/dom.js';
 import { get, set, setting, factoryReset, applyDocumentAttributes, store, chapter } from '../core/state.js';
-import { toast, confirmDialog, modal } from '../core/notify.js';
+import { toast, confirmDialog } from '../core/notify.js';
 import { setTitle } from './shell.js';
 import { registry } from '../modules/index.js';
 import { ANCHORS, human } from '../story/cast.js';
