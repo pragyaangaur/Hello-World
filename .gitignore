@@ -5,3 +5,6 @@ node_modules/
 .idea/
 Thumbs.db
 .claude/
+
+# Agent notes, kept local
+AGENTS.md
