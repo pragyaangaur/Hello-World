@@ -4,4 +4,4 @@
 
 <p>Add a task. Tick it off. That's it. Until the lore unlocks.</p>
 
-**[Open Hello World →](https://pragyaangaur.github.io/Hello-World/)**
+**[Open Hello World →](https://pragyaangaur.dev/Hello-World/)**
